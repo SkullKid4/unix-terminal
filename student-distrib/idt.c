@@ -1,6 +1,54 @@
 #include "idt.h"
+#include "x86_desc.h"
+#include "lib.h"
 
 #define NUM_EXCEPTIONS 32
+
+
+/* sam playing with function, maybe other one is fine */
+void idt_init()
+{
+	int i, j;
+	for(i = 0; i < NUM_VEC; i++) {
+		idt[i].present = 1;
+		idt[i].dpl = 0;
+		idt[i].reserved0 = 0;
+		idt[i].size = 1;
+		idt[i].reserved1 = 1;
+		idt[i].reserved2 = 1;
+		idt[i].reserved3 = 0;
+		idt[i].reserved4 = 0;
+		idt[i].seg_selector = KERNEL_CS;
+		SET_IDT_ENTRY(idt[i], test_interrupts);
+	}
+	for (i = 0; i < NUM_EXCEPTIONS; i++){
+		//change setting on exceptions
+	}
+
+	//change setting on system call;
+
+
+	//set individual idt entries
+	SET_IDT_ENTRY(idt[0x00], zero_exc);
+	SET_IDT_ENTRY(idt[0x20], keyboard_interrupt)
+
+	lidt(idt_desc_ptr);
+}
+
+
+// actually not needed given test interrupt
+void gen_interrupt(void)
+{
+	printf("Something happened. We will handle what later.");
+}
+
+
+void zero_exc(void) 
+{
+	printf("Division by zero");
+}
+
+/*start of what alex wrote*/
 void idt_init()
 {
 	int i;
