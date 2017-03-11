@@ -54,6 +54,8 @@ void idt_init()
 		SET_IDT_ENTRY(idt[i], exc_15_22_31);
 	}
 
+	
+
 	//change setting on system call;
 
 
