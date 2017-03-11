@@ -34,7 +34,8 @@ i8259_init()
  	 outb (ICW4, SLAVE_8259_PORT + 1); 
 
 	 //Restore the mask
-	 
+	 outb(master_mask, MASTER_8259_PORT + 1);
+ 	 outb(slave_mask, SLAVE_8259_PORT + 1);
 
 }
 
