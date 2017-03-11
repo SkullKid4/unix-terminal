@@ -61,7 +61,6 @@ void keyboard_handler(){
 		keycode = inb(KEYBOARD_DATA_PORT);
 		if(keycode < 0)
 			return;
-		printf("%i keycode",keycode);
 		putc((char)keyboard_map[keycode]);
 	}
 }

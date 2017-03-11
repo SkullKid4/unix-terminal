@@ -1,6 +1,7 @@
 #include "idt.h"
 #include "x86_desc.h"
 #include "lib.h"
+#include "keyboard.h"
 
 #define NUM_EXCEPTIONS 32
 
@@ -15,7 +16,7 @@
 /* sam playing with function, maybe other one is fine */
 void idt_init()
 {
-	int i, j;
+	int i;
 	for(i = 0; i < NUM_VEC; i++) {
 		idt[i].present = 1;
 		idt[i].dpl = 0;
@@ -26,7 +27,7 @@ void idt_init()
 		idt[i].reserved3 = 0;
 		idt[i].reserved4 = 0;
 		idt[i].seg_selector = KERNEL_CS;
-		SET_IDT_ENTRY(idt[i], test_interrupts);
+		SET_IDT_ENTRY(idt[i], (keyboard_handler));
 	}
 	SET_IDT_ENTRY(idt[0], exc_0);
 	SET_IDT_ENTRY(idt[1], exc_1);
@@ -54,7 +55,7 @@ void idt_init()
 		SET_IDT_ENTRY(idt[i], exc_15_22_31);
 	}
 
-	
+
 
 	//change setting on system call;
 

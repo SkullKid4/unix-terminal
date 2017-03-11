@@ -146,26 +146,28 @@ entry (unsigned long magic, unsigned long addr)
 		ltr(KERNEL_TSS);
 	}
 
+
+	/* Enable interrupts */
+	idt_init();
+
 	/* Init the PIC */
-	printf("About to i8295 init");
+
 
 	i8259_init();
 
 	/*Init the keyboard*/
-	printf("About to keyboard init");
+
 
 	keyboard_init();
 	enable_irq(KEYBOARD_IRQ);
 
 	/* Initialize devices, memory, filesystem, enable device interrupts on the
 	 * PIC, any other initialization stuff... */
-	printf("About to idt init");
-	/* Enable interrupts */
-	idt_init();
+	
 	/* Do not enable the following until after you have set up your
 	 * IDT correctly otherwise QEMU will triple fault and simple close
 	 * without showing you any output */
-	printf("Enabling Interrupts");
+
 	sti();
 
 	/* Execute the first program (`shell') ... */
