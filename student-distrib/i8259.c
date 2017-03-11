@@ -15,29 +15,26 @@ void
 i8259_init()
 {
 
-
-	
-	  #define PIC0_CTRL 0x20    // Master PIC control register address. 
- 	  #define PIC0_DATA 0x21   // Master PIC data register address.
-
  	 // Mask all interrupts
  	 master_mask = 0xff;
- 	 outb(MASTER_8259_PORT + 1, master_mask);
+ 	 outb(master_mask, MASTER_8259_PORT + 1);
  	 slave_mask = 0xff;
- 	 outb(SLAVE_8259_PORT + 1, slave_mask);
+ 	 outb(slave_mask, SLAVE_8259_PORT + 1);
 
  	 // Initialize master.
- 	 outb (MASTER_8259_PORT, ICW1); 
- 	 outb (MASTER_8259_PORT + 1, ICW2_MASTER); 
- 	 outb (MASTER_8259_PORT + 1, ICW3_MASTER);
- 	 outb (MASTER_8259_PORT + 1, ICW4); 
+ 	 outb (ICW1, MASTER_8259_PORT); 
+ 	 outb (ICW2_MASTER ,MASTER_8259_PORT + 1); 
+ 	 outb (ICW3_MASTER, MASTER_8259_PORT + 1);
+ 	 outb (ICW4, MASTER_8259_PORT + 1); 
 
  	 // Initialize Slave
- 	 outb (SLAVE_8259_PORT, ICW1);
- 	 outb (SLAVE_8259_PORT + 1, ICW2_SLAVE); 
- 	 outb (SLAVE_8259_PORT + 1, ICW3_SLAVE); 
- 	 outb (SLAVE_8259_PORT + 1, ICW4); 
+ 	 outb (ICW1, SLAVE_8259_PORT);
+ 	 outb (ICW2_SLAVE, SLAVE_8259_PORT + 1); 
+ 	 outb (ICW2_SLAVE, SLAVE_8259_PORT + 1); 
+ 	 outb (ICW4, SLAVE_8259_PORT + 1); 
 
+	 //Restore the mask
+	 
 
 }
 
@@ -47,14 +44,14 @@ enable_irq(uint32_t irq_num)
 {
 	if (irq_num < 8) {
 		master_mask &= ~(0x1 << irq_num);
-		outb(MASTER_8259_PORT + 1, master_mask);
+		outb(master_mask, MASTER_8259_PORT + 1);
 		//enable specified IRQ on master
 
 	}
 	else if (irq_num < 16) {
 		//enable (irq_num - 8) on slave
 		slave_mask &= ~(0x1 << (irq_num - 8));
-		outb(SLAVE_8259_PORT + 1, slave_mask);
+		outb(slave_mask,SLAVE_8259_PORT + 1);
 		enable_irq(2);
 
 	}
@@ -66,13 +63,13 @@ disable_irq(uint32_t irq_num)
 {
 	if (irq_num < 8) {
 		master_mask |= (0x1 << irq_num);
-		outb(MASTER_8259_PORT + 1, master_mask);
+		outb(master_mask, MASTER_8259_PORT + 1);
 		//disable specified IRQ on master
 	}
 	else if (irq_num < 16) {
 		//disable (irq_num - 8) on slave
 		slave_mask |= (0x1 << (irq_num - 8));
-		outb(SLAVE_8259_PORT + 1, slave_mask);
+		outb(slave_mask,SLAVE_8259_PORT + 1);
 		disable_irq(2);
 	}
 }
@@ -85,13 +82,13 @@ send_eoi(uint32_t irq_num)
 	uint8_t send_eoic;
 	if (irq_num < 8){
 		send_eoic = EOI | irq_num;
-		outb(MASTER_8259_PORT, send_eoic);
+		outb(send_eoic,MASTER_8259_PORT);
 	// output irq_num | EOI to the PIC
 	}
 	else if (irq_num < 16) {
 		//output (iqr_num - 8) | EOI to slave pic
 		send_eoic = EOI | (irq_num - 8);
-		outb(MASTER_8259_PORT, send_eoic);
+		outb(send_eoic, SLAVE_8259_PORT );
 		send_eoi(2);// also send this to master
 	}
 }
