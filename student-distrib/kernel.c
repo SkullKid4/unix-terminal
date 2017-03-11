@@ -7,6 +7,7 @@
 #include "lib.h"
 #include "i8259.h"
 #include "debug.h"
+#include "idt.h"
 
 /* Macros. */
 /* Check if the bit BIT in FLAGS is set. */
@@ -145,7 +146,7 @@ entry (unsigned long magic, unsigned long addr)
 	}
 
 	/* Init the PIC */
-	i8259_init();
+	//i8259_init();
 
 	/* Initialize devices, memory, filesystem, enable device interrupts on the
 	 * PIC, any other initialization stuff... */
