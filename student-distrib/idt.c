@@ -167,7 +167,20 @@ void exc_12()
 
 void exc_13()
 {	clear();
-	puts("General protection fault");
+	puts("General protection fault\n"
+		"\n"
+		"\n"
+		
+		"   R T D C       R T D C R T D C    R T D C        R T D C R    \n"
+		"   T      R             T           T      R       T            \n" 
+		"   D       T            D           D       T      D            \n" 
+		"   C      D             C           C        D     C            \n" 
+		"   R T D C              R           R        C     R            \n" 
+		"   T      R             T           T        R     T            \n" 
+		"   D       T            D           D       T      D            \n" 
+	 	"   C        C           C           C R T D        C D T R C    \n"
+
+);
 	while(1);
 }
 
