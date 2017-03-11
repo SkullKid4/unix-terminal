@@ -59,9 +59,12 @@ void keyboard_handler(){
   /* Lowest bit of status will be set if buffer is not empty */
   if (status & 0x01) {
     keycode = inb(KEYBOARD_DATA_PORT);
-    if(keycode < 0)
+    if(keycode < 0 || keycode > 0x7F){
+      sti();
       return;
+    }
     putc((char)keyboard_map[keycode]);
+    // puts("one char printed");
   }
   sti();
 }
