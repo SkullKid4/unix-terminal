@@ -51,16 +51,17 @@ void keyboard_init(){
 void keyboard_handler(){
 	unsigned char status;
 	int keycode;
-
+  cli();
 	/* write EOI */
 	send_eoi(KEYBOARD_IRQ);
 
-	status = inb(KEYBOARD_STATUS_PORT);
-	/* Lowest bit of status will be set if buffer is not empty */
-	if (status & 0x01) {
-		keycode = inb(KEYBOARD_DATA_PORT);
-		if(keycode < 0)
-			return;
-		putc((char)keyboard_map[keycode]);
-	}
+  status = inb(KEYBOARD_STATUS_PORT);
+  /* Lowest bit of status will be set if buffer is not empty */
+  if (status & 0x01) {
+    keycode = inb(KEYBOARD_DATA_PORT);
+    if(keycode < 0)
+      return;
+    putc((char)keyboard_map[keycode]);
+  }
+  sti();
 }

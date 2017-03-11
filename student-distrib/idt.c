@@ -59,11 +59,6 @@ void idt_init()
 
 	//change setting on system call;
 
-
-	//set individual idt entries
-	//SET_IDT_ENTRY(idt[0x00], zero_exc);
-	//SET_IDT_ENTRY(idt[0x20], keyboard_interrupt);
-
 	//lidt(idt_desc_ptr);
 	puts("Finished enabling interrupts");
 }
