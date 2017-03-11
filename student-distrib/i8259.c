@@ -22,16 +22,16 @@ i8259_init()
  	 outb(slave_mask, SLAVE_8259_PORT + 1);
 
  	 // Initialize master.
- 	 outb (ICW1, MASTER_8259_PORT); 
- 	 outb (ICW2_MASTER ,MASTER_8259_PORT + 1); 
+ 	 outb (ICW1, MASTER_8259_PORT);
+ 	 outb (ICW2_MASTER ,MASTER_8259_PORT + 1);
  	 outb (ICW3_MASTER, MASTER_8259_PORT + 1);
- 	 outb (ICW4, MASTER_8259_PORT + 1); 
+ 	 outb (ICW4, MASTER_8259_PORT + 1);
 
  	 // Initialize Slave
  	 outb (ICW1, SLAVE_8259_PORT);
- 	 outb (ICW2_SLAVE, SLAVE_8259_PORT + 1); 
- 	 outb (ICW2_SLAVE, SLAVE_8259_PORT + 1); 
- 	 outb (ICW4, SLAVE_8259_PORT + 1); 
+ 	 outb (ICW2_SLAVE, SLAVE_8259_PORT + 1);
+ 	 outb (ICW3_SLAVE, SLAVE_8259_PORT + 1); 
+ 	 outb (ICW4, SLAVE_8259_PORT + 1);
 
 	 //Restore the mask
 	 outb(master_mask, MASTER_8259_PORT + 1);
@@ -93,4 +93,3 @@ send_eoi(uint32_t irq_num)
 		send_eoi(2);// also send this to master
 	}
 }
-
