@@ -3,6 +3,7 @@
 
 
 extern void idt_init();
+extern void gen_interrupt();
 extern void exc_0();
 extern void exc_1();
 extern void exc_2();

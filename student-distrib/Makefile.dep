@@ -6,3 +6,4 @@ kernel.o: kernel.c multiboot.h types.h x86_desc.h lib.h i8259.h debug.h \
   idt.h keyboard.h
 keyboard.o: keyboard.c keyboard.h x86_desc.h types.h lib.h idt.h i8259.h
 lib.o: lib.c lib.h types.h
+syscall.o: syscall.c
