@@ -27,7 +27,7 @@ void idt_init()
 		idt[i].reserved3 = 0;
 		idt[i].reserved4 = 0;
 		idt[i].seg_selector = KERNEL_CS;
-		SET_IDT_ENTRY(idt[i], gen_interrupt);
+		SET_IDT_ENTRY(idt[i], rtc_handler);
 	}
 	SET_IDT_ENTRY(idt[0], exc_0);
 	SET_IDT_ENTRY(idt[1], exc_1);
