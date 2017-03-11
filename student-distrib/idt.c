@@ -2,6 +2,8 @@
 #include "x86_desc.h"
 #include "lib.h"
 #include "keyboard.h"
+#include "rtc.h"
+#include "syscall.h"
 
 #define NUM_EXCEPTIONS 32
 
@@ -27,7 +29,7 @@ void idt_init()
 		idt[i].reserved3 = 0;
 		idt[i].reserved4 = 0;
 		idt[i].seg_selector = KERNEL_CS;
-		SET_IDT_ENTRY(idt[i], rtc_handler);
+		SET_IDT_ENTRY(idt[i], gen_interrupt);
 	}
 	SET_IDT_ENTRY(idt[0], exc_0);
 	SET_IDT_ENTRY(idt[1], exc_1);
@@ -57,7 +59,8 @@ void idt_init()
 
 
 
-	//change setting on system call;
+	//change setting on system call
+	SET_IDT_ENTRY(idt[0x80], system_call_handler);
 
 	//lidt(idt_desc_ptr);
 	puts("Finished enabling interrupts");
@@ -72,228 +75,147 @@ void idt_init()
 // actually not needed given test interrupt
 void gen_interrupt(void)
 {
+	//cli();
+	clear();
 	printf("Something happened. We will handle what later.");
+	while(1);
+	//sti();
 }
 
 
 void exc_0() 
 {
+	clear();
 	puts("Division by zero");
+	while(1);
 }
 
 void exc_1()
-{
+{	
+	clear();
 	puts("Debugger");
+	while(1);
 }
 
 void exc_2()
-{
+{	
+	clear();
 	puts("NMI");
+	while(1);
 }
 
 void exc_3()
 {
+	clear();
 	puts("Breakpoint");
+	while(1);
 }
 
 void exc_4()
-{
+{	clear();
 	puts("Overflow");
+	while(1);
 }
 
 void exc_5()
-{
+{	clear();
 	puts("Bounds");
+	while(1);
 }
 
 void exc_6()
-{
+{	clear();
 	puts("Invalid Opcode");
+	while(1);
 }
 
 void exc_7()
-{
+{	clear();
 	puts("Coprocessor not available");
+	while(1);
 }
 
 void exc_8()
-{
+{	clear();
 	puts("Double fault");
+	while(1);
 }
 
 void exc_9()
-{
+{	clear();
 	puts("Coprocessor Segment Overrun");
+	while(1);
 }
 
 void exc_10()
-{
+{	clear();
 	puts("Invalid Task State Segment");
+	while(1);
 }
 
 void exc_11()
-{
+{	clear();
 	puts("Segment not present");
+	while(1);
 }
 
 void exc_12()
-{
+{	clear();
 	puts("Stack Fault");
+	while(1);
 }
 
 void exc_13()
-{
+{	clear();
 	puts("General protection fault");
+	while(1);
 }
 
 void exc_14()
-{
+{	clear();
 	puts("Page fault");
+	while(1);
 }
 
 void exc_15_22_31()	//this one corresponds to 15 and 22-31
-{
+{	clear();
 	puts("Reserved by Intel: do not use");
+	while(1);
 }
 
 void exc_16()
-{
+{	clear();
 	puts("Math Fault");
+	while(1);
 }
 
 void exc_17()
-{
+{	clear();
 	puts("Alignment Check");
+	while(1);
 }
 
 void exc_18()
-{
+{	clear();
 	puts("Machine Check");
+	while(1);
 }
 
 void exc_19()
-{
+{	clear();
 	puts("SIMD Floating-Point Exception");
+	while(1);
 }
 
 void exc_20()
-{
+{	clear();
 	puts("Virtualization Exception");
+	while(1);
 }
 
 void exc_21()
-{
+{	clear();
 	puts("Control Protection Exception");
+	while(1);
 }
 
-/*start of what alex wrote*/
-/*void idt_init()
-{
-	int i;
-	for(i = 0; i < NUM_EXCEPTIONS; i++) {
-		SET_IDT_ENTRY(idt[i], handle_exception(i));
-	}
-}
-
-void handle_exception(int n)
-{
-	switch(n) {
-		case 0:
-			puts("Division by zero");
-
-		case 1:
-			puts("Debugger");
-
-		case 2:
-			puts("NMI");
-
-		case 3:
-			puts("Breakpoint");
-
-		case 4:
-			puts("Overflow");
-
-		case 5:
-			puts("Bounds");
-
-		case 6:
-			puts("Invalid Opcode");
-
-		case 7:
-			puts("Coprocessor not availabe");
-
-		case 8:
-			puts("Double fault");
-
-		case 9:
-			puts("Coprocessor Segment Overrun");
-				
-		case 10:
-			puts("Invalid Task State Segment");
-
-		case 11:
-			puts("Segment not present");
-
-		case 12:
-			puts("Stack Fault");
-
-		case 13:
-			puts("General protection fault");
-
-		case 14:
-			puts("Page fault");
-
-		case 15:
-			puts("reserved: do not use");
-
-		case 16:
-			puts("Math Fault");
-
-		case 17:
-			puts("Alignment Check");
-
-		case 18:
-			puts("Machine Check");
-
-		case 19:
-			puts("SIMD Floating-Point Exception");
-
-		case 20:
-			puts("Virtualization Exception");
-
-		case 21:
-			puts("Control Protection Exception");
-
-		case 22:
-			puts("reserved: do not use");
-
-		case 23:
-			puts("reserved: do not use");
-
-		case 24:
-			puts("reserved: do not use");
-
-		case 25:
-			puts("reserved: do not use");
-
-		case 26:
-			puts("reserved: do not use");
-
-		case 27:
-			puts("reserved: do not use");
-
-		case 28:
-			puts("reserved: do not use");
-
-		case 29:
-			puts("reserved: do not use");
-
-		case 30:
-			puts("reserved: do not use");
-
-		case 31:
-			puts("reserved: do not use");
-
-
-	}
-}*/
