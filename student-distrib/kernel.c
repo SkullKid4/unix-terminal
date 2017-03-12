@@ -162,8 +162,8 @@ entry (unsigned long magic, unsigned long addr)
 	keyboard_init();
 	enable_irq(KEYBOARD_IRQ);
 
-	rtc_init();
-	enable_irq(RTC_IRQ);
+	//rtc_init();
+	//enable_irq(RTC_IRQ);
 
 	/* Initialize devices, memory, filesystem, enable device interrupts on the
 	 * PIC, any other initialization stuff... */
