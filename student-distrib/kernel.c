@@ -169,12 +169,14 @@ entry (unsigned long magic, unsigned long addr)
 	/* Initialize devices, memory, filesystem, enable device interrupts on the
 	 * PIC, any other initialization stuff... */
 	init_paging();
-	
 	/* Do not enable the following until after you have set up your
 	 * IDT correctly otherwise QEMU will triple fault and simple close
 	 * without showing you any output */
 
 	sti();
+	//int *x = NULL;
+	//int f = *x;
+	//printf("value of f: %d ", f);
 
 	/* Execute the first program (`shell') ... */
 

@@ -6,9 +6,10 @@
 #define NUM_PAGE_DIRECTORIES 1024
 #define NUM_PAGE_TABLES 1024
 #define FOUR_KB	4096
+#define ONE_KB 1024
 
 
-void init_paging(void);
+int init_paging(void);
 
 void enable_Paging(uint32_t page_directory1);
 

@@ -31,23 +31,47 @@ void enable_Paging(uint32_t page_directory1){
 		);
 }
 
-void init_paging(void) {
+
+/* init_paging
+	initializes the page directory and page table for memory from 0-8MB;
+	sets 4-8MB to be the kernel, and enables video memory inside 0-4MB
+*/
+int init_paging(void) {
 	int i;
 	int video_page_table_offset;
-	page_directory[0] = 0x01;
-	page_directory[1] = 0x81; //kernel space
+	page_directory[0] = 0x03; // read/write and present
+	page_directory[1] = 0x87; //kernel space; enable 4mb mode, supervisor mode, read/write, and present
 	for (i = 2; i < NUM_PAGE_DIRECTORIES; i++) {
-		page_directory[i] = 0x00;
+		page_directory[i] = 0x02; //initialize all other page directories to set read/write and
+								  // not present
 	}
 	for (i = 0; i < NUM_PAGE_TABLES; i++) {
-		page_table[i] = (i * 0x1000) | 0;
+		page_table[i] = ((i * FOUR_KB))| 2; //initialize the page table for the first directory
+											// enable read/write & set everything to not present.
 	}
-	video_page_table_offset = (VIDEO / FOUR_KB) - 1;
+	// Find what entry in the page table corresponds to video memory.
+	video_page_table_offset = (VIDEO / FOUR_KB); 
 	page_table[video_page_table_offset] |= 1;
+
 
 	page_directory[0] |= ((unsigned int)page_table);
 
-	page_directory[1] |= (FOUR_KB * 1024) << 12;
-	enable_Paging((uint32_t)page_directory);
+
+	page_directory[1] |= (FOUR_KB * ONE_KB);
+
+	asm (
+	"movl $page_directory, %%eax  	  ;"
+	"movl %%eax, %%cr3                ;"
+	"movl %%cr4, %%eax                ;"
+	"orl $0x00000010, %%eax           ;"
+	"movl %%eax, %%cr4                ;"
+	"movl %%cr0, %%eax                ;"
+	"orl $0x80000000, %%eax 	      ;"
+	"movl %%eax, %%cr0                 "
+	: : : "eax", "cc" );
+
+	//enable_Paging((uint32_t)page_directory);
+
+	return 0;
 
 }

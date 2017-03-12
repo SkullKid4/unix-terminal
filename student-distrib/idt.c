@@ -15,7 +15,7 @@
 
 
 
-/* sam playing with function, maybe other one is fine */
+/* 
 void idt_init()
 {
 	int i;
@@ -72,17 +72,15 @@ void idt_init()
 }*/
 
 
-// actually not needed given test interrupt
+// Generic Interrupt. If a not defined interrupt is called, this outputs.
 void gen_interrupt(void)
 {
-	//cli();
 	clear();
 	printf("Something happened. We will handle what later.");
 	while(1);
-	//sti();
 }
 
-
+// Division by zero exception. prints error and spins
 void exc_0() 
 {
 	clear();
@@ -90,6 +88,7 @@ void exc_0()
 	while(1);
 }
 
+// Debugging Exception. prints error and spins
 void exc_1()
 {	
 	clear();
@@ -97,6 +96,7 @@ void exc_1()
 	while(1);
 }
 
+// NMI Exception. prints error and spins
 void exc_2()
 {	
 	clear();
@@ -104,6 +104,8 @@ void exc_2()
 	while(1);
 }
 
+
+// Breakpoint Exception. prints error and spins
 void exc_3()
 {
 	clear();
@@ -111,60 +113,71 @@ void exc_3()
 	while(1);
 }
 
+// Overflow Exception. prints error and spins
 void exc_4()
 {	clear();
 	puts("Overflow");
 	while(1);
 }
 
+// Bounds Exception. prints error and spins
 void exc_5()
 {	clear();
 	puts("Bounds");
 	while(1);
 }
 
+// Invalid Opcode Exception. prints error and spins
 void exc_6()
 {	clear();
 	puts("Invalid Opcode");
 	while(1);
 }
 
+
+// Coprocessor not available exception. prints error and spins
 void exc_7()
 {	clear();
 	puts("Coprocessor not available");
 	while(1);
 }
 
+// Double Fault Exception. prints error and spins
 void exc_8()
 {	clear();
 	puts("Double fault");
 	while(1);
 }
 
+// Coprocessor Segment Overrun Exception. prints error and spins
 void exc_9()
 {	clear();
 	puts("Coprocessor Segment Overrun");
 	while(1);
 }
 
+// Invalid Task State Segment Exception. prints error and spins
 void exc_10()
 {	clear();
 	puts("Invalid Task State Segment");
 	while(1);
 }
 
+// Segment not Present Exception. prints error and spins
 void exc_11()
 {	clear();
 	puts("Segment not present");
 	while(1);
 }
 
+// Stack Fault Exception. prints error and spins
 void exc_12()
 {	clear();
 	puts("Stack Fault");
 	while(1);
 }
 
+//General Protection Fault Exception. prints error and spins
 void exc_13()
 {	clear();
 	puts("General protection fault\n"
@@ -184,48 +197,55 @@ void exc_13()
 	while(1);
 }
 
+// Page Fault Exception. prints error and spins
 void exc_14()
 {	clear();
 	puts("Page fault");
 	while(1);
 }
 
+// Reserved Exception. prints error and spins
 void exc_15_22_31()	//this one corresponds to 15 and 22-31
 {	clear();
 	puts("Reserved by Intel: do not use");
 	while(1);
 }
 
+// Math Fault Exception
 void exc_16()
 {	clear();
 	puts("Math Fault");
 	while(1);
 }
 
+// Alignment Check Exception; prints error and spins
 void exc_17()
 {	clear();
 	puts("Alignment Check");
 	while(1);
 }
 
+// Machine Check Exception. prints error and spins
 void exc_18()
 {	clear();
 	puts("Machine Check");
 	while(1);
 }
 
+// SIMD Floating-Point Exception. prints error and spins
 void exc_19()
 {	clear();
 	puts("SIMD Floating-Point Exception");
 	while(1);
 }
-
+// Virtualization Exception. prints error and spins
 void exc_20()
 {	clear();
 	puts("Virtualization Exception");
 	while(1);
 }
 
+// Control Protection Exception. prints error and spins
 void exc_21()
 {	clear();
 	puts("Control Protection Exception");
