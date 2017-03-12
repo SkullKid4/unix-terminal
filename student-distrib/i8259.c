@@ -5,6 +5,10 @@
 #include "i8259.h"
 #include "lib.h"
 
+#define INTS_PER_PIC 8
+#define INT_MAX 16
+#define SLAVE_IDX 2
+
 /* Interrupt masks to determine which interrupts
  * are enabled and disabled */
 uint8_t master_mask; /* IRQs 0-7 */
@@ -17,7 +21,7 @@ i8259_init()
 
  	 // Mask all interrupts
  	 master_mask = 0xff;
- 	 outb(master_mask, MASTER_8259_PORT + 1);
+ 	 outb(master_mask, MASTER_8259_PORT + 1);	//+1s for data port
  	 slave_mask = 0xff;
  	 outb(slave_mask, SLAVE_8259_PORT + 1);
 
@@ -43,17 +47,17 @@ i8259_init()
 void
 enable_irq(uint32_t irq_num)
 {
-	if (irq_num < 8) {
+	if (irq_num < INTS_PER_PIC) {
 		master_mask &= ~(0x1 << irq_num);
 		outb(master_mask, MASTER_8259_PORT + 1);
 		//enable specified IRQ on master
 
 	}
-	else if (irq_num < 16) {
+	else if (irq_num < INT_MAX) {
 		//enable (irq_num - 8) on slave
-		slave_mask &= ~(0x1 << (irq_num - 8));
+		slave_mask &= ~(0x1 << (irq_num - INTS_PER_PIC));
 		outb(slave_mask,SLAVE_8259_PORT + 1);
-		enable_irq(2);
+		enable_irq(SLAVE_IDX);
 
 	}
 }
@@ -62,16 +66,16 @@ enable_irq(uint32_t irq_num)
 void
 disable_irq(uint32_t irq_num)
 {
-	if (irq_num < 8) {
+	if (irq_num < INTS_PER_PIC) {
 		master_mask |= (0x1 << irq_num);
 		outb(master_mask, MASTER_8259_PORT + 1);
 		//disable specified IRQ on master
 	}
-	else if (irq_num < 16) {
+	else if (irq_num < INT_MAX) {
 		//disable (irq_num - 8) on slave
-		slave_mask |= (0x1 << (irq_num - 8));
+		slave_mask |= (0x1 << (irq_num - INTS_PER_PIC));
 		outb(slave_mask,SLAVE_8259_PORT + 1);
-		disable_irq(2);
+		disable_irq(SLAVE_IDX);
 	}
 }
 
@@ -81,15 +85,15 @@ void
 send_eoi(uint32_t irq_num)
 {
 	uint8_t send_eoic;
-	if (irq_num < 8){
+	if (irq_num < INTS_PER_PIC){
 		send_eoic = EOI | irq_num;
 		outb(send_eoic,MASTER_8259_PORT);
 	// output irq_num | EOI to the PIC
 	}
-	else if (irq_num < 16) {
+	else if (irq_num < INT_MAX) {
 		//output (iqr_num - 8) | EOI to slave pic
-		send_eoic = EOI | (irq_num - 8);
+		send_eoic = EOI | (irq_num - INTS_PER_PIC);
 		outb(send_eoic, SLAVE_8259_PORT );
-		send_eoi(2);// also send this to master
+		send_eoi(SLAVE_IDX);// also send this to master
 	}
 }

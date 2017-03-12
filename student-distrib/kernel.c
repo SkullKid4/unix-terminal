@@ -177,6 +177,8 @@ entry (unsigned long magic, unsigned long addr)
 	//int *x = NULL;
 	//int f = *x;
 	//printf("value of f: %d ", f);
+	int x;
+	x = 5/0;
 
 	/* Execute the first program (`shell') ... */
 

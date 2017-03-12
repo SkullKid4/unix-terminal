@@ -15,7 +15,7 @@
 
 
 
-/* 
+
 void idt_init()
 {
 	int i;
