@@ -4,6 +4,8 @@
 #include "idt.h"
 #include "i8259.h"
 
+volatile unsigned lock = 0;
+
 unsigned char keyboard_map[128] =
 {
     0,  27, '1', '2', '3', '4', '5', '6', '7', '8',	/* 9 */
@@ -51,20 +53,26 @@ void keyboard_init(){
 void keyboard_handler(){
 	unsigned char status;
 	int keycode;
-  cli();
+  if(lock == 0){
+    lock = 1;
+    cli();
 	/* write EOI */
-	send_eoi(KEYBOARD_IRQ);
+	  send_eoi(KEYBOARD_IRQ);
 
-  status = inb(KEYBOARD_STATUS_PORT);
+    status = inb(KEYBOARD_STATUS_PORT);
   /* Lowest bit of status will be set if buffer is not empty */
-  if (status & 0x01) {
-    keycode = inb(KEYBOARD_DATA_PORT);
-    if(keycode < 0 || keycode > 0x7F){
-      sti();
-      return;
+  
+    if (status & 0x01) {
+      keycode = inb(KEYBOARD_DATA_PORT);
+      if(keycode < 0 || keycode > 0x7F){
+        lock = 0;
+        sti();
+        return;
+      }
+      putc((char)keyboard_map[keycode]);
+      // puts("one char printed");
     }
-    putc((char)keyboard_map[keycode]);
-    // puts("one char printed");
+    sti();
+    lock = 0;
   }
-  sti();
 }
