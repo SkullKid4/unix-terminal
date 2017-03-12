@@ -7,6 +7,7 @@
 #define RTC_DATA_PORT	0x71
 #define RTC_IDT_IDX		0x28
 
+/*Initialize RTC interrupts*/
 void rtc_handler();
 void rtc_init();
 

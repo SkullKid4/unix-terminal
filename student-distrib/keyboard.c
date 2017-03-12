@@ -51,21 +51,21 @@ unsigned char keyboard_map[128] =
 };
 
 /*
-keyboard_init
-  DESCRIPTION: sets the 0-15, 16-31 bits to point to the keyboard handler we defined
+void keyboard_init()
   INPUT: none
-  OUTPUT: none
+  Return Value: none
+  Function: sets the 0-15, 16-31 bits to point to the keyboard handler we defined
 */
 void keyboard_init(){
 	SET_IDT_ENTRY(idt[KEYBOARD_IDT_IDX], (keyboard_handler));
 }
 
 /*
-keyboard_handler
-  DESCRIPTION: When a putton press or release occurs this function is called and the response is
-               handled appropriatly
+void keyboard_handler()
   INPUT: none
-  OUTPUT: none 
+  Return Value: none 
+  Function: When a putton press or release occurs this function is called and the response is
+               handled appropriatly
 */
 void keyboard_handler(){
 	unsigned char status;    //used to check keyboard status

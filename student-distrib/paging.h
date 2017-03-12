@@ -8,9 +8,8 @@
 #define FOUR_KB	4096
 #define ONE_KB 1024
 
+/*Initialize paging*/
+int paging_init(void);
 
-int init_paging(void);
-
-void enable_Paging(uint32_t page_directory1);
 
 #endif

@@ -14,7 +14,12 @@
 uint8_t master_mask; /* IRQs 0-7 */
 uint8_t slave_mask; /* IRQs 8-15 */
 
-/* Initialize the 8259 PIC */
+/*
+void paging_init()
+  INPUT: none
+  Return Value: none
+  Function: Adapt Linux code to initialize 8259 PIC
+*/
 void
 i8259_init()
 {
@@ -43,7 +48,12 @@ i8259_init()
 
 }
 
-/* Enable (unmask) the specified IRQ */
+/*
+void enable_irq()
+  INPUT: none
+  Return Value: none
+  Function: Enable (unmask) the specified IRQ
+*/
 void
 enable_irq(uint32_t irq_num)
 {
@@ -63,6 +73,12 @@ enable_irq(uint32_t irq_num)
 }
 
 /* Disable (mask) the specified IRQ */
+/*
+void enable_irq()
+  INPUT: irq_num -- Interrupt Request Number
+  Return Value: none
+  Function: Disable (mask) the specified IRQ
+*/
 void
 disable_irq(uint32_t irq_num)
 {
@@ -81,6 +97,12 @@ disable_irq(uint32_t irq_num)
 
 
 /* Send end-of-interrupt signal for the specified IRQ */
+/*
+void send_eoi()
+  INPUT: iqr_num -- Interrupt Request Number
+  Return Value: none
+  Function: Send end-of-interrupt signal for the specified IRQ
+*/
 void
 send_eoi(uint32_t irq_num)
 {

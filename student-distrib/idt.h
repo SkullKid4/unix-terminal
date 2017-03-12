@@ -1,9 +1,11 @@
 #ifndef IDT_H
 #define IDT_H
 
-
+/*IDT initialization functions*/
 extern void idt_init();
+/*General interrupts handlers*/
 extern void gen_interrupt();
+/*Exception functions handlers*/
 extern void exc_0();
 extern void exc_1();
 extern void exc_2();

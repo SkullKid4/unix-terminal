@@ -15,7 +15,13 @@
 
 
 
-
+/*
+void idt_init()
+  INPUT: none
+  Return Value: none
+  Function: initializes the IDT. Set IDT with interrupts, exceptions and system calls
+*/
+									
 void idt_init()
 {
 	int i;
@@ -62,17 +68,17 @@ void idt_init()
 	//change setting on system call
 	SET_IDT_ENTRY(idt[0x80], system_call_handler);
 
-	//lidt(idt_desc_ptr);
 	puts("Finished enabling interrupts");
 }
 
-/*void handle_exception(int exc)
-{
-	printf(*exception_print);
-}*/
-
-
+/*All the functiosns below handle exceptions by clearning the screen and output the exception words*/
 // Generic Interrupt. If a not defined interrupt is called, this outputs.
+/*
+void gen_interrupt()
+  INPUT: none
+  Return Value: none
+  Function: Any interrupts don't specify below will be handled later.
+*/
 void gen_interrupt(void)
 {
 	clear();
@@ -80,7 +86,12 @@ void gen_interrupt(void)
 	while(1);
 }
 
-// Division by zero exception. prints error and spins
+/*
+void exc_0()
+  Input: none
+  Return Value: none
+  Function: Division by zero exception. prints error and spins
+*/
 void exc_0() 
 {
 	clear();
@@ -89,6 +100,12 @@ void exc_0()
 }
 
 // Debugging Exception. prints error and spins
+/*
+void exc_1()
+  Input: none
+  Return Value: none
+  Function: Division by zero exception. prints error and spins
+*/
 void exc_1()
 {	
 	clear();
@@ -96,7 +113,13 @@ void exc_1()
 	while(1);
 }
 
-// NMI Exception. prints error and spins
+
+/*
+void exc_2()
+  Input: none
+  Return Value: none
+  Function: NMI Exception. prints error and spins
+*/
 void exc_2()
 {	
 	clear();
@@ -105,7 +128,13 @@ void exc_2()
 }
 
 
-// Breakpoint Exception. prints error and spins
+// 
+/*
+void exc_3()
+  Input: none
+  Return Value: none
+  Function: Breakpoint Exception. prints error and spins
+*/
 void exc_3()
 {
 	clear();
@@ -113,21 +142,39 @@ void exc_3()
 	while(1);
 }
 
-// Overflow Exception. prints error and spins
+//
+/*
+void exc_4()
+  Input: none
+  Return Value: none
+  Function: Overflow Exception. prints error and spins
+*/
 void exc_4()
 {	clear();
 	puts("Overflow");
 	while(1);
 }
 
-// Bounds Exception. prints error and spins
+// 
+/*
+void exc_5()
+  Input: none
+  Return Value: none
+  Function: Bounds Exception. prints error and spins
+*/
 void exc_5()
 {	clear();
 	puts("Bounds");
 	while(1);
 }
 
-// Invalid Opcode Exception. prints error and spins
+// 
+/*
+void exc_6()
+  Input: none
+  Return Value: none
+  Function: Invalid Opcode Exception. prints error and spins
+*/
 void exc_6()
 {	clear();
 	puts("Invalid Opcode");
@@ -135,49 +182,91 @@ void exc_6()
 }
 
 
-// Coprocessor not available exception. prints error and spins
+// 
+/*
+void exc_7()
+  Input: none
+  Return Value: none
+  Function: Coprocessor not available exception. prints error and spins
+*/
 void exc_7()
 {	clear();
 	puts("Coprocessor not available");
 	while(1);
 }
 
-// Double Fault Exception. prints error and spins
+//
+/*
+void exc_8()
+  Input: none
+  Return Value: none
+  Function:  Double Fault Exception. prints error and spins
+*/
 void exc_8()
 {	clear();
 	puts("Double fault");
 	while(1);
 }
 
-// Coprocessor Segment Overrun Exception. prints error and spins
+// 
+/*
+void exc_9()
+  Input: none
+  Return Value: none
+  Function: Coprocessor Segment Overrun Exception. prints error and spins
+*/
 void exc_9()
 {	clear();
 	puts("Coprocessor Segment Overrun");
 	while(1);
 }
 
-// Invalid Task State Segment Exception. prints error and spins
+// 
+/*
+void exc_10()
+  Input: none
+  Return Value: none
+  Function: Invalid Task State Segment Exception. prints error and spins
+*/
 void exc_10()
 {	clear();
 	puts("Invalid Task State Segment");
 	while(1);
 }
 
-// Segment not Present Exception. prints error and spins
+//
+/*
+void exc_11()
+  Input: none
+  Return Value: none
+  Function:  Segment not Present Exception. prints error and spins
+*/
 void exc_11()
 {	clear();
 	puts("Segment not present");
 	while(1);
 }
 
-// Stack Fault Exception. prints error and spins
+// 
+/*
+void exc_12()
+  Input: none
+  Return Value: none
+  Function: Stack Fault Exception. prints error and spins
+*/
 void exc_12()
 {	clear();
 	puts("Stack Fault");
 	while(1);
 }
 
-//General Protection Fault Exception. prints error and spins
+//
+/*
+void exc_13()
+  Input: none
+  Return Value: none
+  Function: General Protection Fault Exception. prints error and spins
+*/
 void exc_13()
 {	clear();
 	puts("General protection fault\n"
@@ -197,55 +286,99 @@ void exc_13()
 	while(1);
 }
 
-// Page Fault Exception. prints error and spins
+/*
+void exc_14()
+  Input: none
+  Return Value: none
+  Function: Page Fault Exception. prints error and spins
+*/
 void exc_14()
 {	clear();
 	puts("Page fault");
 	while(1);
 }
 
-// Reserved Exception. prints error and spins
+/*
+void exc_15_22_31()
+  Input: none
+  Return Value: none
+  Function: Reserved Exception. prints error and spins
+*/
 void exc_15_22_31()	//this one corresponds to 15 and 22-31
 {	clear();
 	puts("Reserved by Intel: do not use");
 	while(1);
 }
 
-// Math Fault Exception
+/*
+void exc_16()
+  Input: none
+  Return Value: none
+  Function: Math Fault Exception. prints error and spins
+*/
 void exc_16()
 {	clear();
 	puts("Math Fault");
 	while(1);
 }
 
-// Alignment Check Exception; prints error and spins
+
+/*
+void exc_17()
+  Input: none
+  Return Value: none
+  Function: Alignment Check Exception. prints error and spins
+*/
 void exc_17()
 {	clear();
 	puts("Alignment Check");
 	while(1);
 }
 
-// Machine Check Exception. prints error and spins
+/*
+void exc_18()
+  Input: none
+  Return Value: none
+  Function: Machine Check Exception. prints error and spins
+*/
 void exc_18()
 {	clear();
 	puts("Machine Check");
 	while(1);
 }
 
-// SIMD Floating-Point Exception. prints error and spins
+
+/*
+void exc_19()
+  Input: none
+  Return Value: none
+  Function: SIMD Floating-Point Exception. prints error and spins
+*/
 void exc_19()
 {	clear();
 	puts("SIMD Floating-Point Exception");
 	while(1);
 }
-// Virtualization Exception. prints error and spins
+ 
+/*
+void exc_20()
+  Input: none
+  Return Value: none
+  Function: Virtualization Exception. prints error and spins
+*/
 void exc_20()
 {	clear();
 	puts("Virtualization Exception");
 	while(1);
 }
 
-// Control Protection Exception. prints error and spins
+
+/*
+void exc_21()
+  Input: none
+  Return Value: none
+  Function: Control Protection Exception. prints error and spins
+*/
 void exc_21()
 {	clear();
 	puts("Control Protection Exception");

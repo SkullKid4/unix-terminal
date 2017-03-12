@@ -16,27 +16,14 @@
 uint32_t page_directory[NUM_PAGE_DIRECTORIES] __attribute__((aligned(FOUR_KB)));
 uint32_t page_table[NUM_PAGE_TABLES]  __attribute__((aligned(FOUR_KB)));
 
-
-void enable_Paging(uint32_t page_directory1){ 
-	asm volatile("                  \n\
-		movl 8(%ebp), %eax		\n\
-		movl %eax, %cr3			\n\
-		movl %cr4, %ecx			\n\
-		orl 0x10, %ecx				\n\
-		movl %ecx, %cr4			\n\
-		movl %cr0, %ecx			\n\
-		orl 0x80000000, %ecx		\n\
-		movl %ecx, %cr0			\n\
-		"
-		);
-}
-
-
-/* init_paging
-	initializes the page directory and page table for memory from 0-8MB;
+/*
+void paging_init()
+  Input: none
+  Return Value: none
+  Function: initializes the page directory and page table for memory from 0-8MB;
 	sets 4-8MB to be the kernel, and enables video memory inside 0-4MB
 */
-int init_paging(void) {
+int paging_init(void) {
 	int i;
 	int video_page_table_offset;
 	page_directory[0] = 0x03; // read/write and present
@@ -59,6 +46,7 @@ int init_paging(void) {
 
 	page_directory[1] |= (FOUR_KB * ONE_KB);
 
+	/*enable paging*/
 	asm (
 	"movl $page_directory, %%eax  	  ;"
 	"movl %%eax, %%cr3                ;"
@@ -70,7 +58,6 @@ int init_paging(void) {
 	"movl %%eax, %%cr0                 "
 	: : : "eax", "cc" );
 
-	//enable_Paging((uint32_t)page_directory);
 
 	return 0;
 

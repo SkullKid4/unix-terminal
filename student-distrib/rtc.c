@@ -3,12 +3,14 @@
 #include "lib.h"
 #include "idt.h"
 #include "i8259.h"
-
+/*
+rtc_init()
+  Input: none
+  Return Value: none
+  Function: Turning on IRQ8 initialize RTC
+*/
 void rtc_init(){
   char prev;
-  //outb(0x8A, RTC_REGISTER_PORT) // select Status Register A, and disable NMI
-  //outb(0x20, RTC_DATA_PORT) // write to CMOS/RTC RAM
-
   outb(0x8B, RTC_REGISTER_PORT); // select Register B, disable NMI
   prev = inb(RTC_DATA_PORT); // get current value of B
   outb(0x8B, RTC_REGISTER_PORT); // select Register B again
@@ -16,6 +18,13 @@ void rtc_init(){
 	SET_IDT_ENTRY(idt[RTC_IDT_IDX], (rtc_handler));
 }
 
+/*
+rtc_handler()
+  Input: none
+  Return Value: none
+  Function: call test interrupts when RTC is turned on. Select register C
+  to make sure interrupts will happen again.
+*/
 void rtc_handler(){
   cli();
 	/* write EOI */
