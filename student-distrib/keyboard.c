@@ -4,8 +4,12 @@
 #include "idt.h"
 #include "i8259.h"
 
-volatile unsigned lock = 0;
+volatile unsigned lock = 0;       //used to lock the thread when writing keybored output to the screen
 
+/*
+this is a map I retrived from https://github.com/arjun024/mkeykernel/blob/master/keyboard_map.h
+All it does is converts the raw output from the keyboared into the ascii chars they are associated with
+*/
 unsigned char keyboard_map[128] =
 {
     0,  27, '1', '2', '3', '4', '5', '6', '7', '8',	/* 9 */
@@ -46,33 +50,45 @@ unsigned char keyboard_map[128] =
     0,	/* All other keys are undefined */
 };
 
+/*
+keyboard_init
+  DESCRIPTION: sets the 0-15, 16-31 bits to point to the keyboard handler we defined
+  INPUT: none
+  OUTPUT: none
+*/
 void keyboard_init(){
 	SET_IDT_ENTRY(idt[KEYBOARD_IDT_IDX], (keyboard_handler));
 }
 
+/*
+keyboard_handler
+  DESCRIPTION: When a putton press or release occurs this function is called and the response is
+               handled appropriatly
+  INPUT: none
+  OUTPUT: none 
+*/
 void keyboard_handler(){
-	unsigned char status;
-	int keycode;
+	unsigned char status;    //used to check keyboard status
+	int keycode;             //holds the raw output of the keyboard
   if(lock == 0){
-    lock = 1;
+    lock = 1;             //lock the thread and blocks intrrupts
     cli();
-	/* write EOI */
+
 	  send_eoi(KEYBOARD_IRQ);
 
     status = inb(KEYBOARD_STATUS_PORT);
-  /* Lowest bit of status will be set if buffer is not empty */
   
-    if (status & 0x01) {
+    if (status & 0x01) {                    //if the status is set, get the code from the keyboard port
       keycode = inb(KEYBOARD_DATA_PORT);
-      if(keycode < 0 || keycode > 0x7F){
+      if(keycode < 0 || keycode > 0x7F){    //if this is a button release code, unlock and turn on interrupts
         lock = 0;
         sti();
         return;
       }
-      putc((char)keyboard_map[keycode]);
-      // puts("one char printed");
+      putc((char)keyboard_map[keycode]);    //write the value of the ascii char to the screen
+
     }
-    sti();
+    sti();          //enable interrupts and unlock
     lock = 0;
   }
 }
