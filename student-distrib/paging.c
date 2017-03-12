@@ -19,14 +19,14 @@ uint32_t page_table[NUM_PAGE_TABLES]  __attribute__((aligned(FOUR_KB)));
 
 void enable_Paging(uint32_t page_directory1){ 
 	asm volatile("                  \n\
-		movl 8(%%ebp), %%eax		\n\
-		movl %%eax, %%cr3			\n\
-		movl %%cr4, %%ecx			\n\
-		orl 0x10, %%ecx				\n\
-		movl %%ecx, %%cr4			\n\
-		movl %%cr0, %%ecx			\n\
-		orl 0x80000000, %%ecx		\n\
-		movl %%ecx, %%cr0			\n\
+		movl 8(%ebp), %eax		\n\
+		movl %eax, %cr3			\n\
+		movl %cr4, %ecx			\n\
+		orl 0x10, %ecx				\n\
+		movl %ecx, %cr4			\n\
+		movl %cr0, %ecx			\n\
+		orl 0x80000000, %ecx		\n\
+		movl %ecx, %cr0			\n\
 		"
 		);
 }
