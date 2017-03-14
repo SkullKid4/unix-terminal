@@ -6,6 +6,9 @@
 #define KEYBOARD_STATUS_PORT	0x64		//port for reading keyboard stsatus
 #define KEYBOARD_DATA_PORT		0x60		//port for reading keybored data
 #define KEYBOARD_IDT_IDX		0x21		//the keyboreds index into the idt
+#define MAX_PRESS_CODE			0x7F
+#define SHIFT_DOWN				0x2A
+#define SHIFT_UP				0xAA
 
 /* function that is called from the idt table when interrupts occor*/
 void keyboard_handler();
