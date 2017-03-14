@@ -11,6 +11,7 @@
 #include "keyboard.h"
 #include "rtc.h"
 #include "paging.h"
+//#include "files.h"
 
 /* Macros. */
 /* Check if the bit BIT in FLAGS is set. */
@@ -174,9 +175,9 @@ entry (unsigned long magic, unsigned long addr)
 	 * without showing you any output */
 
 	sti();
-	int *x = NULL;
+	/*int *x = NULL;
 	int f = *x;
-	printf("value of f: %d ", f);
+	printf("value of f: %d ", f);*/
 	//int x;
 	//x = 5/0;
 
