@@ -175,11 +175,14 @@ entry (unsigned long magic, unsigned long addr)
 	 * without showing you any output */
 
 	sti();
+<<<<<<< HEAD
 	/*int *x = NULL;
 	int f = *x;
 	printf("value of f: %d ", f);*/
 	//int x;
 	//x = 5/0;
+=======
+>>>>>>> 389e2e1049e0e23d2c83d7a1ed3608206cca258c
 
 	/* Execute the first program (`shell') ... */
 
