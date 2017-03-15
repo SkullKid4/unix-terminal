@@ -14,6 +14,7 @@
 #define CAPS_DOWN				0x3A
 #define CTRL_DOWN				0x1D
 #define CTRL_UP					0x9D
+#define BACKSPACE				14
 
 unsigned char get_keyboard_idx();
 
