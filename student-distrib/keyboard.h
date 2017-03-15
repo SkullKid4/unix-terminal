@@ -15,6 +15,8 @@
 #define CTRL_DOWN				0x1D
 #define CTRL_UP					0x9D
 
+unsigned char get_keyboard_idx();
+
 /* function that is called from the idt table when interrupts occor*/
 void keyboard_handler();
 

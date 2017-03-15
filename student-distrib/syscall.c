@@ -1,4 +1,5 @@
 #include "syscall.h"
+#include "keyboard.h"
 #include "lib.h"
 
 void system_call_handler()
@@ -33,7 +34,9 @@ void system_call_handler()
 }
 
 int32_t read(int32_t fd, void* buf, int32_t nbytes){
-
+	if(fd == VIDEO){
+		int idx = get_keyboard_idx();
+	}
 return 0;
 }
 
