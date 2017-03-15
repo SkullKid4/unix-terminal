@@ -6,6 +6,8 @@
 
 volatile unsigned lock = 0;       //used to lock the thread when writing keybored output to the screen
 volatile unsigned shift = 0;      //2a or 36 on press;
+volatile unsigned caps = 0;
+volatile unsigned ctrl = 0;
 
 /*
 this is a map I retrived from https://github.com/arjun024/mkeykernel/blob/master/keyboard_map.h
@@ -73,6 +75,7 @@ void keyboard_handler(){
 
   unsigned char status;    //used to check keyboard status
   int keycode;             //holds the raw output of the keyboard
+  char ascii;
   if(lock == 0){
     lock = 1;             //lock the thread and blocks intrrupts
     cli();
@@ -84,20 +87,55 @@ void keyboard_handler(){
     if (status & 0x01) {                    //if the status is set, get the code from the keyboard port
       keycode = inb(KEYBOARD_DATA_PORT);
       if(keycode < 0 || keycode > MAX_PRESS_CODE){    //if this is a button release code, unlock and turn on interrupts
-        if(keycode == SHIFT_UP){
+        if(keycode == SHIFT_UP_L || keycode == SHIFT_UP_R){
           shift = 0;
+        } else if(keycode == CTRL_UP){
+          ctrl = 0;
         }
         lock = 0;
         sti();
         return;
       }
-      if(keycode == SHIFT_DOWN){
+      if(keycode == SHIFT_DOWN_L || keycode == SHIFT_DOWN_R){
         shift = 1;
         lock = 0;
         sti();
         return;
       }
-      putc((char)keyboard_map[keycode][shift]);    //write the value of the ascii char to the screen
+      if(keycode == CAPS_DOWN){
+        if(caps == 1){
+          caps = 0;
+        } else{
+          caps = 1;
+        }
+        lock = 0;
+        sti();
+        return;
+      }
+      if(keycode == CTRL_DOWN){
+        ctrl = 1;
+        lock = 0;
+        sti();
+        return;
+      }
+
+      ascii = keyboard_map[keycode][shift];
+
+      if(ctrl && ascii == 'l'){
+        clear();
+        ctrl = 1;
+        lock = 0;
+        sti();
+        return;
+      }
+
+      if((ascii >= 'a' && ascii <= 'z' && caps) || (caps && ascii >= 'A' && ascii <= 'Z')){
+        putc(keyboard_map[keycode][!(shift)]);
+      } else{
+        putc(ascii);
+      }
+
+          //write the value of the ascii char to the screen
 
     }
     sti();          //enable interrupts and unlock
