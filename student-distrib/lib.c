@@ -181,6 +181,26 @@ putc(uint8_t c)
         //screen_y = (screen_y + (screen_x / NUM_COLS)) % NUM_ROWS;
     }
 }
+
+
+void vert_scroll()
+{
+	int i,j;
+	char* video_tmp = (char*)VIDEO;
+	for(i = 0; i < NUM_COLS; i++) {
+		for(j = 0; j < NUM_ROWS; j++) {
+			if(j < NUM_ROWS-1){
+				*(uint8_t *)(video_tmp + ((NUM_COLS*j + i) << 1)) = *(uint8_t *)(video_mem + ((NUM_COLS*(j+1) + i) << 1));
+			} else{
+				*(uint8_t *)(video_tmp + ((NUM_COLS*j + i) << 1)) = ' ';
+			}
+			*(uint8_t *)(video_tmp + ((NUM_COLS*j + i) << 1) + 1) = ATTRIB; //*(uint8_t *)(video_mem + ((NUM_COLS*(j) + i) << 1)+1);
+		}
+	}
+
+	screen_x = 0;
+	screen_y = NUM_ROWS-1;
+}
 /*
 * int8_t* itoa(uint32_t value, int8_t* buf, int32_t radix);
 *   Inputs: uint32_t value = number to convert
