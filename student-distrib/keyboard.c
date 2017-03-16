@@ -11,7 +11,7 @@ volatile unsigned caps = 0;
 volatile unsigned ctrl = 0;
 
 
-static char keyboard_buf[129] = {' '};   //128 + 1 for end of string
+static char keyboard_buf[129] = {'\0'};   //128 + 1 for end of string
 static int keyboard_idx;
 static int last_idx;
 
@@ -71,7 +71,6 @@ void keyboard_init()
 void keyboard_init(){
   keyboard_idx = 0;
   last_idx = 0;
-  keyboard_buf[128] = '\0';
   SET_IDT_ENTRY(idt[KEYBOARD_IDT_IDX], (keyboard_handler));
 }
 
@@ -102,11 +101,18 @@ void keyboard_handler(){
         if((screen_x + screen_y) != 0){
           int screen_y_temp = screen_y;
           if(screen_x == 0 && screen_y != 0){
-            screen_x = 80;
+            int catch = find_last_char(screen_y-1);
+            if(catch == -1){
+              screen_y--;
+              sti();
+              lock = 0;
+              return;
+            }
+            screen_x = catch+1;
             screen_y_temp = --screen_y;
           }
           int screen_temp = --screen_x;
-          keyboard_buf[keyboard_idx-1] = ' ';
+          keyboard_buf[keyboard_idx-1] = '\0';
           last_idx--;
           write(VIDEO, keyboard_buf, 129);
           screen_x = screen_temp;
@@ -155,7 +161,7 @@ void keyboard_handler(){
 
       if(ctrl && ascii == 'l'){
         clear();
-        memset(keyboard_buf, ' ', 128);
+        memset(keyboard_buf, '\0', 128);
         keyboard_idx = 0;
         last_idx = 0;
         lock = 0;
@@ -163,8 +169,19 @@ void keyboard_handler(){
         return;
       }
 
-      if(screen_x == (NUM_COLS-1) && screen_y == (NUM_ROWS-1)){
+      if(keyboard_idx == 128){
+        lock = 0;
+        sti();
+        return;
+      }
+
+      if((screen_x == (NUM_COLS-1) && screen_y == (NUM_ROWS-1)) || (screen_y == (NUM_ROWS-1) && ascii == '\n')){
         vert_scroll();
+        if(screen_y == (NUM_ROWS-1) && ascii == '\n'){
+          lock = 0;
+          sti();
+          return;
+        }
       }
 
       if((ascii >= 'a' && ascii <= 'z' && caps) || (caps && ascii >= 'A' && ascii <= 'Z')){

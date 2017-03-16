@@ -27,9 +27,11 @@ int8_t* strncpy(int8_t* dest, const int8_t*src, uint32_t n);
 /* Userspace address-check functions */
 int32_t bad_userspace_addr(const void* addr, int32_t len);
 int32_t safe_strncpy(int8_t* dest, const int8_t* src, int32_t n);
+void vert_scroll();
+int find_last_char(int line);
 
-int screen_x;
-int screen_y;
+volatile int screen_x;
+volatile int screen_y;
 
 
 void test_interrupts(void);

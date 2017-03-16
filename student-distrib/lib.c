@@ -20,7 +20,7 @@ clear(void)
 {
     int32_t i;
     for(i=0; i<NUM_ROWS*NUM_COLS; i++) {
-        *(uint8_t *)(video_mem + (i << 1)) = ' ';
+        *(uint8_t *)(video_mem + (i << 1)) = '\0';
         *(uint8_t *)(video_mem + (i << 1) + 1) = ATTRIB;
     }
     screen_x = 0;
@@ -192,7 +192,7 @@ void vert_scroll()
 			if(j < NUM_ROWS-1){
 				*(uint8_t *)(video_tmp + ((NUM_COLS*j + i) << 1)) = *(uint8_t *)(video_mem + ((NUM_COLS*(j+1) + i) << 1));
 			} else{
-				*(uint8_t *)(video_tmp + ((NUM_COLS*j + i) << 1)) = ' ';
+				*(uint8_t *)(video_tmp + ((NUM_COLS*j + i) << 1)) = '\0';
 			}
 			*(uint8_t *)(video_tmp + ((NUM_COLS*j + i) << 1) + 1) = ATTRIB; //*(uint8_t *)(video_mem + ((NUM_COLS*(j) + i) << 1)+1);
 		}
@@ -201,6 +201,17 @@ void vert_scroll()
 	screen_x = 0;
 	screen_y = NUM_ROWS-1;
 }
+
+int find_last_char(int line)
+{
+    int i;
+    for(i = 0; i < NUM_COLS; i++) {
+        if(*(uint8_t *)(video_mem + ((NUM_COLS*line + i) << 1)) == '\0')
+            return i-1;
+    }
+    return 80;
+}
+
 /*
 * int8_t* itoa(uint32_t value, int8_t* buf, int32_t radix);
 *   Inputs: uint32_t value = number to convert
