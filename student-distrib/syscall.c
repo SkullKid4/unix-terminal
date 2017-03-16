@@ -29,7 +29,7 @@ void system_call_handler()
 		default:
 			printf("Invaild call number");
 			break;
-	};
+	};       
 
 }
 
@@ -43,8 +43,9 @@ return 0;
 int32_t write(int32_t fd, const void* buf, int32_t nbytes){
 	if(fd == VIDEO){
 		int i;
-		int size = sizeof(buf);
-		for(i = get_keyboard_idx(); i < size; i++){
+		int idx[2];
+		get_keyboard_idx(idx);
+		for(i = idx[0]; i < idx[1]; i++){
 			char data = ((char *)buf)[i];
 			putc(data);
 		}

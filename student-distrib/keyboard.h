@@ -15,13 +15,10 @@
 #define CAPS_DOWN				0x3A
 #define CTRL_DOWN				0x1D
 #define CTRL_UP					0x9D
-<<<<<<< HEAD
-#define BACKSPACE_DOWN			0x0E
-=======
 #define BACKSPACE				14
->>>>>>> 93b1436cee91ca053e543fda6a2a611b0b9a36ef
 
-unsigned char get_keyboard_idx();
+
+void get_keyboard_idx(int* data);
 
 /* function that is called from the idt table when interrupts occor*/
 void keyboard_handler();

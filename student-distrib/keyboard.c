@@ -104,12 +104,14 @@ void keyboard_handler(){
           sti();
           return;
         }
-        int screen_tmp  = (--screen_x); //move cursor behind character to delete
-        putc(' ');            
-        screen_x = screen_tmp;        //restore cursor after overwrite for continued input
+        keyboard_buf[keyboard_idx-1] = ' ';
+        keyboard_idx--;
+        write(VIDEO, keyboard_buf, 129);
+        last_idx = keyboard_idx;
+        sti();
+        return;
       }
 
-      else {
       if(keycode < 0 || keycode > MAX_PRESS_CODE){    //if this is a button release code, unlock and turn on interrupts
         if(keycode == SHIFT_UP_L || keycode == SHIFT_UP_R){
           shift = 0;
@@ -142,14 +144,6 @@ void keyboard_handler(){
         sti();
         return;
       }
-      if(keycode == BACKSPACE_DOWN){
-        keyboard_buf[keyboard_idx-1] = ' ';
-        keyboard_idx--;
-        write(VIDEO, keyboard_buf, 129);
-        last_idx = keyboard_idx - 1;
-        sti();
-        return;
-      }
 
       ascii = keyboard_map[keycode][shift];
 
@@ -158,7 +152,6 @@ void keyboard_handler(){
         memset(keyboard_buf, ' ', 128);
         keyboard_idx = 0;
         last_idx = 0;
-        ctrl = 0;
         lock = 0;
         sti();
         return;
@@ -170,12 +163,8 @@ void keyboard_handler(){
         keyboard_buf[keyboard_idx] = ascii;
       }
       keyboard_idx++;
-
       write(VIDEO, keyboard_buf, 129);
-      last_idx = keyboard_idx - 1;
-
-
-    }
+      last_idx = keyboard_idx ++;
 
           //write the value of the ascii char to the screen
 
@@ -185,6 +174,7 @@ void keyboard_handler(){
   }
 }
 
-unsigned char get_keyboard_idx(){
-  return last_idx;
+void get_keyboard_idx(int* data){
+  data[0] = last_idx;
+  data[1] = keyboard_idx;
 }
