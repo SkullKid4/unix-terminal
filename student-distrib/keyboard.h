@@ -2,6 +2,8 @@
 #define KEYBOARD_H
 
 #define VIDEO 0xB8000
+#define NUM_COLS 80
+#define NUM_ROWS 25
 
 #define KEYBOARD_IRQ			1		//this is the irq number on the master PIC
 #define KEYBOARD_STATUS_PORT	0x64		//port for reading keyboard stsatus
@@ -15,7 +17,7 @@
 #define CAPS_DOWN				0x3A
 #define CTRL_DOWN				0x1D
 #define CTRL_UP					0x9D
-#define BACKSPACE				14
+#define BACKSPACE				0x0E
 
 
 void get_keyboard_idx(int* data);

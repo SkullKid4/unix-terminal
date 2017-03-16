@@ -99,15 +99,21 @@ void keyboard_handler(){
       keycode = inb(KEYBOARD_DATA_PORT);
       //printf("Keycode is: %d", keycode);
       if(keycode == BACKSPACE) {
-        if(screen_x == 0 && screen_y == 0) {
-          lock = 0;
-          sti();
-          return;
+        if((screen_x + screen_y) != 0){
+          int screen_y_temp = screen_y;
+          if(screen_x == 0 && screen_y != 0){
+            screen_x = 80;
+            screen_y_temp = --screen_y;
+          }
+          int screen_temp = --screen_x;
+          keyboard_buf[keyboard_idx-1] = ' ';
+          last_idx--;
+          write(VIDEO, keyboard_buf, 129);
+          screen_x = screen_temp;
+          screen_y = screen_y_temp;
+          keyboard_idx--;
         }
-        keyboard_buf[keyboard_idx-1] = ' ';
-        keyboard_idx--;
-        write(VIDEO, keyboard_buf, 129);
-        last_idx = keyboard_idx;
+        lock = 0;
         sti();
         return;
       }
@@ -157,6 +163,10 @@ void keyboard_handler(){
         return;
       }
 
+      if(screen_x == (NUM_COLS-1) && screen_y == (NUM_ROWS-1)){
+        vert_scroll();
+      }
+
       if((ascii >= 'a' && ascii <= 'z' && caps) || (caps && ascii >= 'A' && ascii <= 'Z')){
         keyboard_buf[keyboard_idx] = keyboard_map[keycode][!(shift)];
       } else if(ascii != '\0'){
@@ -164,7 +174,7 @@ void keyboard_handler(){
       }
       keyboard_idx++;
       write(VIDEO, keyboard_buf, 129);
-      last_idx = keyboard_idx ++;
+      last_idx++;
 
           //write the value of the ascii char to the screen
 
