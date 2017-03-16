@@ -25,7 +25,7 @@ All it does is converts the raw output from the keyboard into the ascii chars th
 unsigned char keyboard_map[128][2] =
 {
     {'\0', '\0'},  {27, 27}, {'1', '!'}, {'2', '@'}, {'3', '#'}, {'4', '$'}, {'5', '%'}, {'6', '^'}, {'7', '&'}, {'8', '*'},  /* 9 */
-  {'9', '('}, {'0', ')'}, {'-', '_'}, {'=', '+'}, {'\b', '\b'}, /* Backspace */
+  {'9', '('}, {'0', ')'}, {'-', '_'}, {'=', '+'}, {' ', ' '},//{'\b', '\b'}, /* Backspace */
   {'\t', '\t'},     /* Tab */
   {'q', 'Q'}, {'w', 'W'}, {'e', 'E'}, {'r', 'R'}, /* 19 */
   {'t', 'T'}, {'y', 'Y'}, {'u', 'U'}, {'i', 'I'}, {'o', 'O'}, {'p', 'P'}, {'[', '{'}, {']', '}'}, {'\n', '\n'}, /* Enter key */
@@ -97,6 +97,19 @@ void keyboard_handler(){
   
     if (status & 0x01) {                    //if the status is set, get the code from the keyboard port
       keycode = inb(KEYBOARD_DATA_PORT);
+      //printf("Keycode is: %d", keycode);
+      if(keycode == BACKSPACE) {
+        if(screen_x == 0 && screen_y == 0) {
+          lock = 0;
+          sti();
+          return;
+        }
+        int screen_tmp  = (--screen_x); //move cursor behind character to delete
+        putc(' ');            
+        screen_x = screen_tmp;        //restore cursor after overwrite for continued input
+      }
+
+      else {
       if(keycode < 0 || keycode > MAX_PRESS_CODE){    //if this is a button release code, unlock and turn on interrupts
         if(keycode == SHIFT_UP_L || keycode == SHIFT_UP_R){
           shift = 0;
@@ -160,6 +173,9 @@ void keyboard_handler(){
 
       write(VIDEO, keyboard_buf, 129);
       last_idx = keyboard_idx - 1;
+
+
+    }
 
           //write the value of the ascii char to the screen
 
