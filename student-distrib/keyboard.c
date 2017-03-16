@@ -3,6 +3,7 @@
 #include "lib.h"
 #include "idt.h"
 #include "i8259.h"
+#include "syscall.h"
 
 volatile unsigned lock = 0;       //used to lock the thread when writing keyboard output to the screen
 volatile unsigned shift = 0;      //2a or 36 on press;
@@ -10,12 +11,15 @@ volatile unsigned caps = 0;
 volatile unsigned ctrl = 0;
 
 
-unsigned char keyboard_buf[128];
-unsigned int keyboard_idx;
+static char keyboard_buf[129] = {' '};   //128 + 1 for end of string
+static int keyboard_idx;
+static int last_idx;
+
+
 
 /*
 this is a map I retrived from https://github.com/arjun024/mkeykernel/blob/master/keyboard_map.h
-All it does is converts the raw output from the keyboared into the ascii chars they are associated with
+All it does is converts the raw output from the keyboard into the ascii chars they are associated with
 */
 //128
 unsigned char keyboard_map[128][2] =
@@ -66,6 +70,8 @@ void keyboard_init()
 */
 void keyboard_init(){
   keyboard_idx = 0;
+  last_idx = 0;
+  keyboard_buf[128] = '\0';
   SET_IDT_ENTRY(idt[KEYBOARD_IDT_IDX], (keyboard_handler));
 }
 
@@ -123,22 +129,37 @@ void keyboard_handler(){
         sti();
         return;
       }
+      if(keycode == BACKSPACE_DOWN){
+        keyboard_buf[keyboard_idx-1] = ' ';
+        keyboard_idx--;
+        write(VIDEO, keyboard_buf, 129);
+        last_idx = keyboard_idx - 1;
+        sti();
+        return;
+      }
 
       ascii = keyboard_map[keycode][shift];
 
       if(ctrl && ascii == 'l'){
         clear();
-        ctrl = 1;
+        memset(keyboard_buf, ' ', 128);
+        keyboard_idx = 0;
+        last_idx = 0;
+        ctrl = 0;
         lock = 0;
         sti();
         return;
       }
 
       if((ascii >= 'a' && ascii <= 'z' && caps) || (caps && ascii >= 'A' && ascii <= 'Z')){
-        putc(keyboard_map[keycode][!(shift)]);
+        keyboard_buf[keyboard_idx] = keyboard_map[keycode][!(shift)];
       } else if(ascii != '\0'){
-        putc(ascii);
+        keyboard_buf[keyboard_idx] = ascii;
       }
+      keyboard_idx++;
+
+      write(VIDEO, keyboard_buf, 129);
+      last_idx = keyboard_idx - 1;
 
           //write the value of the ascii char to the screen
 
@@ -149,5 +170,5 @@ void keyboard_handler(){
 }
 
 unsigned char get_keyboard_idx(){
-  return keyboard_idx;
+  return last_idx;
 }
