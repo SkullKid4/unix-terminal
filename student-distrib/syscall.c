@@ -21,7 +21,11 @@ void system_call_handler()
 			write(arg1, (void*)arg2, arg3);
 			break;
 		case 5:
+			open((uint8_t*)arg1);
+			break;
 		case 6:
+			close(arg1);
+			break
 		case 7:
 		case 8:
 		case 9:
@@ -35,7 +39,24 @@ void system_call_handler()
 
 int32_t read(int32_t fd, void* buf, int32_t nbytes){
 	if(fd == VIDEO){
-		//int idx = get_keyboard_idx();
+		int idx[2];
+		int i;
+		int j = 0;
+		get_keyboard_idx(idx);
+
+		for(i = (idx[1] - 2); i >= 0; i--){
+			if(keyboard_buf[i] == '\n'){
+				j = i+1;
+				break;
+			}
+		}
+		for(i = j; keyboard_buf[i] != '\0'; i++){
+			if((i-j) == nbytes){
+				break;
+			}
+			((char *)buf)[i] = keyboard_buf[i];
+		}
+		return (i-j);
 	}
 return 0;
 }
@@ -50,5 +71,29 @@ int32_t write(int32_t fd, const void* buf, int32_t nbytes){
 			putc(data);
 		}
 	}
-return 0;
+	//gerneral case for terminal output
+	return 0;
+}
+
+/*
+terminal:
+	return 0
+
+keyborad:
+	enable irq
+*/
+int32_t open(const uint8_t* filename){
+	if()
+}
+/*
+terminal:
+	return -1
+
+keyborad:
+	diasble irq
+*/
+int32_t close(int32_t fd){
+	if(fd == VIDEO){
+
+	}
 }

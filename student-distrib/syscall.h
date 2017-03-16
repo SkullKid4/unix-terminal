@@ -8,5 +8,8 @@
 extern void system_call_handler();
 extern int32_t read(int32_t fd, void* buf, int32_t nbytes);
 extern int32_t write(int32_t fd, const void* buf, int32_t nbytes);
+extern int32_t open(const uint8_t* filename);
+extern int32_t close(int32_t fd);
+
 
 #endif

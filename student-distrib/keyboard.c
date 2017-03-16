@@ -11,7 +11,7 @@ volatile unsigned caps = 0;
 volatile unsigned ctrl = 0;
 
 
-static char keyboard_buf[129] = {'\0'};   //128 + 1 for end of string
+
 static int keyboard_idx;
 static int last_idx;
 
@@ -69,6 +69,7 @@ void keyboard_init()
   Function: sets the 0-15, 16-31 bits to point to the keyboard handler we defined
 */
 void keyboard_init(){
+  memset(keyboard_buf, '\0', 128);
   keyboard_idx = 0;
   last_idx = 0;
   SET_IDT_ENTRY(idt[KEYBOARD_IDT_IDX], (keyboard_handler));
@@ -108,13 +109,13 @@ void keyboard_handler(){
               lock = 0;
               return;
             }
-            screen_x = catch+1;
+            screen_x = catch+2;           //because we decriment screen x after this (for regualr case) we need to offest the returned value from find_lastr_char
             screen_y_temp = --screen_y;
           }
           int screen_temp = --screen_x;
           keyboard_buf[keyboard_idx-1] = '\0';
           last_idx--;
-          write(VIDEO, keyboard_buf, 129);
+          write(VIDEO, keyboard_buf, 128);
           screen_x = screen_temp;
           screen_y = screen_y_temp;
           keyboard_idx--;
@@ -189,9 +190,11 @@ void keyboard_handler(){
       } else if(ascii != '\0'){
         keyboard_buf[keyboard_idx] = ascii;
       }
+
       keyboard_idx++;
-      write(VIDEO, keyboard_buf, 129);
+      write(VIDEO, keyboard_buf, 128);
       last_idx++;
+
 
           //write the value of the ascii char to the screen
 
