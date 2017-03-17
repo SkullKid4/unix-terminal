@@ -1,6 +1,7 @@
 #include "syscall.h"
 #include "keyboard.h"
 #include "lib.h"
+#include "i8259.h"
 
 void system_call_handler()
 {
@@ -67,7 +68,7 @@ int32_t read(int32_t fd, void* buf, int32_t nbytes){
 		enter = 0;
 		return (i-j);
 	}
-return 0;
+	return -1;
 }
 
 int32_t write(int32_t fd, const void* buf, int32_t nbytes){
@@ -80,14 +81,20 @@ int32_t write(int32_t fd, const void* buf, int32_t nbytes){
 				char data = ((char *)buf)[i];
 				putc(data);
 			}
+			return(idx[1] - idx[0]);
+			
 		} else{
+			if(sizeof(buf) > nbytes){
+				return -1;		
+			}
 			for(i = 0; i < nbytes; i++){
 				char data = ((char *)buf)[i];
 				putc(data);
 			}
+			return nbytes;
 		}
 	}
-	return 0;
+	return -1;
 }
 
 /*
@@ -100,16 +107,13 @@ keyborad:
 int32_t open(const uint8_t* filename){
 	return 0;
 }
-/*
-terminal:
-	return -1
 
-keyborad:
-	diasble irq
-*/
+
 int32_t close(int32_t fd){
+	if(fd == STDIN){
+		disable_irq(KEYBOARD_IRQ);
+	}else if(fd == STDOUT){
+		return -1;
+	}
 	return 0;
 }
-
-
-
