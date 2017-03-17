@@ -99,7 +99,7 @@ void keyboard_handler(){
     if (status & 0x01) {                    //if the status is set, get the code from the keyboard port
       keycode = inb(KEYBOARD_DATA_PORT);
       //printf("Keycode is: %d", keycode);
-      if(keycode == BACKSPACE) {
+      if(keycode == BACKSPACE && ((screen_x + screen_y) != 0)){
         if((keyboard_idx) != 0){
           int screen_y_temp = screen_y;
           if(screen_x == 0 && screen_y != 0){
