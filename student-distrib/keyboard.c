@@ -69,9 +69,10 @@ void keyboard_init()
   Function: sets the 0-15, 16-31 bits to point to the keyboard handler we defined
 */
 void keyboard_init(){
-  memset(keyboard_buf, '\0', 128);
+  memset(keyboard_buf, ' ', 128);
   keyboard_idx = 0;
   last_idx = 0;
+  enter = 0;
   SET_IDT_ENTRY(idt[KEYBOARD_IDT_IDX], (keyboard_handler));
 }
 
@@ -99,7 +100,7 @@ void keyboard_handler(){
       keycode = inb(KEYBOARD_DATA_PORT);
       //printf("Keycode is: %d", keycode);
       if(keycode == BACKSPACE) {
-        if((screen_x + screen_y) != 0){
+        if((keyboard_idx) != 0){
           int screen_y_temp = screen_y;
           if(screen_x == 0 && screen_y != 0){
             int catch = find_last_char(screen_y-1);
@@ -115,13 +116,13 @@ void keyboard_handler(){
           int screen_temp = --screen_x;
           keyboard_buf[keyboard_idx-1] = '\0';
           last_idx--;
-          write(VIDEO, keyboard_buf, 128);
+          write(STDOUT, keyboard_buf, 128);
           screen_x = screen_temp;
           screen_y = screen_y_temp;
           keyboard_idx--;
         }
-        lock = 0;
         sti();
+        lock = 0;
         return;
       }
 
@@ -131,14 +132,14 @@ void keyboard_handler(){
         } else if(keycode == CTRL_UP){
           ctrl = 0;
         }
-        lock = 0;
         sti();
+        lock = 0;
         return;
       }
       if(keycode == SHIFT_DOWN_L || keycode == SHIFT_DOWN_R){
         shift = 1;
-        lock = 0;
         sti();
+        lock = 0;
         return;
       }
       if(keycode == CAPS_DOWN){
@@ -147,40 +148,42 @@ void keyboard_handler(){
         } else{
           caps = 1;
         }
-        lock = 0;
         sti();
+        lock = 0;
         return;
       }
       if(keycode == CTRL_DOWN){
         ctrl = 1;
-        lock = 0;
         sti();
+        lock = 0;
         return;
       }
 
       ascii = keyboard_map[keycode][shift];
 
+      //Crtl button cases
+
       if(ctrl && ascii == 'l'){
         clear();
-        memset(keyboard_buf, '\0', 128);
+        memset(keyboard_buf, ' ', 128);
         keyboard_idx = 0;
         last_idx = 0;
-        lock = 0;
         sti();
+        lock = 0;
         return;
       }
 
       if(keyboard_idx == 128){
-        lock = 0;
         sti();
+        lock = 0;
         return;
       }
 
       if((screen_x == (NUM_COLS-1) && screen_y == (NUM_ROWS-1)) || (screen_y == (NUM_ROWS-1) && ascii == '\n')){
         vert_scroll();
         if(screen_y == (NUM_ROWS-1) && ascii == '\n'){
-          lock = 0;
           sti();
+          lock = 0;
           return;
         }
       }
@@ -192,10 +195,12 @@ void keyboard_handler(){
       }
 
       keyboard_idx++;
-      write(VIDEO, keyboard_buf, 128);
+      write(STDOUT, keyboard_buf, 128);
       last_idx++;
 
-
+      if(ascii == '\n'){
+        enter = 1;
+      }
           //write the value of the ascii char to the screen
 
     }

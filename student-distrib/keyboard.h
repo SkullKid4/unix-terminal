@@ -19,6 +19,8 @@
 #define CTRL_UP					0x9D
 #define BACKSPACE				0x0E
 
+volatile unsigned enter;
+
 char keyboard_buf[129];   //128 + 1 for end of string
 
 void get_keyboard_idx(int* data);

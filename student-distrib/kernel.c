@@ -11,6 +11,7 @@
 #include "keyboard.h"
 #include "rtc.h"
 #include "paging.h"
+#include "syscall.h"
 //#include "files.h"
 
 /* Macros. */
@@ -175,6 +176,10 @@ entry (unsigned long magic, unsigned long addr)
 	 * without showing you any output */
 
 	sti();
+
+	char buf[11];
+	read(STDIN, buf, 11);
+	write(STDOUT, buf, 11);
 
 	/* Execute the first program (`shell') ... */
 

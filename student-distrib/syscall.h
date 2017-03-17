@@ -3,7 +3,8 @@
 
 #include "lib.h"
 
-#define VIDEO 0xB8000
+#define STDIN	0
+#define STDOUT	1
 
 extern void system_call_handler();
 extern int32_t read(int32_t fd, void* buf, int32_t nbytes);

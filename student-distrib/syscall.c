@@ -25,7 +25,7 @@ void system_call_handler()
 			break;
 		case 6:
 			close(arg1);
-			break
+			break;
 		case 7:
 		case 8:
 		case 9:
@@ -38,16 +38,24 @@ void system_call_handler()
 }
 
 int32_t read(int32_t fd, void* buf, int32_t nbytes){
-	if(fd == VIDEO){
+	if(fd == STDIN){
+		while(enter == 0){
+			//wait
+		};
+
 		int idx[2];
 		int i;
 		int j = 0;
+		int count = 0;
 		get_keyboard_idx(idx);
 
-		for(i = (idx[1] - 2); i >= 0; i--){
+		for(i = (idx[1]-1); i >= 0; i--){
 			if(keyboard_buf[i] == '\n'){
-				j = i+1;
-				break;
+				count++;
+				if(count == 2){
+					j = i+1;
+					break;
+				}
 			}
 		}
 		for(i = j; keyboard_buf[i] != '\0'; i++){
@@ -56,22 +64,29 @@ int32_t read(int32_t fd, void* buf, int32_t nbytes){
 			}
 			((char *)buf)[i] = keyboard_buf[i];
 		}
+		enter = 0;
 		return (i-j);
 	}
 return 0;
 }
 
 int32_t write(int32_t fd, const void* buf, int32_t nbytes){
-	if(fd == VIDEO){
+	if(fd == STDOUT){ //change fd plus they wil call this
 		int i;
 		int idx[2];
 		get_keyboard_idx(idx);
-		for(i = idx[0]; i < idx[1]; i++){
-			char data = ((char *)buf)[i];
-			putc(data);
+		if(idx[0] != idx[1]){
+			for(i = idx[0]; i < idx[1]; i++){
+				char data = ((char *)buf)[i];
+				putc(data);
+			}
+		} else{
+			for(i = 0; i < nbytes; i++){
+				char data = ((char *)buf)[i];
+				putc(data);
+			}
 		}
 	}
-	//gerneral case for terminal output
 	return 0;
 }
 
@@ -83,7 +98,7 @@ keyborad:
 	enable irq
 */
 int32_t open(const uint8_t* filename){
-	if()
+	return 0;
 }
 /*
 terminal:
@@ -93,7 +108,8 @@ keyborad:
 	diasble irq
 */
 int32_t close(int32_t fd){
-	if(fd == VIDEO){
-
-	}
+	return 0;
 }
+
+
+
