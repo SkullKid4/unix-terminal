@@ -4,6 +4,7 @@
 #include "idt.h"
 #include "i8259.h"
 #include "syscall.h"
+#include "files.h"
 
 volatile unsigned lock = 0;       //used to lock the thread when writing keyboard output to the screen
 volatile unsigned shift = 0;      //2a or 36 on press;
@@ -172,7 +173,23 @@ void keyboard_handler(){
         lock = 0;
         return;
       }
-
+	/************************************/
+	//system files call written by Joann
+	int i;
+	uint32_t file_size;
+	 if(ctrl && ascii == '1'){
+		clear();
+		for(i=0;i<(int)my_boot_block.num_dentries;i++){
+			memcpy(&file_size,inodes+(my_dentry[i].inode)*BLOCK_ADDR_SIZE,4);
+			printf("file name:%s,    file_type: %u, file_size: %u\n",my_dentry[i].file_name,my_dentry[i].file_type,file_size);
+		}
+		sti(); 
+		lock=0;
+		return;		
+	 }
+	
+	
+	/************************************/
       if(keyboard_idx == 128){
         sti();
         lock = 0;
