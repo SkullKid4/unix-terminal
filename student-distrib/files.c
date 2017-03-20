@@ -14,7 +14,6 @@ void file_open(uint32_t* add_start, uint32_t* add_end){
 		memcpy(&(my_dentry[i].file_type),curr+8,4);
 		memcpy(&(my_dentry[i].inode),curr+9,4);		
 		curr+=16;
-		printf("curr inode %u\n",my_dentry[i].inode);
 	}
 }
 
