@@ -176,18 +176,50 @@ void keyboard_handler(){
 	/************************************/
 	//system files call written by Joann
 	int i;
+	uint32_t count=0;
 	uint32_t file_size;
+	char my_file_name[NUM_COLS-1];
+	dentry_t* curr_dentry;
 	 if(ctrl && ascii == '1'){
 		clear();
 		for(i=0;i<(int)my_boot_block.num_dentries;i++){
 			memcpy(&file_size,inodes+(my_dentry[i].inode)*BLOCK_ADDR_SIZE,4);
-			printf("file name:%s,    file_type: %u, file_size: %u\n",my_dentry[i].file_name,my_dentry[i].file_type,file_size);
+			printf("file_name:%s,    file_type: %u, file_size: %u\n",my_dentry[i].file_name,my_dentry[i].file_type,file_size);
 		}
 		sti(); 
 		lock=0;
 		return;		
 	 }
-	
+	 if(ctrl && ascii == '2'){
+		 clear();
+		 strcpy(my_file_name,"frame0.txt");
+		 if(read_dentry_by_name((uint8_t*)(my_file_name),curr_dentry)==0){
+			memcpy(&file_size,inodes+(curr_dentry->inode)*BLOCK_ADDR_SIZE,4);
+			uint8_t buf[file_size];
+			read_data(curr_dentry->inode,0,buf,file_size);
+			printf("%s\n",buf);
+			printf("file_name:%s\n",curr_dentry->file_name);
+		}
+		 sti();
+		 lock=0;
+		 return;
+	 }
+	 if(ctrl&&ascii == '3'){
+		clear();
+		if(count>=my_boot_block.num_dentries)
+			count=0;
+		if(read_dentry_by_index(count,curr_dentry)==0){
+			memcpy(&file_size,inodes+(curr_dentry->inode)*BLOCK_ADDR_SIZE,4);
+			uint8_t buf[file_size];
+			read_data(curr_dentry->inode,0,buf,file_size);
+			printf("%s\n",buf);
+			printf("file_name:%s\n",curr_dentry->file_name);
+			count++;
+		}
+		sti();
+		lock=0;
+		return;
+	 }
 	
 	/************************************/
       if(keyboard_idx == 128){
