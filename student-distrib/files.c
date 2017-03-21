@@ -43,6 +43,7 @@ int32_t read_dentry_by_name(const uint8_t* fname, dentry_t* dentry){
 	int i;
 	for(i=0;i<my_boot_block.num_dentries;i++){
 		if(strncmp((int8_t*)(my_dentry[i].file_name),(int8_t*)fname,strlen((int8_t*)fname))==0){
+			memset(dentry->file_name,' ',MAX_FILE_CHAR+1);
 			strcpy((int8_t*)(dentry->file_name),(int8_t*)fname);
 			dentry->file_type=my_dentry[i].file_type;
 			dentry->inode=my_dentry[i].inode;
