@@ -92,7 +92,7 @@ int32_t read_data(uint32_t inode, uint32_t offset, uint8_t* buf,uint32_t length)
 			i++;
 			memcpy(&curr_data_idx,curr_inode+i,4);
 		}
-		if(curr_data_idx>my_boot_block.num_data_blocks)//bad block number
+		if(curr_data_idx>=my_boot_block.num_data_blocks)//bad block number
 			return -1;
 		curr_data_block=(uint8_t*)(data_blocks+curr_data_idx*BLOCK_ADDR_SIZE);
 		

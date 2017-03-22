@@ -16,7 +16,7 @@ volatile unsigned ctrl = 0;
 static int keyboard_idx;
 static int last_idx;
 uint32_t count=0;
-int i;
+int i,copied;
 uint32_t file_size;
 char my_file_name[MAX_FILE_CHAR+1];
 dentry_t curr_dentry;
@@ -192,13 +192,23 @@ void keyboard_handler(){
 	 }
 	 if(ctrl && ascii == '2'){
 		 clear();
-		 strcpy(my_file_name,"frame0.txt");
+		 strcpy(my_file_name,"fish");
 		 if(read_dentry_by_name((uint8_t*)(my_file_name),&curr_dentry)==0){
 			memcpy(&file_size,inodes+(curr_dentry.inode)*BLOCK_ADDR_SIZE,4);
-			uint8_t buf[file_size];
-			read_data(curr_dentry.inode,0,buf,file_size);
-			printf("%s\n",buf);
-			printf("file_name:%s\n",curr_dentry.file_name);
+			uint8_t buf[file_size+1];
+			copied=read_data(curr_dentry.inode,0,buf,file_size);
+			if(copied==0)
+				copied=file_size;
+			for(i=0;i<copied;i++){
+				if((screen_x == (NUM_COLS-1) && screen_y == (NUM_ROWS-1))|| (screen_y >= (NUM_ROWS-1) && i>0 && buf[i-1] == '\n'))
+					vert_scroll();	
+				putc(buf[i]);
+			}		
+			printf("\n");
+			if(screen_y>=(NUM_ROWS-1)){
+				vert_scroll();
+			}				
+			printf("file_name:%s",curr_dentry.file_name);
 		}
 		 sti();
 		 lock=0;
@@ -210,10 +220,20 @@ void keyboard_handler(){
 			count=0;
 		if(read_dentry_by_index(count,&curr_dentry)==0){
 			memcpy(&file_size,inodes+(curr_dentry.inode)*BLOCK_ADDR_SIZE,4);
-			uint8_t buf[file_size];
-			read_data(curr_dentry.inode,0,buf,file_size);
-			printf("%s\n",buf);
-			printf("file_name:%s\n",curr_dentry.file_name);
+			uint8_t buf[file_size+1];
+			copied=read_data(curr_dentry.inode,0,buf,file_size);
+			if(copied==0)
+				copied=file_size;
+			for(i=0;i<copied;i++){
+				if((screen_x == (NUM_COLS-1) && screen_y == (NUM_ROWS-1))|| (screen_y >= (NUM_ROWS-1) && i>0 && buf[i-1] == '\n'))
+					vert_scroll();	
+				putc(buf[i]);
+			}		
+			printf("\n");
+			if(screen_y>=(NUM_ROWS-1)){
+				vert_scroll();
+			}				
+			printf("file_name:%s",curr_dentry.file_name);
 			count++;
 		}
 		sti();
