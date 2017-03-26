@@ -255,7 +255,7 @@ void keyboard_handler(){
       }
 
       keyboard_idx++;
-      write(STDOUT, keyboard_buf, 128);
+      write(STDIN, keyboard_buf, 128);
       last_idx++;
 
       if(ascii == '\n'){
@@ -289,7 +289,7 @@ void handle_backspace(){
     int screen_temp = --screen_x;
     keyboard_buf[keyboard_idx-1] = '\0';
     last_idx--;
-    write(STDOUT, keyboard_buf, 128);
+    write(STDIN, keyboard_buf, 128);
     screen_x = screen_temp;
     screen_y = screen_y_temp;
     keyboard_idx--;
