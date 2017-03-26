@@ -93,12 +93,12 @@ int32_t write(int32_t fd, const void* buf, int32_t nbytes){
 			return(idx[1] - idx[0]);
 			
 		} else{
-			if(sizeof(buf) < nbytes){
-				for(i = 0; i < sizeof(buf); i++) {
+			if(strlen(buf) < nbytes){
+				for(i = 0; i < strlen(buf); i++) {
 					char data = ((char *)buf)[i];
 					putc(data);
 				}	
-				return sizeof(buf);
+				return strlen(buf);
 			}
 			for(i = 0; i < nbytes; i++){
 				char data = ((char *)buf)[i];
