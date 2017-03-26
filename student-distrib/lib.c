@@ -168,7 +168,7 @@ void
 putc(uint8_t c)
 {
     if(c == '\n' || c == '\r') {
-    	if(screen_y == (NUM_ROWS-1) && c == '\n'){
+    	if(screen_y == (NUM_ROWS-1)){
     		vert_scroll();
     		return;
     	}
