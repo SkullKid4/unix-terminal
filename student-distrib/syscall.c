@@ -5,7 +5,6 @@
 
 void system_call_handler()
 {
-	//register int ecx asm("ecx")
 
 	register int call_number asm("eax");		//For system calls, the args are passed through registers.
 	register int arg1 asm("ebx");				//See Appendix B in assignment for specifics
@@ -71,7 +70,17 @@ int32_t read(int32_t fd, void* buf, int32_t nbytes){
 	return -1;
 }
 
+/*
+int32_t write
+  INPUT: fd - file descriptor, indicates where this is being called from
+  		buf - the buffer to write
+  		nbytes - number of bytes to write
+  Return Value: returns number of bytes written, or -1 on failure
+  Function: Writes a number of bytes from a buffer, according to the file descriptor
+*/
 int32_t write(int32_t fd, const void* buf, int32_t nbytes){
+	if(nbytes < 0) return -1;
+	if(buf == NULL) return -1;
 	if(fd == STDOUT){ //change fd plus they wil call this
 		int i;
 		int idx[2];
@@ -84,8 +93,12 @@ int32_t write(int32_t fd, const void* buf, int32_t nbytes){
 			return(idx[1] - idx[0]);
 			
 		} else{
-			if(sizeof(buf) > nbytes){
-				return -1;		
+			if(sizeof(buf) < nbytes){
+				for(i = 0; i < sizeof(buf); i++) {
+					char data = ((char *)buf)[i];
+					putc(data);
+				}	
+				return sizeof(buf);
 			}
 			for(i = 0; i < nbytes; i++){
 				char data = ((char *)buf)[i];
