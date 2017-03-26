@@ -22,6 +22,7 @@
 volatile unsigned enter;
 
 char keyboard_buf[129];   //128 + 1 for end of string
+char one_line_buf[NUM_COLS+1];
 
 void get_keyboard_idx(int* data);
 

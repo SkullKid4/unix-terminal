@@ -185,7 +185,18 @@ void keyboard_handler(){
 		clear();
 		for(i=0;i<(int)my_boot_block.num_dentries;i++){
 			memcpy(&file_size,inodes+(my_dentry[i].inode)*BLOCK_ADDR_SIZE,4);
-			printf("file_name:%s,    file_type: %u, file_size: %u\n",my_dentry[i].file_name,my_dentry[i].file_type,file_size);
+			write(STDOUT,"file_name:",strlen("file_name:"));
+			write(STDOUT,my_dentry[i].file_name,strlen((int8_t*)my_dentry[i].file_name));
+			write(STDOUT,"         ",strlen("          "));
+			write(STDOUT,"file_type:",strlen("file_type:"));
+			itoa(my_dentry[i].file_type, one_line_buf, 10);
+			write(STDOUT,one_line_buf,strlen(one_line_buf));
+			write(STDOUT,"      ",strlen("      "));
+			strcpy(one_line_buf,"");
+			write(STDOUT,"file_size:",strlen("file_size:"));
+			itoa(file_size, one_line_buf, 10);
+			write(STDOUT,one_line_buf,strlen(one_line_buf));
+			putc('\n');						
 		}
 		sti(); 
 		lock=0;
@@ -222,15 +233,11 @@ void keyboard_handler(){
 			if(copied==0)
 				copied=file_size;
 			for(i=0;i<copied;i++){
-				//if((screen_x == (NUM_COLS-1) && screen_y == (NUM_ROWS-1))|| (screen_y >= (NUM_ROWS-1) && i>0 && buf[i-1] == '\n'))
-				//	vert_scroll();	
 				putc(buf[i]);
-			}		
-			//printf("\n");
-			//if(screen_y>=(NUM_ROWS-1)){
-				//vert_scroll();
-			//}				
-			//printf("file_name:%s",curr_dentry.file_name);
+			}
+			putc('\n');
+			write(STDOUT,"file_name:",strlen("file_name:"));
+			write(STDOUT,curr_dentry.file_name,strlen((int8_t*)curr_dentry.file_name));			
 			count++;
 		}
 		sti();
