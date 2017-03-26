@@ -21,6 +21,7 @@
 #define HZ_256			0x08
 #define HZ_512			0x07
 #define HZ_1024			0x06
+#define INITIAL_RATE    2
 /*InitialiZ_e RTC interrupts*/
 void rtc_handler();
 void rtc_init();
