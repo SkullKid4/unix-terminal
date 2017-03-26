@@ -4,6 +4,7 @@
 #include "idt.h"
 #include "i8259.h"
 #include "syscall.h"
+#include "files.h"
 
 volatile unsigned lock = 0;       //used to lock the thread when writing keyboard output to the screen
 volatile unsigned shift = 0;      //2a or 36 on press;
@@ -14,7 +15,11 @@ volatile unsigned ctrl = 0;
 
 static int keyboard_idx;
 static int last_idx;
-
+uint32_t count=0;
+int i,copied;
+uint32_t file_size;
+char my_file_name[MAX_FILE_CHAR+1];
+dentry_t curr_dentry;
 
 
 /*
@@ -172,7 +177,71 @@ void keyboard_handler(){
         lock = 0;
         return;
       }
+	/************************************/
+	//system files call written by Joann
 
+	 if(ctrl && ascii == '1'){
+		clear();
+		for(i=0;i<(int)my_boot_block.num_dentries;i++){
+			memcpy(&file_size,inodes+(my_dentry[i].inode)*BLOCK_ADDR_SIZE,4);
+			printf("file_name:%s,    file_type: %u, file_size: %u\n",my_dentry[i].file_name,my_dentry[i].file_type,file_size);
+		}
+		sti(); 
+		lock=0;
+		return;		
+	 }
+	 if(ctrl && ascii == '2'){
+		 clear();
+		 strcpy(my_file_name,"fish");
+		 if(read_dentry_by_name((uint8_t*)(my_file_name),&curr_dentry)==0){
+			memcpy(&file_size,inodes+(curr_dentry.inode)*BLOCK_ADDR_SIZE,4);
+			uint8_t buf[file_size+1];
+			copied=read_data(curr_dentry.inode,0,buf,file_size);
+			if(copied==0)
+				copied=file_size;
+			for(i=0;i<copied;i++){
+				if((screen_x == (NUM_COLS-1) && screen_y == (NUM_ROWS-1))|| (screen_y >= (NUM_ROWS-1) && i>0 && buf[i-1] == '\n'))
+					vert_scroll();	
+				putc(buf[i]);
+			}		
+			printf("\n");
+			if(screen_y>=(NUM_ROWS-1)){
+				vert_scroll();
+			}				
+			printf("file_name:%s",curr_dentry.file_name);
+		}
+		 sti();
+		 lock=0;
+		 return;
+	 }
+	 if(ctrl&&ascii == '3'){
+		clear();
+		if(count>=my_boot_block.num_dentries)
+			count=0;
+		if(read_dentry_by_index(count,&curr_dentry)==0){
+			memcpy(&file_size,inodes+(curr_dentry.inode)*BLOCK_ADDR_SIZE,4);
+			uint8_t buf[file_size+1];
+			copied=read_data(curr_dentry.inode,0,buf,file_size);
+			if(copied==0)
+				copied=file_size;
+			for(i=0;i<copied;i++){
+				if((screen_x == (NUM_COLS-1) && screen_y == (NUM_ROWS-1))|| (screen_y >= (NUM_ROWS-1) && i>0 && buf[i-1] == '\n'))
+					vert_scroll();	
+				putc(buf[i]);
+			}		
+			printf("\n");
+			if(screen_y>=(NUM_ROWS-1)){
+				vert_scroll();
+			}				
+			printf("file_name:%s",curr_dentry.file_name);
+			count++;
+		}
+		sti();
+		lock=0;
+		return;
+	 }
+	
+	/************************************/
       if(keyboard_idx == 128){
         sti();
         lock = 0;

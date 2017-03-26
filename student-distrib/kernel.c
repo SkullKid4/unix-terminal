@@ -12,7 +12,7 @@
 #include "rtc.h"
 #include "paging.h"
 #include "syscall.h"
-//#include "files.h"
+#include "files.h"
 
 /* Macros. */
 /* Check if the bit BIT in FLAGS is set. */
@@ -168,6 +168,10 @@ entry (unsigned long magic, unsigned long addr)
 	rtc_init();
 	enable_irq(RTC_IRQ);
 
+	/*File system initiation*/
+	module_t* mod = (module_t*)mbi->mods_addr;
+	file_open((uint32_t*)mod->mod_start,(uint32_t*)mod->mod_end);
+	
 	/* Initialize devices, memory, filesystem, enable device interrupts on the
 	 * PIC, any other initialization stuff... */
 	paging_init();
