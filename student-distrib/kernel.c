@@ -165,7 +165,7 @@ entry (unsigned long magic, unsigned long addr)
 	keyboard_init();
 	enable_irq(KEYBOARD_IRQ);
 
-	//rtc_init();
+	rtc_init();
 	enable_irq(RTC_IRQ);
 
 	/*File system initiation*/
@@ -180,7 +180,7 @@ entry (unsigned long magic, unsigned long addr)
 	 * without showing you any output */
 
 	sti();
-	//test_rtc();
+	test_rtc();
 	/* Execute the first program (`shell') ... */
 
 	/* Spin (nicely, so we don't chew up cycles) */
