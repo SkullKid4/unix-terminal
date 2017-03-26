@@ -168,20 +168,20 @@ void
 putc(uint8_t c)
 {
     if(c == '\n' || c == '\r') {
-    	if(screen_y == (NUM_ROWS-1)){
+    	if(screen_y == (NUM_ROWS-1)){		//vertscroll if you are at the bottom of the terminal and call new line
     		vert_scroll();
     		return;
     	}
         screen_y++;
         screen_x=0;
     } else {
-        *(uint8_t *)(video_mem + ((NUM_COLS*screen_y + screen_x) << 1)) = c;
+        *(uint8_t *)(video_mem + ((NUM_COLS*screen_y + screen_x) << 1)) = c;					//print char to video memory
         *(uint8_t *)(video_mem + ((NUM_COLS*screen_y + screen_x) << 1) + 1) = ATTRIB;
-        if(screen_x == (NUM_COLS-1) && screen_y == (NUM_ROWS-1)){			//if you have reached the end of the terminal, 
+        if(screen_x == (NUM_COLS-1) && screen_y == (NUM_ROWS-1)){			//if you have reached the end of the terminal, vert scroll
     		vert_scroll();
     		return;
     	}
-        screen_x++;
+        screen_x++;		//else just incriment the termial idecies
         screen_x %= NUM_COLS;
         if(screen_x == 0){
         	screen_y++;
@@ -189,7 +189,12 @@ putc(uint8_t c)
     }
 }
 
-
+/*
+* void vert_scroll()
+*   Inputs: None
+*   Return Value: void
+*	Function: rewrites the termial to remove the top line and make a clear row at the bottom 
+*/
 void vert_scroll()
 {
 	int i,j;
@@ -209,14 +214,20 @@ void vert_scroll()
 	screen_y = NUM_ROWS-1;
 }
 
+/*
+* void find_last_char(int line)
+*   Inputs: The line to search for a charater
+*   Return Value: the postion the the last char is
+*	Function: finds the location of the last char printed to the screen
+*/
 int find_last_char(int line)
 {
     int i;
     for(i = 0; i < NUM_COLS; i++) {
-        if(*(uint8_t *)(video_mem + ((NUM_COLS*line + i) << 1)) == '\0')
+        if(*(uint8_t *)(video_mem + ((NUM_COLS*line + i) << 1)) == '\0')		//if a null char is found return the previous char
             return i-1;
     }
-    return 80;
+    return 79;		//if no null char is found then the line is full return 80
 }
 
 /*

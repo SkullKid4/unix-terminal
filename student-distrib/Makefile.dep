@@ -6,8 +6,8 @@ idt.o: idt.c idt.h x86_desc.h types.h lib.h keyboard.h rtc.h syscall.h
 kernel.o: kernel.c multiboot.h types.h x86_desc.h lib.h i8259.h debug.h \
   idt.h keyboard.h rtc.h paging.h syscall.h files.h
 keyboard.o: keyboard.c keyboard.h x86_desc.h types.h lib.h idt.h i8259.h \
-  syscall.h files.h
+  syscall.h files.h rtc.h
 lib.o: lib.c lib.h types.h
 paging.o: paging.c paging.h lib.h types.h x86_desc.h idt.h i8259.h
-rtc.o: rtc.c rtc.h x86_desc.h types.h lib.h idt.h i8259.h
+rtc.o: rtc.c rtc.h x86_desc.h types.h lib.h idt.h i8259.h syscall.h
 syscall.o: syscall.c syscall.h lib.h types.h keyboard.h i8259.h
