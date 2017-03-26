@@ -34,6 +34,9 @@ void vert_scroll();
 /*used in the case where new line was printed and the user wants to backspace starting at */
 int find_last_char(int line);
 
+/*keeps the blinking cursor in the correct position*/
+void update_cursor(int row, int col);
+
 volatile int screen_x;
 volatile int screen_y;
 

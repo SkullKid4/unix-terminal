@@ -80,6 +80,7 @@ void keyboard_init(){
   last_idx = 0;
   enter = 0;
   SET_IDT_ENTRY(idt[KEYBOARD_IDT_IDX], (keyboard_handler));
+  enable_irq(KEYBOARD_IRQ);
 }
 
 /*

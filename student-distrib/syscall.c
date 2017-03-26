@@ -110,13 +110,7 @@ int32_t write(int32_t fd, const void* buf, int32_t nbytes){
 	return -1;
 }
 
-/*
-terminal:
-	return 0
 
-keyborad:
-	enable irq
-*/
 int32_t open(const uint8_t* filename){
 	return 0;
 }
@@ -126,7 +120,7 @@ int32_t close(int32_t fd){
 	if(fd == STDIN){
 		disable_irq(KEYBOARD_IRQ);
 	}else if(fd == STDOUT){
-		return -1;
+		return 0;
 	}
-	return 0;
+	return -1;
 }

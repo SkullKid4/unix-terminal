@@ -187,6 +187,25 @@ putc(uint8_t c)
         	screen_y++;
         }
     }
+    update_cursor(screen_y, screen_x);
+}
+
+/*
+* void update_cursor(int row, int col)
+*   Inputs: row is the row in which the cursor should be and col is the coloumn the cursor should be
+*   Return Value: void
+*	Function: keeps the blinking cursor in the correct position
+*/
+void update_cursor(int row, int col)
+{
+    unsigned short position=(row*80) + col;
+ 
+    // cursor LOW port to vga INDEX register
+    outb(0x0F, 0x3D4);
+    outb((unsigned char)(position&0xFF), 0x3D5);
+    // cursor HIGH port to vga INDEX register
+    outb(0x0E, 0x3D4);
+    outb((unsigned char )((position>>8)&0xFF), 0x3D5);
 }
 
 /*
@@ -212,6 +231,7 @@ void vert_scroll()
 
 	screen_x = 0;
 	screen_y = NUM_ROWS-1;
+	update_cursor(screen_y, screen_x);
 }
 
 /*
