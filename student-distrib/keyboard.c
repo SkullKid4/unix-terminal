@@ -75,7 +75,7 @@ void keyboard_init()
   Function: sets the 0-15, 16-31 bits to point to the keyboard handler we defined
 */
 void keyboard_init(){
-  memset(keyboard_buf, ' ', 128);   //fill buffer with blank spaces
+  memset(keyboard_buf, ' ', MAX_BUF_SIZE);   //fill buffer with blank spaces
   keyboard_idx = 0;
   last_idx = 0;
   enter = 0;
@@ -154,7 +154,7 @@ void keyboard_handler(){
 
       if(ctrl && ascii == 'l'){
         clear();
-        memset(keyboard_buf, ' ', 128);
+        memset(keyboard_buf, ' ', MAX_BUF_SIZE);
         keyboard_idx = 0;
         last_idx = 0;
         sti();
@@ -245,7 +245,7 @@ void keyboard_handler(){
     return;
   }
 	/************************************/
-      if(keyboard_idx == 128){
+      if(keyboard_idx == MAX_BUF_SIZE){
         sti();
         lock = 0;
         return;
@@ -267,7 +267,7 @@ void keyboard_handler(){
       }
 
       keyboard_idx++;
-      write(STDIN, keyboard_buf, 128);
+      write(STDIN, keyboard_buf, MAX_BUF_SIZE);
       last_idx++;
 
       if(ascii == '\n'){
@@ -314,7 +314,7 @@ void handle_backspace(){
     int screen_temp = --screen_x;
     keyboard_buf[keyboard_idx-1] = '\0';
     last_idx--;
-    write(STDIN, keyboard_buf, 128);
+    write(STDIN, keyboard_buf, MAX_BUF_SIZE);
     screen_x = screen_temp;
     screen_y = screen_y_temp;
     keyboard_idx--;
