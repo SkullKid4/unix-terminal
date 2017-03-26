@@ -5,6 +5,7 @@
 #include "i8259.h"
 #include "syscall.h"
 #include "files.h"
+#include "rtc.h"
 
 volatile unsigned lock = 0;       //used to lock the thread when writing keyboard output to the screen
 volatile unsigned shift = 0;      //2a or 36 on press;
@@ -241,6 +242,12 @@ void keyboard_handler(){
 		return;
 	 }
 	
+  if(ctrl&&ascii == '5'){
+    toggle_freq();
+    sti();
+    lock=0;
+    return;
+  }
 	/************************************/
       if(keyboard_idx == 128){
         sti();

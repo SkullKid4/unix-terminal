@@ -3,6 +3,7 @@
 #include "lib.h"
 #include "idt.h"
 #include "i8259.h"
+#include "syscall.h"
 
 volatile int rtc_interrupt;
 /*
@@ -113,11 +114,13 @@ int set_rate(int freq) {
 
 void test_rtc(void) {
   rtc_open();
+  char * buf;
+  *buf = 'l';
   //printf("opened rtc");
   while (1){
     rtc_read();
     //printf("read rtc");
-    printf("l");
+    write(STDOUT, buf, 1);
   }
 }
 void toggle_freq(void) {
