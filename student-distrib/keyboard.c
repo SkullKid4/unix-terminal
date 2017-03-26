@@ -12,7 +12,7 @@ volatile unsigned shift = 0;      //2a or 36 on press;
 volatile unsigned caps = 0;
 volatile unsigned ctrl = 0;
 
-
+void handle_backspace();
 
 static int keyboard_idx;
 static int last_idx;
@@ -107,27 +107,7 @@ void keyboard_handler(){
       keycode = inb(KEYBOARD_DATA_PORT);
       //printf("Keycode is: %d", keycode);
       if(keycode == BACKSPACE && ((screen_x + screen_y) != 0)){
-        if((keyboard_idx) != 0){
-          int screen_y_temp = screen_y;
-          if(screen_x == 0 && screen_y != 0){
-            int catch = find_last_char(screen_y-1);
-            if(catch == -1){
-              screen_y--;
-              sti();
-              lock = 0;
-              return;
-            }
-            screen_x = catch+2;           //because we decriment screen x after this (for regualr case) we need to offest the returned value from find_lastr_char
-            screen_y_temp = --screen_y;
-          }
-          int screen_temp = --screen_x;
-          keyboard_buf[keyboard_idx-1] = '\0';
-          last_idx--;
-          write(STDOUT, keyboard_buf, 128);
-          screen_x = screen_temp;
-          screen_y = screen_y_temp;
-          keyboard_idx--;
-        }
+        handle_backspace();
         sti();
         lock = 0;
         return;
@@ -292,4 +272,26 @@ void keyboard_handler(){
 void get_keyboard_idx(int* data){
   data[0] = last_idx;
   data[1] = keyboard_idx;
+}
+
+void handle_backspace(){
+  if((keyboard_idx) != 0){
+    int screen_y_temp = screen_y;
+    if(screen_x == 0 && screen_y != 0){
+      int catch = find_last_char(screen_y-1);
+      if(catch == -1){
+        screen_y--;
+        return;
+      }
+      screen_x = catch+2;           //because we decriment screen x after this (for regualr case) we need to offest the returned value from find_lastr_char
+      screen_y_temp = --screen_y;
+    }
+    int screen_temp = --screen_x;
+    keyboard_buf[keyboard_idx-1] = '\0';
+    last_idx--;
+    write(STDOUT, keyboard_buf, 128);
+    screen_x = screen_temp;
+    screen_y = screen_y_temp;
+    keyboard_idx--;
+  }
 }
