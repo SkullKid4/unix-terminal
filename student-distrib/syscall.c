@@ -5,7 +5,6 @@
 
 void system_call_handler()
 {
-	//register int ecx asm("ecx")
 
 	register int call_number asm("eax");		//For system calls, the args are passed through registers.
 	register int arg1 asm("ebx");				//See Appendix B in assignment for specifics
@@ -84,7 +83,7 @@ int32_t write(int32_t fd, const void* buf, int32_t nbytes){
 			return(idx[1] - idx[0]);
 			
 		} else{
-			if(sizeof(buf) > nbytes){
+			if(sizeof(buf) < nbytes){
 				return -1;		
 			}
 			for(i = 0; i < nbytes; i++){
