@@ -75,11 +75,11 @@ void keyboard_init()
   Function: sets the 0-15, 16-31 bits to point to the keyboard handler we defined
 */
 void keyboard_init(){
-  memset(keyboard_buf, ' ', 128);
+  memset(keyboard_buf, ' ', 128);   //fill buffer with blank spaces
   keyboard_idx = 0;
   last_idx = 0;
   enter = 0;
-  SET_IDT_ENTRY(idt[KEYBOARD_IDT_IDX], (keyboard_handler));
+  SET_IDT_ENTRY(idt[KEYBOARD_IDT_IDX], (keyboard_handler)); //init idt entry and irq signal
   enable_irq(KEYBOARD_IRQ);
 }
 
@@ -123,6 +123,8 @@ void keyboard_handler(){
         lock = 0;
         return;
       }
+
+      /* checks for shift, caps, ctrl */
       if(keycode == SHIFT_DOWN_L || keycode == SHIFT_DOWN_R){
         shift = 1;
         sti();
@@ -162,7 +164,7 @@ void keyboard_handler(){
 	/************************************/
 	//system files call written by Joann
 
-	 if(ctrl && ascii == '1'){
+	 if(ctrl && ascii == '1'){   //list all files
 		clear();
 		for(i=0;i<(int)my_boot_block.num_dentries;i++){
 			memcpy(&file_size,inodes+(my_dentry[i].inode)*BLOCK_ADDR_SIZE,4);
@@ -183,7 +185,7 @@ void keyboard_handler(){
 		lock=0;
 		return;		
 	 }
-	 if(ctrl && ascii == '2'){
+	 if(ctrl && ascii == '2'){   //read file by name
 		 clear();
 		 strcpy(my_file_name,"frame0.txt");
 		 if(read_dentry_by_name((uint8_t*)(my_file_name),&curr_dentry)==0){
@@ -203,7 +205,7 @@ void keyboard_handler(){
 		 lock=0;
 		 return;
 	 }
-	 if(ctrl&&ascii == '3'){
+	 if(ctrl&&ascii == '3'){   //read file by index, repeat press to switch file
 		clear();
 		if(count>=my_boot_block.num_dentries)
 			count=0;
@@ -226,8 +228,18 @@ void keyboard_handler(){
 		return;
 	 }
 	
-  if(ctrl&&ascii == '5'){
-    toggle_freq();
+
+  if(ctrl&&ascii == '4'){   //test rtc, repeat press to change frequency
+    clear();
+    toggle_freq();    //test_rtc is started in kernel.c, so only have to change freq
+    sti();
+    lock=0;
+    return;
+  }
+
+  if(ctrl&&ascii == '5') {    //end rtc test
+    clear();
+    set_rate(0);       //set rate to 0 to end test
     sti();
     lock=0;
     return;
@@ -269,11 +281,24 @@ void keyboard_handler(){
   }
 }
 
+
+/*
+void get_keyboard_idx
+  INPUT: data - pointer to array to copy to
+  Return Value: none 
+  Function: Puts the index of the last written character and the current keyboard cursor in the given array
+*/
 void get_keyboard_idx(int* data){
   data[0] = last_idx;
   data[1] = keyboard_idx;
 }
 
+/*
+void keyboard_backspace
+  INPUT: none
+  Return Value: none 
+  Function: Helper function called by handler for backspacing
+*/
 void handle_backspace(){
   if((keyboard_idx) != 0){
     int screen_y_temp = screen_y;
@@ -283,7 +308,7 @@ void handle_backspace(){
         screen_y--;
         return;
       }
-      screen_x = catch+2;           //because we decriment screen x after this (for regualr case) we need to offest the returned value from find_lastr_char
+      screen_x = catch+2;           //because we decrement screen x after this (for regualr case) we need to offest the returned value from find_lastr_char
       screen_y_temp = --screen_y;
     }
     int screen_temp = --screen_x;
@@ -294,4 +319,5 @@ void handle_backspace(){
     screen_y = screen_y_temp;
     keyboard_idx--;
   }
+  update_cursor(screen_y, screen_x);
 }

@@ -135,7 +135,7 @@ int32_t set_rate(int32_t freq) {
 
 
 /* Function for testing the rtc system calls
-  it open the rtc, setting the initial frequence to 2 HZ.
+  it open the rtc, setting the initial frequence to 0 HZ.
   Then, it prints the letter 'l' every time the RTC sends an interrupt.
 */
 void test_rtc(void) {
