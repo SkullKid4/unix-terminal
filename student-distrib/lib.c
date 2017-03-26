@@ -168,12 +168,16 @@ void
 putc(uint8_t c)
 {
     if(c == '\n' || c == '\r') {
+    	if(screen_y == (NUM_ROWS-1) && c == '\n'){
+    		vert_scroll();
+    		return;
+    	}
         screen_y++;
         screen_x=0;
     } else {
         *(uint8_t *)(video_mem + ((NUM_COLS*screen_y + screen_x) << 1)) = c;
         *(uint8_t *)(video_mem + ((NUM_COLS*screen_y + screen_x) << 1) + 1) = ATTRIB;
-        if((screen_x == (NUM_COLS-1) && screen_y == (NUM_ROWS-1)) || (screen_y == (NUM_ROWS-1) && c == '\n')){			//if you have reached the end of the terminal, 
+        if(screen_x == (NUM_COLS-1) && screen_y == (NUM_ROWS-1)){			//if you have reached the end of the terminal, 
     		vert_scroll();
     		return;
     	}
