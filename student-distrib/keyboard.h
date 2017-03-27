@@ -34,6 +34,7 @@ void keyboard_handler();
 /*sets the idt entry with the handdlers adrs*/
 void keyboard_init();
 
+void handle_backspace();
 
 
 #endif

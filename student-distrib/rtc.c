@@ -45,7 +45,12 @@ void rtc_handler(){
   }
 }
 
-// Open rtc sets the rate of the rtc to 2 hertz
+/*
+int32_t rtc_open
+  Input: none
+  Return Value: none
+  Function: Open rtc sets the rate of the rtc to 2 hertz
+*/
 int32_t rtc_open(void) {
   while (rtc_lock == 1)
   {
@@ -57,12 +62,23 @@ int32_t rtc_open(void) {
 }
 
 // rtc_close. Just returns 0.
+/*
+int32_t rtc_close
+  Input: none
+  Return Value: 0
+  Function: RTC close
+*/
 int32_t rtc_close(void) {
   return 0;
 }
 
-// rtc_read. waits for the next rtc interrupt.
-// spins until that interrupt occurs
+/*
+int32_t rtc_read
+  Input: none
+  Return Value: 0
+  Function: waits for the next rtc interrupt.
+	spins until that interrupt occurs
+*/
 int32_t rtc_read(void) {
   int32_t x = 3;
   while (!rtc_interrupt){
@@ -72,7 +88,13 @@ int32_t rtc_read(void) {
   return 0;
 }
 
-
+/*
+int32_t rtc_write
+  Input: buf -- frequency to write to 
+		 nbytes -- number of bytes to write to
+  Return Value: 4 -- success -1 -- failure
+  Function: write to RTC with frequeny rate
+*/
 int rtc_write(int32_t * buf, int32_t nbytes) {
   cli();
   if (nbytes != 4 || buf == NULL)
@@ -82,8 +104,15 @@ int rtc_write(int32_t * buf, int32_t nbytes) {
   sti();
 }
 
-// Sets the rate of the RTC. Only powers of 2 Hertz of to 1024 Hz are valid
-// if an invalid rate is requested, no change is made.
+
+/*
+int32_t set_rate
+  Input: freq -- frequency to set rate to 
+  Return Value: 4 -- success 
+  Function: Sets the rate of the RTC. Only powers of 2 Hertz of to 1024 Hz are valid
+			if an invalid rate is requested, no change is made.
+*/
+
 int32_t set_rate(int32_t freq) {
   /* Save old value of Reg A*/
   int8_t freq_const;
@@ -133,10 +162,13 @@ int32_t set_rate(int32_t freq) {
     return FREQ_SUCCESS; // Return 4 on success 
 }
 
-
-/* Function for testing the rtc system calls
-  it open the rtc, setting the initial frequence to 0 HZ.
-  Then, it prints the letter 'l' every time the RTC sends an interrupt.
+/*
+  void test_rtc
+  Input: none
+  Return Value: none 
+  Function:  Function for testing the rtc system calls
+			it open the rtc, setting the initial frequence to 0 HZ.
+			Then, it prints the letter 'l' every time the RTC sends an interrupt.
 */
 void test_rtc(void) {
   cli();
@@ -150,8 +182,12 @@ void test_rtc(void) {
   }
 }
 
-/* Changes the frequency of the rtc. every time this is called, the frequency doubles,
-  except at 1024 hz, it goes to 0, and at 0 hz, it goes to 2 hz
+/*
+  void test_rtc
+  Input: none
+  Return Value: none 
+  Function: Changes the frequency of the rtc. every time this is called, the frequency doubles,
+			except at 1024 hz, it goes to 0, and at 0 hz, it goes to 2 hz
 */
 void toggle_freq(void) {
   int8_t freq_const;

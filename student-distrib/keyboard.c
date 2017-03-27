@@ -12,15 +12,15 @@ volatile unsigned shift = 0;      //2a or 36 on press;
 volatile unsigned caps = 0;
 volatile unsigned ctrl = 0;
 
-void handle_backspace();
 
 static int keyboard_idx;
 static int last_idx;
-uint32_t count=0;
-int i,copied;
-uint32_t file_size;
-char my_file_name[MAX_FILE_CHAR+1];
-dentry_t curr_dentry;
+uint32_t count=0;	//index to count for switching files 
+int i;
+int copied; 		// number of bytes copied from read data
+uint32_t file_size; // current file size
+char my_file_name[MAX_FILE_CHAR+1]; // current file name
+dentry_t curr_dentry; // current directory entry
 
 
 /*
