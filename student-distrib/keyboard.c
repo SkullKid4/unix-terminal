@@ -161,9 +161,6 @@ void keyboard_handler(){
         lock = 0;
         return;
       }
-	/************************************/
-	//system files call written by Joann
-
 	 if(ctrl && ascii == '1'){   //list all files
 		clear();
 		for(i=0;i<(int)my_boot_block.num_dentries;i++){
@@ -172,12 +169,12 @@ void keyboard_handler(){
 			write(STDOUT,my_dentry[i].file_name,strlen((int8_t*)my_dentry[i].file_name));
 			write(STDOUT,"         ",strlen("          "));
 			write(STDOUT,"file_type:",strlen("file_type:"));
-			itoa(my_dentry[i].file_type, one_line_buf, 10);
+			itoa(my_dentry[i].file_type, one_line_buf, 10);//10 for decimal system 
 			write(STDOUT,one_line_buf,strlen(one_line_buf));
 			write(STDOUT,"      ",strlen("      "));
 			strcpy(one_line_buf,"");
 			write(STDOUT,"file_size:",strlen("file_size:"));
-			itoa(file_size, one_line_buf, 10);
+			itoa(file_size, one_line_buf, 10);//10 for decimal system
 			write(STDOUT,one_line_buf,strlen(one_line_buf));
 			putc('\n');						
 		}
@@ -244,7 +241,6 @@ void keyboard_handler(){
     lock=0;
     return;
   }
-	/************************************/
       if(keyboard_idx == MAX_BUF_SIZE){
         sti();
         lock = 0;

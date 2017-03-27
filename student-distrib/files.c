@@ -122,7 +122,8 @@ int32_t read_dentry_by_index(uint32_t index, dentry_t* dentry){
 	//check if the give index is within the maximum inode 
 	if(index<0 || index>=my_boot_block.num_dentries)
 		return -1;
-	//copy necessary coresponding info of the file to given pointer dentry_t*	strcpy((int8_t*)dentry->file_name,(int8_t*)(my_dentry[index].file_name));
+	//copy necessary coresponding info of the file to given pointer dentry_t*	
+	strcpy((int8_t*)dentry->file_name,(int8_t*)(my_dentry[index].file_name));
 	dentry->file_type=my_dentry[index].file_type;
 	dentry->inode=my_dentry[index].inode;
 	return 0;			
