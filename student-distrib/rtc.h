@@ -21,7 +21,13 @@
 #define HZ_256			0x08
 #define HZ_512			0x07
 #define HZ_1024			0x06
-#define INITIAL_RATE    0
+
+//RTC-open sets the freqency to 2 hertz
+#define INITIAL_RATE    2
+
+//rtc-write accepts four byte arguments
+#define WRITE_BYTES		4
+
 /*InitialiZ_e RTC interrupts*/
 void rtc_handler();
 void rtc_init();

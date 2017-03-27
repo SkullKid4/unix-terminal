@@ -170,9 +170,13 @@ int32_t set_rate(int32_t freq) {
 			it open the rtc, setting the initial frequence to 0 HZ.
 			Then, it prints the letter 'l' every time the RTC sends an interrupt.
 */
+
 void test_rtc(void) {
   cli();
   rtc_open();
+  int rtc_write_var[1];
+  rtc_write_var[0] = 0;
+  rtc_write(rtc_write_var, WRITE_BYTES);
   sti();
   char buf[1];
   buf[0] = 'l';
