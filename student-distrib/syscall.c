@@ -5,7 +5,7 @@
 
 /*
 void system_call_handler()
-  INPUT: none
+  Input: none
   Return Value: none 
   Function: Calls the apropriate system call based in the argumet registers. The call number is found in EAX
 */
@@ -45,7 +45,7 @@ void system_call_handler()
 
 /*
 void read()
-  INPUT: 
+  Input: 
   	fd: the file descriptor, signifies which kind of read should be called
   	buf: the buffer that the read data should be placed in
   	nbytes: the number of bytes that should be read into the buffer
@@ -87,7 +87,7 @@ int32_t read(int32_t fd, void* buf, int32_t nbytes){
 
 /*
 int32_t write(int32_t fd, const void* buf, int32_t nbytes)
-  INPUT: fd - file descriptor, indicates where this is being called from
+  Input: fd - file descriptor, indicates where this is being called from
   		buf - the buffer to write
   		nbytes - number of bytes to write
   Return Value: returns number of bytes written, or -1 on failure
@@ -129,7 +129,7 @@ int32_t write(int32_t fd, const void* buf, int32_t nbytes){
 
 /*
 int32_t open(const uint8_t* filename)
-  INPUT: filename - the name of the file to open
+  Input: filename - the name of the file to open
   Return Value: returns 0 on sucsess, or -1 on failure
   Function: opens a file
 */
@@ -139,7 +139,7 @@ int32_t open(const uint8_t* filename){
 
 /*
 int32_t close(const uint8_t* filename)
-  INPUT: filename - the name of the file to close
+  Input: filename - the name of the file to close
   Return Value: returns 0 on sucsess, or -1 on failure
   Function: closes a file
 */

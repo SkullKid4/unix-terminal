@@ -168,7 +168,7 @@ entry (unsigned long magic, unsigned long addr)
 
 	/*File system initiation*/
 	module_t* mod = (module_t*)mbi->mods_addr;
-	file_open((uint32_t*)mod->mod_start,(uint32_t*)mod->mod_end);
+	file_open((uint32_t*)mod->mod_start);
 	
 	/* Initialize devices, memory, filesystem, enable device interrupts on the
 	 * PIC, any other initialization stuff... */

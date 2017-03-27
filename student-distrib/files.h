@@ -9,17 +9,10 @@
 #define MAX_FILE_CHAR 32
 #define BYTE 8
 #define FOUR_BYTE 32
+#define STAT_ADDR_SIZE 16
+#define POS_FILE_TYPE 8
+#define POS_FILE_INODE 9
 
-//static unsigned int curr_num_dentries=0;
-/*typedef struct data_block{
-    uint8_t data[BLOCK_SIZE];
-} data_block_t;*/
-
-/*typedef struct inode{
-    unsigned char length;
-    unsigned char padding[3];	//padding length info to 4B
-    uint8_t data_block_index[BLOCK_SIZE-1];
-} inode_t;*/
 
 typedef struct dentry{
     uint8_t file_name[MAX_FILE_CHAR+1];
@@ -36,13 +29,15 @@ typedef struct boot_block{
 } boot_block_t;
 
 
+/*Variables to be used in functions*/
 boot_block_t my_boot_block;
 dentry_t my_dentry[TOTAL_DENTRY];
 uint32_t* inodes;	//starting address of inodes
-uint32_t* data_blocks;
-uint32_t* my_file_sys;
+uint32_t* data_blocks; // starting address of data blocks
+uint32_t* my_file_sys; // starting address of the file systems
 
-void file_open(uint32_t* add_start, uint32_t *add_end);
+/*functions to be used in file systems*/
+void file_open(uint32_t* add_start);
 int32_t file_close(void);
 int32_t write_data(uint32_t inode, uint32_t offset, uint8_t* buf,uint32_t length);
 int32_t dir_open(void);

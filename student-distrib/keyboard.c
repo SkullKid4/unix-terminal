@@ -70,7 +70,7 @@ unsigned char keyboard_map[128][2] =
 
 /*
 void keyboard_init()
-  INPUT: none
+  Input: none
   Return Value: none
   Function: sets the 0-15, 16-31 bits to point to the keyboard handler we defined
 */
@@ -85,7 +85,7 @@ void keyboard_init(){
 
 /*
 void keyboard_handler()
-  INPUT: none
+  Input: none
   Return Value: none 
   Function: When a putton press or release occurs this function is called and the response is
                handled appropriatly
@@ -284,7 +284,7 @@ void keyboard_handler(){
 
 /*
 void get_keyboard_idx
-  INPUT: data - pointer to array to copy to
+  Input: data - pointer to array to copy to
   Return Value: none 
   Function: Puts the index of the last written character and the current keyboard cursor in the given array
 */
@@ -295,7 +295,7 @@ void get_keyboard_idx(int* data){
 
 /*
 void keyboard_backspace
-  INPUT: none
+  Input: none
   Return Value: none 
   Function: Helper function called by handler for backspacing
 */
