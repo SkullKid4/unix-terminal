@@ -39,11 +39,7 @@ int paging_init(void) {
 	// Find what entry in the page table corresponds to video memory.
 	video_page_table_offset = (VIDEO / FOUR_KB); 
 	page_table[video_page_table_offset] |= 1;
-
-
 	page_directory[0] |= ((unsigned int)page_table);
-
-
 	page_directory[1] |= (FOUR_KB * ONE_KB);
 
 	/*enable paging*/

@@ -1,5 +1,6 @@
 #include "files.h"
 #include "lib.h"
+#include "keyboard.h"
 
 /*
 void file_open(const uint8_t* filename)
@@ -33,6 +34,40 @@ int32_t file_close
 int32_t file_close(void){
 	return 0;
 }
+/*
+int32_t file_write
+  Input: fname -- the file that the function wants to write to
+		 offset -- offset from the start position of the buffer
+		 buf -- data that to be written to inode
+		 length -- data length to be written in bytes 
+  Return Value: -1, always fail
+  Function: the file system is read-only file system, so always fail for
+			write function
+*/
+int32_t file_write(const uint8_t* fname, uint32_t offset, uint8_t* buf,uint32_t length){
+	return -1;
+}
+
+/*
+int32_t file_read
+  Input: fname -- the file that the function wants to read from
+		 offset -- offset from the start position of the buffer
+		 buf -- data that to be written to 
+		 length -- data length to be written in bytes 
+  Return Value: number of bytes successfully read or 0 indicated the file reaches to the end
+				-1 - fail
+  Function: the file system is read-only file system, so always fail for
+			write function
+*/
+int32_t file_read(const uint8_t* fname, uint32_t offset, uint8_t* buf,uint32_t length){
+	dentry_t curr_dentry;
+	if(read_dentry_by_name(fname,&curr_dentry)==0){
+		return read_data(curr_dentry.inode,0,buf,length);
+	}
+	return -1;
+}
+
+
 /*
 int32_t write_data
   Input: inode -- the inode that the function wants to write to
@@ -78,6 +113,33 @@ int32_t dir_write
 
 int32_t dir_write(void){
 	return -1;
+}
+/*
+int32_t dir_read
+  Input: none
+  Return Value: 0 -- always success
+  Function: Directory read gives all necessary information about files stored in the system
+*/
+
+int32_t dir_read(void){
+	int i;
+	uint32_t file_size;
+	for(i=0;i<(int)my_boot_block.num_dentries;i++){
+		memcpy(&file_size,inodes+(my_dentry[i].inode)*BLOCK_ADDR_SIZE,4);
+		write(STDOUT,"file_name:",strlen("file_name:"));
+		write(STDOUT,my_dentry[i].file_name,strlen((int8_t*)my_dentry[i].file_name));
+		write(STDOUT,"         ",strlen("          "));
+		write(STDOUT,"file_type:",strlen("file_type:"));
+		itoa(my_dentry[i].file_type, one_line_buf, 10);//10 for decimal system 
+		write(STDOUT,one_line_buf,strlen(one_line_buf));
+		write(STDOUT,"      ",strlen("      "));
+		strcpy(one_line_buf,"");
+		write(STDOUT,"file_size:",strlen("file_size:"));
+		itoa(file_size, one_line_buf, 10);//10 for decimal system
+		write(STDOUT,one_line_buf,strlen(one_line_buf));
+		putc('\n');						
+	}
+	return 0;
 }
 
 /*

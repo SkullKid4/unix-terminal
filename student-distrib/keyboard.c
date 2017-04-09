@@ -163,7 +163,7 @@ void keyboard_handler(){
       }
 	 if(ctrl && ascii == '1'){   //list all files
 		clear();
-		for(i=0;i<(int)my_boot_block.num_dentries;i++){
+		/*for(i=0;i<(int)my_boot_block.num_dentries;i++){
 			memcpy(&file_size,inodes+(my_dentry[i].inode)*BLOCK_ADDR_SIZE,4);
 			write(STDOUT,"file_name:",strlen("file_name:"));
 			write(STDOUT,my_dentry[i].file_name,strlen((int8_t*)my_dentry[i].file_name));
@@ -177,7 +177,8 @@ void keyboard_handler(){
 			itoa(file_size, one_line_buf, 10);//10 for decimal system
 			write(STDOUT,one_line_buf,strlen(one_line_buf));
 			putc('\n');						
-		}
+		}*/
+		dir_read();
 		sti(); 
 		lock=0;
 		return;		
