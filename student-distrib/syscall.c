@@ -151,3 +151,23 @@ int32_t close(int32_t fd){
 	}
 	return -1;
 }
+
+
+
+
+/*
+syscall tasks
+
+1. move functions in syscall into respective files. So system call can just call them resectivley.
+2. check user privelege of interup, kill it if user generates an execption
+3. Set idt entery x80 to our wrapper code
+4. rewrite exsisting code to call the general system call
+5. write system calls for the functions defined in the documentation
+6. write assemby linke (copy from syscall/ emulate.c)
+
+
+
+
+THINGS TO CORRECT
+1. Clear the buffer when enter is pressed (dont forget to get points back)
+*/
