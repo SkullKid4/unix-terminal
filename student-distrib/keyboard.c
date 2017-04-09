@@ -23,6 +23,7 @@ char my_file_name[MAX_FILE_CHAR+1]; // current file name
 dentry_t curr_dentry; // current directory entry
 
 
+
 /*
 this is a map I retrived from https://github.com/arjun024/mkeykernel/blob/master/keyboard_map.h
 All it does is converts the raw output from the keyboard into the ascii chars they are associated with
@@ -264,7 +265,9 @@ void keyboard_handler(){
       }
 
       keyboard_idx++;
-      write(STDIN, keyboard_buf, MAX_BUF_SIZE);
+      char x[] = "terminal_write";
+      DO_CALL(x, 4, 0, keyboard_buf, 128);
+      //write(STDIN, keyboard_buf, MAX_BUF_SIZE);
       last_idx++;
 
       if(ascii == '\n'){
@@ -277,6 +280,24 @@ void keyboard_handler(){
     lock = 0;
   }
 }
+
+
+/*#define DO_CALL(name,number)       \
+asm volatile ("                    \
+.GLOBL " #name "                  ;\
+" #name ":                        ;\
+        PUSHL %EBX              ;\
+  MOVL  $" #number ",%EAX ;\
+  MOVL  8(%ESP),%EBX      ;\
+  MOVL  12(%ESP),%ECX     ;\
+  MOVL  16(%ESP),%EDX     ;\
+  INT $0x80             ;\
+  CMP $0xFFFFC000,%EAX  ;\
+  JBE 1f                ;\
+  MOVL  $-1,%EAX    ;\
+1:  POPL  %EBX              ;\
+  RET                        \
+")*/
 
 
 /*
