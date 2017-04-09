@@ -6,7 +6,7 @@
 #define STDIN	0
 #define STDOUT	1
 
-#define DO_CALL(name,number, arg1, arg2, arg3)       \
+#define DO_CALL(name, number, arg1, arg2, arg3)       \
 asm volatile ("                    \
 .GLOBL " #name "                  ;\
 " #name ":                        ;\
@@ -18,11 +18,13 @@ asm volatile ("                    \
   INT $0x80             ;\
   POPL  %EBX              ;\
 ")
-  //LEAVE						;\
+/*  //LEAVE						;\
   //RET                        \
 //  CMP $0xFFFFC000,%EAX  ;\
 //  JBE 1                 ;\
-//  MOVL  $-1,%EAX    ;\
+//  MOVL  $-1,%EAX    ;\*/
+
+//extern void DO_CALL(void name, void number, void arg1, void arg2, void arg3);
 
 /*dispacture for the system calls*/
 extern void system_call_handler();

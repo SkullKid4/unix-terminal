@@ -10,7 +10,21 @@ void system_call_handler()
   Function: Calls the apropriate system call based in the argumet registers. The call number is found in EAX
 */
 
-
+/*void DO_CALL(void name, void number, void arg1, void arg2, void arg3) {
+	asm volatile ("                    \
+.GLOBL " #name "                  ;\
+" #name ":                        ;\
+        PUSHL %EBX              ;\
+  MOVL  $" #number ",%EAX ;\
+  MOVL  $" #arg1 ",%EBX      ;\
+  MOVL  $" #arg2 ",%ECX     ;\
+  MOVL  $" #arg3 ",%EDX     ;\
+  INT $0x80             ;\
+  POPL  %EBX              ;\
+  LEAVE						;\
+  RET 						;\
+  ")
+}*/
 
 void system_call_handler()
 {
@@ -56,35 +70,12 @@ void read()
   Function: Varies per file descripter. Reading STDIN (the keyboard) reads the last line that was terminated with a new line
 */
 int32_t read(int32_t fd, void* buf, int32_t nbytes){
-	if(fd == STDIN){
-		while(enter == 0){				//wait until enter is pressed
-			//wait
-		};
+	if(nbytes < 0 || buf == NULL) return -1;
+	switch(fd):
+		case STDIN:
+			keyboard_read(buf, nbytes);
+			break;
 
-		int idx[2];
-		int i;
-		int j = 0;						//holds the index of the first char to copy to the buffer
-		int count = 0;					//hold the number of new lines seen so far
-		get_keyboard_idx(idx);			//get the idecies of the keyboard
-
-		for(i = (idx[1]-1); i >= 0; i--){	//start at the right end of the buffer and go until 0
-			if(keyboard_buf[i] == '\n'){
-				count++;
-				if(count == 2){			//if the new line count is 2 then youre done
-					j = i+1;
-					break;
-				}
-			}
-		}
-		for(i = j; keyboard_buf[i] != '\0'; i++){		//copys the keyboard buffer to the given buffer
-			if((i-j) == nbytes){
-				break;
-			}
-			((char *)buf)[i] = keyboard_buf[i];
-		}
-		enter = 0;					//set the volatile enter to zero
-		return (i-j);				//the number of bytes read
-	}
 	return -1;
 }
 
@@ -99,6 +90,11 @@ int32_t write(int32_t fd, const void* buf, int32_t nbytes)
 int32_t write(int32_t fd, const void* buf, int32_t nbytes){
 	if(nbytes < 0) return -1;			//check for vaild args
 	if(buf == NULL) return -1;
+
+	switch(fd):
+		case STDIN:
+			keyboard_write(buf, nbytes);
+			break;
 
 	int i;
 	

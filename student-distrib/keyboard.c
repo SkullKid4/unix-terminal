@@ -266,7 +266,14 @@ void keyboard_handler(){
 
       keyboard_idx++;
       char x[] = "terminal_write";
-      DO_CALL(x, 4, 0, keyboard_buf, 128);
+      uint8_t s = STDIN;
+      uint8_t b = MAX_BUF_SIZE;
+      //DO_CALL(x, 4, 0, keyboard_buf, 128);
+      DO_CALL(x, 4, s, keyboard_buf, b);
+
+      x[0] = 'f';
+      s++;
+      b++;
       //write(STDIN, keyboard_buf, MAX_BUF_SIZE);
       last_idx++;
 
@@ -282,22 +289,6 @@ void keyboard_handler(){
 }
 
 
-/*#define DO_CALL(name,number)       \
-asm volatile ("                    \
-.GLOBL " #name "                  ;\
-" #name ":                        ;\
-        PUSHL %EBX              ;\
-  MOVL  $" #number ",%EAX ;\
-  MOVL  8(%ESP),%EBX      ;\
-  MOVL  12(%ESP),%ECX     ;\
-  MOVL  16(%ESP),%EDX     ;\
-  INT $0x80             ;\
-  CMP $0xFFFFC000,%EAX  ;\
-  JBE 1f                ;\
-  MOVL  $-1,%EAX    ;\
-1:  POPL  %EBX              ;\
-  RET                        \
-")*/
 
 
 /*
@@ -338,4 +329,47 @@ void handle_backspace(){
     keyboard_idx--;
   }
   update_cursor(screen_y, screen_x);
+}
+
+int32_t keyboard_read(void* buf, int32_t nbytes) {
+while(enter == 0){        //wait until enter is pressed
+      //wait
+    };
+
+    int idx[2];
+    int i;
+    int j = 0;            //holds the index of the first char to copy to the buffer
+    int count = 0;          //hold the number of new lines seen so far
+    get_keyboard_idx(idx);      //get the idecies of the keyboard
+
+    for(i = (idx[1]-1); i >= 0; i--){ //start at the right end of the buffer and go until 0
+      if(keyboard_buf[i] == '\n'){
+        count++;
+        if(count == 2){     //if the new line count is 2 then youre done
+          j = i+1;
+          break;
+        }
+      }
+    }
+    for(i = j; keyboard_buf[i] != '\0'; i++){   //copys the keyboard buffer to the given buffer
+      if((i-j) == nbytes){
+        break;
+      }
+      ((char *)buf)[i] = keyboard_buf[i];
+    }
+    enter = 0;          //set the volatile enter to zero
+    return (i-j);       //the number of bytes read
+}
+
+int32_t keyboard_write(void* buf, int32_t nbytes) {
+  int i;
+  int idx[2];
+  get_keyboard_idx(idx);
+    if(idx[0] != idx[1]){           //this
+      for(i = idx[0]; i < idx[1]; i++){
+       char data = ((char *)buf)[i];
+       putc(data);
+      }
+     return(idx[1] - idx[0]);
+    }
 }

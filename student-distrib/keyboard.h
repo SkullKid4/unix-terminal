@@ -21,7 +21,6 @@
 
 #define MAX_BUF_SIZE			128
 
-
 volatile unsigned enter;
 
 char keyboard_buf[129];   //128 + 1 for end of string
@@ -36,6 +35,10 @@ void keyboard_handler();
 void keyboard_init();
 
 void handle_backspace();
+
+int32_t keyboard_read(void* buf, int32_t nbytes);
+
+int32_t keyboard_write(void* buf, int32_t nbytes);
 
 
 #endif
