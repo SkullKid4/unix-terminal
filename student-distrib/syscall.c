@@ -163,7 +163,7 @@ syscall tasks
 
 1. move functions in syscall into respective files. So system call can just call them resectivley.
 2. check user privelege of interup, kill it if user generates an execption
-3. Set idt entery x80 to our wrapper code
+DONE 		3. Set idt entery x80 to our wrapper code
 4. rewrite exsisting code to call the general system call
 5. write system calls for the functions defined in the documentation
 6. write assemby linke (copy from syscall/ emulate.c)

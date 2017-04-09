@@ -34,7 +34,7 @@ asm volatile ("                    \
 	MOVL	16(%ESP),%EDX     ;\
 	INT	$0x80             ;\
 	CMP	$0xFFFFC000,%EAX  ;\
-	JBE	1f                ;\
+	JBE	1                 ;\
 	MOVL	$-1,%EAX	  ;\
 1:	POPL	%EBX              ;\
 	RET                        \

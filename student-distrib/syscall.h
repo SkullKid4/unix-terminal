@@ -16,12 +16,13 @@ asm volatile ("                    \
   MOVL  $" #arg2 ",%ECX     ;\
   MOVL  $" #arg3 ",%EDX     ;\
   INT $0x80             ;\
-  CMP $0xFFFFC000,%EAX  ;\
-  JBE 1f                ;\
-  MOVL  $-1,%EAX    ;\
-1:  POPL  %EBX              ;\
-  RET                        \
+  POPL  %EBX              ;\
 ")
+  //LEAVE						;\
+  //RET                        \
+//  CMP $0xFFFFC000,%EAX  ;\
+//  JBE 1                 ;\
+//  MOVL  $-1,%EAX    ;\
 
 /*dispacture for the system calls*/
 extern void system_call_handler();
