@@ -71,11 +71,11 @@ void read()
 */
 int32_t read(int32_t fd, void* buf, int32_t nbytes){
 	if(nbytes < 0 || buf == NULL) return -1;
-	switch(fd):
+	switch(fd){
 		case STDIN:
 			keyboard_read(buf, nbytes);
 			break;
-
+	};
 	return -1;
 }
 
@@ -91,11 +91,11 @@ int32_t write(int32_t fd, const void* buf, int32_t nbytes){
 	if(nbytes < 0) return -1;			//check for vaild args
 	if(buf == NULL) return -1;
 
-	switch(fd):
+	switch(fd){
 		case STDIN:
 			keyboard_write(buf, nbytes);
 			break;
-
+	};
 	int i;
 	
 	if(fd == STDIN){ //change fd plus they wil call this

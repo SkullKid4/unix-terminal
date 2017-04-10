@@ -23,11 +23,13 @@
 
 volatile unsigned enter;
 
-char keyboard_buf[129];   //128 + 1 for end of string
+char keyboard_buf[MAX_BUF_SIZE+1];   //128 + 1 for end of string
 char one_line_buf[NUM_COLS+1]; 
 
 void get_keyboard_idx(int* data);
 
+int32_t keyboard_read(void* buf, int32_t nbytes);
+int32_t keyboard_write(void* buf, int32_t nbytes);
 /* function that is called from the idt table when interrupts occor*/
 void keyboard_handler();
 
@@ -36,9 +38,6 @@ void keyboard_init();
 
 void handle_backspace();
 
-int32_t keyboard_read(void* buf, int32_t nbytes);
-
-int32_t keyboard_write(void* buf, int32_t nbytes);
 
 
 #endif

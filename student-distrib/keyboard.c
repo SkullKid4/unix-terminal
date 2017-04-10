@@ -6,6 +6,7 @@
 #include "syscall.h"
 #include "files.h"
 #include "rtc.h"
+#include "types.h"
 
 volatile unsigned lock = 0;       //used to lock the thread when writing keyboard output to the screen
 volatile unsigned shift = 0;      //2a or 36 on press;
@@ -68,6 +69,50 @@ unsigned char keyboard_map[128][2] =
     {'\0', '\0'}, /* F12 Key */
     {'\0', '\0'}, /* All other keys are undefined */
 };
+
+int32_t keyboard_read(void* buf, int32_t nbytes) {
+	while(enter == 0){        //wait until enter is pressed
+      //wait
+    };
+
+    int idx[2];
+    int i;
+    int j = 0;            //holds the index of the first char to copy to the buffer
+    int count = 0;          //hold the number of new lines seen so far
+    get_keyboard_idx(idx);      //get the idecies of the keyboard
+
+    for(i = (idx[1]-1); i >= 0; i--){ //start at the right end of the buffer and go until 0
+      if(keyboard_buf[i] == '\n'){
+        count++;
+        if(count == 2){     //if the new line count is 2 then youre done
+          j = i+1;
+          break;
+        }
+      }
+    }
+    for(i = j; keyboard_buf[i] != '\0'; i++){   //copys the keyboard buffer to the given buffer
+      if((i-j) == nbytes){
+        break;
+      }
+      ((char *)buf)[i] = keyboard_buf[i];
+    }
+    enter = 0;          //set the volatile enter to zero
+    return (i-j);       //the number of bytes read
+}
+
+int32_t keyboard_write(void* buf, int32_t nbytes) {
+  int i;
+  int idx[2];
+  get_keyboard_idx(idx);
+    if(idx[0] != idx[1]){           //this
+      for(i = idx[0]; i < idx[1]; i++){
+       char data = ((char *)buf)[i];
+       putc(data);
+      }
+     return(idx[1] - idx[0]);
+    }
+	return -1;
+}
 
 /*
 void keyboard_init()
@@ -179,7 +224,11 @@ void keyboard_handler(){
 			write(STDOUT,one_line_buf,strlen(one_line_buf));
 			putc('\n');						
 		}*/
-		dir_read();
+		for(i=0;i<(int)my_boot_block.num_dentries;i++){
+			strcpy(one_line_buf,"");
+			dir_read(one_line_buf);
+			keyboard_write(one_line_buf,strlen(one_line_buf));
+		}
 		sti(); 
 		lock=0;
 		return;		
@@ -265,15 +314,15 @@ void keyboard_handler(){
       }
 
       keyboard_idx++;
-      char x[] = "terminal_write";
-      uint8_t s = STDIN;
-      uint8_t b = MAX_BUF_SIZE;
+      //char x[] = "terminal_write";
+     // uint8_t s = STDIN;
+      //uint8_t b = MAX_BUF_SIZE;
       //DO_CALL(x, 4, 0, keyboard_buf, 128);
-      DO_CALL(x, 4, s, keyboard_buf, b);
+      //DO_CALL(x, 4, s, keyboard_buf, b);
 
-      x[0] = 'f';
-      s++;
-      b++;
+      //x[0] = 'f';
+      //s++;
+      //b++;
       //write(STDIN, keyboard_buf, MAX_BUF_SIZE);
       last_idx++;
 
@@ -331,8 +380,8 @@ void handle_backspace(){
   update_cursor(screen_y, screen_x);
 }
 
-int32_t keyboard_read(void* buf, int32_t nbytes) {
-while(enter == 0){        //wait until enter is pressed
+/*int32_t keyboard_read(void* buf, int32_t nbytes) {
+	while(enter == 0){        //wait until enter is pressed
       //wait
     };
 
@@ -372,4 +421,5 @@ int32_t keyboard_write(void* buf, int32_t nbytes) {
       }
      return(idx[1] - idx[0]);
     }
-}
+	return -1;
+}*/
