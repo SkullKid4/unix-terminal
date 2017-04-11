@@ -253,8 +253,8 @@ void keyboard_handler(){
 				putc(buf[i]);
 			}		
 			putc('\n');
-			write(STDOUT,"file_name:",strlen("file_name:"));
-			write(STDOUT,curr_dentry.file_name,strlen((int8_t*)curr_dentry.file_name));
+			terminal_write("file_name:",strlen("file_name:"));
+			terminal_write(curr_dentry.file_name,strlen((int8_t*)curr_dentry.file_name));
 		}
 		 sti();
 		 lock=0;
@@ -274,8 +274,8 @@ void keyboard_handler(){
 				putc(buf[i]);
 			}
 			putc('\n');
-			write(STDOUT,"file_name:",strlen("file_name:"));
-			write(STDOUT,curr_dentry.file_name,strlen((int8_t*)curr_dentry.file_name));			
+			terminal_write("file_name:",strlen("file_name:"));
+			terminal_write(curr_dentry.file_name,strlen((int8_t*)curr_dentry.file_name));			
 			count++;
 		}
 		sti();
