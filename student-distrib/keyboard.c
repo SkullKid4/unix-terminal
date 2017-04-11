@@ -100,6 +100,7 @@ int32_t keyboard_read(void* buf, int32_t nbytes) {
     return (i-j);       //the number of bytes read
 }
 
+
 int32_t keyboard_write(void* buf, int32_t nbytes) {
   int i;
   int idx[2];
@@ -323,7 +324,7 @@ void keyboard_handler(){
       //x[0] = 'f';
       //s++;
       //b++;
-      //write(STDIN, keyboard_buf, MAX_BUF_SIZE);
+      keyboard_write(keyboard_buf, MAX_BUF_SIZE);
       last_idx++;
 
       if(ascii == '\n'){
@@ -372,7 +373,7 @@ void handle_backspace(){
     int screen_temp = --screen_x;
     keyboard_buf[keyboard_idx-1] = '\0';
     last_idx--;
-    write(STDIN, keyboard_buf, MAX_BUF_SIZE);
+    keyboard_write(keyboard_buf, MAX_BUF_SIZE);
     screen_x = screen_temp;
     screen_y = screen_y_temp;
     keyboard_idx--;

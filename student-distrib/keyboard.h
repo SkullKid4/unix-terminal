@@ -1,6 +1,8 @@
 #ifndef KEYBOARD_H
 #define KEYBOARD_H
 
+#include "types.h"
+
 #define VIDEO 0xB8000
 #define NUM_COLS 80
 #define NUM_ROWS 25
@@ -28,8 +30,8 @@ char one_line_buf[NUM_COLS+1];
 
 void get_keyboard_idx(int* data);
 
-int32_t keyboard_read(void* buf, int32_t nbytes);
-int32_t keyboard_write(void* buf, int32_t nbytes);
+extern int32_t keyboard_read(void* buf, int32_t nbytes);
+extern int32_t keyboard_write(void* buf, int32_t nbytes);
 /* function that is called from the idt table when interrupts occor*/
 void keyboard_handler();
 

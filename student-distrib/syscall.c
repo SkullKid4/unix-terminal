@@ -87,7 +87,7 @@ int32_t write(int32_t fd, const void* buf, int32_t nbytes)
   Return Value: returns number of bytes written, or -1 on failure
   Function: Writes a number of bytes from a buffer, according to the file descriptor
 */
-int32_t write(int32_t fd, const void* buf, int32_t nbytes){
+int32_t write(int32_t fd, void* buf, int32_t nbytes){
 	if(nbytes < 0) return -1;			//check for vaild args
 	if(buf == NULL) return -1;
 
@@ -169,4 +169,7 @@ DONE 		3. Set idt entery x80 to our wrapper code
 
 THINGS TO CORRECT
 1. Clear the buffer when enter is pressed (dont forget to get points back)
+
+
+Update keyboard.c for writes to STDOUT to go directly to specific write function
 */
