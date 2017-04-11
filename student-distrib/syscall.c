@@ -39,7 +39,7 @@ void system_call_handler()
 		case 1:
 		case 2:
 		case 3:
-			read(arg1, (void*)arg2, arg3);
+			read(arg1, (void*)arg2, arg3);				/*LOOK AT THIS NOTE: We need to catch the return values and place them in EAX*/
 			break;
 		case 4:
 			write(arg1, (void*)arg2, arg3);
@@ -72,6 +72,7 @@ void read()
 */
 int32_t read(int32_t fd, void* buf, int32_t nbytes){
 	if(nbytes < 0 || buf == NULL) return -1;
+	if(buf == NULL) return -1;
 	switch(fd){
 		case STDIN:
 			return keyboard_read(buf, nbytes);
@@ -191,8 +192,35 @@ DONE 		3. Set idt entery x80 to our wrapper code
 
 
 THINGS TO CORRECT
-1. Clear the buffer when enter is pressed (dont forget to get points back)
+DONE 	1. Clear the buffer when enter is pressed (dont forget to get points back)
 
 
 Update keyboard.c for writes to STDOUT to go directly to specific write function
 */
+
+
+int32_t halt(uint8_t status){
+	return 0;
+}
+
+int32_t execute(const uint8_t* command){
+	return 0;
+}
+
+int32_t getargs(uint8_t* buf, int32_t nbytes){
+	return 0;
+}
+
+int32_t vidmap(uint8_t** sreen_start){
+	return 0;
+}
+
+int32_t set_handler(int32_t signum, void* handler_address){
+	return 0;
+}
+
+int32_t sigreturn(void){
+	return 0;
+}
+
+

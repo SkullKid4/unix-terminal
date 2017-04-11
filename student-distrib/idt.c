@@ -4,6 +4,7 @@
 #include "keyboard.h"
 #include "rtc.h"
 #include "syscall.h"
+#include "syscall_link.h"
 #include "terminal.h"
 
 #define NUM_EXCEPTIONS 32
@@ -68,7 +69,7 @@ void idt_init()
 
 
 	//change setting on system call
-	SET_IDT_ENTRY(idt[SYSCALL_NUM], system_call_handler);
+	SET_IDT_ENTRY(idt[SYSCALL_NUM], syscall_link);
 	idt[SYSCALL_NUM].dpl = 3;		//because kernel calls bypass this
 
 	//FOR TRAPS:

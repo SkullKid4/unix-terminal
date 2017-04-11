@@ -322,7 +322,7 @@ void keyboard_handler(){
 
       keyboard_idx++;
       //char x[] = "terminal_write";
-     // uint8_t s = STDIN;
+      //uint8_t s = STDIN;
       //uint8_t b = MAX_BUF_SIZE;
       //DO_CALL(x, 4, 0, keyboard_buf, 128);
       //DO_CALL(x, 4, s, keyboard_buf, b);
@@ -335,6 +335,9 @@ void keyboard_handler(){
 
       if(ascii == '\n'){
         enter = 1;
+        memset(keyboard_buf, ' ', MAX_BUF_SIZE);   //<------------------------ **** DOES NOT WORK ALL OF THE TIME PLEASE INVESTIGATE
+        keyboard_idx = 0;
+        last_idx = 0;
       }
           //write the value of the ascii char to the screen
 
