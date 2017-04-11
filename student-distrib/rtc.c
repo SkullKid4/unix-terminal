@@ -4,6 +4,7 @@
 #include "idt.h"
 #include "i8259.h"
 #include "syscall.h"
+#include "terminal.h"
 
 volatile int rtc_interrupt;
 volatile unsigned rtc_lock = 0;

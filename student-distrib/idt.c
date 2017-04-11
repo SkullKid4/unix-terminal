@@ -4,6 +4,7 @@
 #include "keyboard.h"
 #include "rtc.h"
 #include "syscall.h"
+#include "terminal.h"
 
 #define NUM_EXCEPTIONS 32
 

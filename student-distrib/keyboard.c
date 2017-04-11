@@ -7,6 +7,7 @@
 #include "files.h"
 #include "rtc.h"
 #include "types.h"
+#include "terminal.h"
 
 volatile unsigned lock = 0;       //used to lock the thread when writing keyboard output to the screen
 volatile unsigned shift = 0;      //2a or 36 on press;
@@ -113,6 +114,11 @@ int32_t keyboard_write(void* buf, int32_t nbytes) {
      return(idx[1] - idx[0]);
     }
 	return -1;
+}
+
+int32_t keyboard_close() {
+  disable_irq(KEYBOARD_IRQ);
+  return 0;
 }
 
 /*

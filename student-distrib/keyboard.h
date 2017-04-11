@@ -32,6 +32,7 @@ void get_keyboard_idx(int* data);
 
 extern int32_t keyboard_read(void* buf, int32_t nbytes);
 extern int32_t keyboard_write(void* buf, int32_t nbytes);
+extern int32_t keyboard_close();
 /* function that is called from the idt table when interrupts occor*/
 void keyboard_handler();
 

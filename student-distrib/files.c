@@ -1,6 +1,7 @@
 #include "files.h"
 #include "lib.h"
 #include "keyboard.h"
+#include "terminal.h"
 
 /*
 void file_open(const uint8_t* filename)

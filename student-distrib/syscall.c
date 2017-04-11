@@ -2,6 +2,7 @@
 #include "keyboard.h"
 #include "lib.h"
 #include "i8259.h"
+#include "terminal.h"
 
 /*
 void system_call_handler()
@@ -73,7 +74,11 @@ int32_t read(int32_t fd, void* buf, int32_t nbytes){
 	if(nbytes < 0 || buf == NULL) return -1;
 	switch(fd){
 		case STDIN:
-			keyboard_read(buf, nbytes);
+			return keyboard_read(buf, nbytes);
+			break;
+
+		case STDOUT:
+			return terminal_read(buf, nbytes);
 			break;
 	};
 	return -1;
@@ -93,10 +98,17 @@ int32_t write(int32_t fd, void* buf, int32_t nbytes){
 
 	switch(fd){
 		case STDIN:
-			keyboard_write(buf, nbytes);
+			return keyboard_write(buf, nbytes);
 			break;
+
+		case STDOUT:
+			return terminal_write(buf, nbytes);
+			break;
+
 	};
-	int i;
+
+	return -1;
+	/*int i;
 	
 	if(fd == STDIN){ //change fd plus they wil call this
 		int idx[2];
@@ -123,7 +135,7 @@ int32_t write(int32_t fd, void* buf, int32_t nbytes){
 		return nbytes;
 	}
 
-	return -1;
+	return -1;*/
 }
 
 /*
@@ -143,11 +155,22 @@ int32_t close(const uint8_t* filename)
   Function: closes a file
 */
 int32_t close(int32_t fd){
-	if(fd == STDIN){
+	/*if(fd == STDIN){
 		disable_irq(KEYBOARD_IRQ);
 	}else if(fd == STDOUT){
 		return 0;
 	}
+	return -1;*/
+	switch(fd) {
+		case STDIN:
+			return keyboard_close();
+			break;
+
+		case STDOUT:
+			return terminal_close();
+			break;
+	}
+
 	return -1;
 }
 
