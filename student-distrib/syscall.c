@@ -8,6 +8,7 @@
 #include "terminal.h"
 #include "paging.h"
 #include "x86_desc.h"
+#include "syscall_link.h"
 /*
 void system_call_handler()
   Input: none
@@ -264,7 +265,7 @@ int32_t halt(uint8_t status){
 
  int32_t execute (const uint8_t* command) {
  	cli();
- 	uint32_t process_num = 1; //change for next checkpoint. Maybe change for shell
+ 	uint32_t process_num = 0; //change for next checkpoint. Maybe change for shell
  	uint8_t buf[1024];
  	uint8_t com[1024];
  	uint8_t buffer[4];
@@ -327,11 +328,35 @@ int32_t halt(uint8_t status){
 
  	tss.ss0 = KERNEL_DS;
  	tss.esp0 = PHYS_FILE_START - EIGHT_KB * (process_num) - 4;
-
- 	 sti();
+ 	jump_user_space(file_start);
+ 	// sti();
+ 	 asm volatile(
+      			// "cli;"
+       			 "mov $0x2B, %%ax;" // 0x2B 0x23
+                 "mov %%ax, %%ds;"
+                 "mov %%ax, %%es;"
+                 "mov %%ax, %%fs;"
+                 "mov %%ax, %%gs;"
+                 "movl  $0x83FFFFC, %%eax;" //final memory address of file's pageu
+                 "pushl $0x2B;" //0x2B 0x23
+                 "pushl %%eax;"
+                 "pushfl;"
+                 "popl %%edx;"
+                 "orl $0x200, %%edx;" //enable interrupts and push flags
+                 "pushl %%edx;"
+                 "pushl $0x2B;" //0x23 0x1B
+                 "pushl %0;" 
+                 "iret;"
+                 "HALTED:;"
+                 "leave;"
+                 "ret;"
+                 :	/* no outputs */
+                 :"r"(file_start)	/* input */
+                 :"%edx","%eax"	/* clobbered register */
+                 );
     asm volatile(
-      			 "cli;"
-       			 "mov $0x2B, %%ax;"
+      			// "cli;"
+       			 "mov $0x23, %%ax;" // 0x2B 0x23
                  "mov %%ax, %%ds;"
                  "movl $0x83FFFFC, %%eax;"
                  "pushl $0x23;" //0x2B 0x23
@@ -343,7 +368,7 @@ int32_t halt(uint8_t status){
                  "pushl $0x1B;" //0x23 0x1B
                  "pushl %0;" 
                  "iret;"
-                 "HALTED:;"
+                 "HALTED1:;"
                  "leave;"
                  "ret;"
                  :	/* no outputs */

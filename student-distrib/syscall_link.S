@@ -44,4 +44,28 @@ not_valid:
 
 jump_table:
     .long halt, execute, read, write, open, close, getargs, vidmap, set_handler, sigreturn
-    
+
+.globl jump_user_space
+jump_user_space:
+	 pushl %ebp
+  	 movl %esp, %ebp
+  	 pushl %ebx
+	 mov $0x23, %ax # // 0x2B 0x23
+	 mov %ax, %ds#
+	 mov %ax, %es#
+	 mov %ax, %fs#
+	 mov %ax, %gs#
+	 movl  $0x83FFFFC, %eax# final memory address of file
+	 pushl $0x23 # //0x2B 0x23
+	 pushl %eax #
+	 pushfl		#
+	 popl %edx	#
+	# orl $0x200, %edx # //enable interrupts and push flags
+	# pushl %edx #
+	 pushl $0x1B # //0x23 0x1B
+	 movl 8(%ebp), %eax
+	 pushl %eax
+	 iret
+	 HALTED:
+	 leave
+	 ret
