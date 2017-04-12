@@ -125,40 +125,30 @@ int32_t dir_read
 */
 
 int32_t dir_read(int8_t* buf){
-	int i;
+	//int i;
 	uint32_t file_size;
-	int8_t* temp;
+	int8_t temp[10];
 	uint32_t curr_length=0;
 	if(dir_read_idx>=my_boot_block.num_dentries)
 		dir_read_idx=0;
 	memcpy(&file_size,inodes+(my_dentry[dir_read_idx].inode)*BLOCK_ADDR_SIZE,4);
 	strcpy(buf,"file_name:");
 	curr_length+=strlen("file_name:");
-	strncpy(buf+curr_length,(int8_t*)my_dentry[dir_read_idx].file_name,strlen((int8_t*)my_dentry[i].file_name));
+	strncpy(buf+curr_length,(int8_t*)my_dentry[dir_read_idx].file_name,strlen((int8_t*)my_dentry[dir_read_idx].file_name));
 	curr_length+=strlen((int8_t*)my_dentry[dir_read_idx].file_name);
 	strncpy(buf+curr_length,"file_type:",strlen("file_type:"));
 	curr_length+=strlen("file_type:");
+	strcpy(temp," ");
 	itoa(my_dentry[dir_read_idx].file_type, temp, 10);
 	strncpy(buf+curr_length,temp,strlen(temp));
 	curr_length+=strlen(temp);
 	strncpy(buf+curr_length,"file_size:",strlen("file_size:"));
 	curr_length+=strlen("file_size:");
+	strcpy(temp," ");
 	itoa(file_size, temp, 10);
 	strncpy(buf+curr_length,temp,strlen(temp));
 	curr_length+=strlen(temp);
 	dir_read_idx++;
-	/*write(STDOUT,"file_name:",strlen("file_name:"));
-			write(STDOUT,my_dentry[i].file_name,strlen((int8_t*)my_dentry[i].file_name));
-			write(STDOUT,"         ",strlen("          "));
-			write(STDOUT,"file_type:",strlen("file_type:"));
-			itoa(my_dentry[i].file_type, one_line_buf, 10);//10 for decimal system 
-			write(STDOUT,one_line_buf,strlen(one_line_buf));
-			write(STDOUT,"      ",strlen("      "));
-			strcpy(one_line_buf,"");
-			write(STDOUT,"file_size:",strlen("file_size:"));
-			itoa(file_size, one_line_buf, 10);//10 for decimal system
-			write(STDOUT,one_line_buf,strlen(one_line_buf));
-			putc('\n');	*/
 	return 0;
 }
 
@@ -248,7 +238,7 @@ int32_t read_data(uint32_t inode, uint32_t offset, uint8_t* buf,uint32_t length)
 	curr_block_byte=offset%BLOCK_SIZE;
 	count+=offset;
 	
-	while(copied<length || !file_reached_end){
+	while(copied<length && (!file_reached_end)){
 		if(curr_block_byte>=BLOCK_SIZE){//check if last block has reached the end
 			curr_block_byte=0;
 			i++;

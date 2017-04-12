@@ -232,9 +232,10 @@ void keyboard_handler(){
 			putc('\n');						
 		}*/
 		for(i=0;i<(int)my_boot_block.num_dentries;i++){
-			strcpy(one_line_buf,"");
+			strncpy(one_line_buf," ",NUM_COLS+1);
 			dir_read(one_line_buf);
-			keyboard_write(one_line_buf,strlen(one_line_buf));
+			terminal_write(one_line_buf,strlen(one_line_buf));
+			putc('\n');
 		}
 		sti(); 
 		lock=0;

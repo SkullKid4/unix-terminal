@@ -73,6 +73,8 @@ void read()
 int32_t read(int32_t fd, void* buf, int32_t nbytes){
 	if(nbytes < 0 || buf == NULL) return -1;
 	if(buf == NULL) return -1;
+	
+	
 	switch(fd){
 		case STDIN:
 			return keyboard_read(buf, nbytes);
