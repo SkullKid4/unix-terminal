@@ -6,6 +6,8 @@
 #include "files.h"
 #include "rtc.h"
 #include "terminal.h"
+#include "paging.h"
+#include "x86_desc.h"
 /*
 void system_call_handler()
   Input: none
