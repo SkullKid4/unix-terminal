@@ -6,6 +6,9 @@
 #define STDIN	0
 #define STDOUT	1
 
+#define IN_USE 1
+#define NOT_IN_USE 0
+
 #define DO_CALL(name, number, arg1, arg2, arg3)       \
 asm volatile ("                    \
 .GLOBL " #name "                  ;\
@@ -18,13 +21,16 @@ asm volatile ("                    \
   INT $0x80             ;\
   POPL  %EBX              ;\
 ")
-/*  //LEAVE						;\
-  //RET                        \
-//  CMP $0xFFFFC000,%EAX  ;\
-//  JBE 1                 ;\
-//  MOVL  $-1,%EAX    ;\*/
 
-//extern void DO_CALL(void name, void number, void arg1, void arg2, void arg3);
+typedef struct fds{
+	uint32_t jump_table_pointer;
+    uint32_t inode;
+	uint32_t file_position;
+	uint32_t flags;
+} fds_t;
+
+fds_t my_fds[8];
+
 
 /*dispacture for the system calls*/
 extern void system_call_handler();

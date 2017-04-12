@@ -12,7 +12,7 @@ void file_open(const uint8_t* filename)
 */
 uint32_t dir_read_idx=0;
 
-void file_open(uint32_t* add_start){
+int32_t file_open(uint32_t* add_start){
 	my_file_sys=add_start;
 	memcpy((void*)(&my_boot_block),(void*)my_file_sys,STAT_SIZE);
 	inodes=my_file_sys+BLOCK_ADDR_SIZE;
@@ -26,6 +26,7 @@ void file_open(uint32_t* add_start){
 		memcpy(&(my_dentry[i].inode),curr+POS_FILE_INODE,4);	
 		curr+=STAT_ADDR_SIZE;
 	}
+	return 0;
 }
 /*
 int32_t file_close

@@ -3,7 +3,9 @@
 #include "lib.h"
 #include "i8259.h"
 #include "terminal.h"
-
+#include "files.h"
+#include "rtc.h"
+#include "terminal.h"
 /*
 void system_call_handler()
   Input: none
@@ -26,6 +28,19 @@ void system_call_handler()
   RET 						;\
   ")
 }*/
+
+/*jump tables for functions using in file descriptors*/
+/*open,close,read,write*/
+void none() {};
+uint32_t stdin_jump_table[4]={(uint32_t)none,(uint32_t)keyboard_close,(uint32_t)keyboard_read,(int32_t)keyboard_write};
+uint32_t stdout_jump_table[4]={(uint32_t)none,(uint32_t)terminal_close,(uint32_t)terminal_read,(int32_t)terminal_write};
+uint32_t files_jump_table[4]={(uint32_t)file_open,(uint32_t)file_close,(uint32_t)file_read,(int32_t)file_write};
+uint32_t rtc_jump_table[4]={(uint32_t)rtc_open,(uint32_t)rtc_close,(uint32_t)rtc_read,(uint32_t)rtc_write};
+uint32_t dir_jump_table[4]={(uint32_t)dir_open,(uint32_t)dir_close,(uint32_t)dir_read,(uint32_t)dir_write};
+
+
+//uint32_t kernel_bottom=0x800000;
+
 
 void system_call_handler()
 {
@@ -71,9 +86,7 @@ void read()
   Function: Varies per file descripter. Reading STDIN (the keyboard) reads the last line that was terminated with a new line
 */
 int32_t read(int32_t fd, void* buf, int32_t nbytes){
-	if(nbytes < 0 || buf == NULL) return -1;
-	if(buf == NULL) return -1;
-	
+	if(nbytes < 0 || buf == NULL || fd < 2 || fd > 7) return -1;	
 	
 	switch(fd){
 		case STDIN:
@@ -96,8 +109,7 @@ int32_t write(int32_t fd, const void* buf, int32_t nbytes)
   Function: Writes a number of bytes from a buffer, according to the file descriptor
 */
 int32_t write(int32_t fd, void* buf, int32_t nbytes){
-	if(nbytes < 0) return -1;			//check for vaild args
-	if(buf == NULL) return -1;
+	if(nbytes < 0 || buf == NULL || fd < 2 || fd > 7) return -1;	
 
 	switch(fd){
 		case STDIN:
@@ -148,6 +160,37 @@ int32_t open(const uint8_t* filename)
   Function: opens a file
 */
 int32_t open(const uint8_t* filename){
+	dentry_t temp_dentry;
+	int i=2;
+	if(strncmp((int8_t*)filename,"stdin",strlen("stdin"))==0){
+		my_fds[0].jump_table_pointer=*stdin_jump_table;
+		my_fds[0].inode=NULL;
+		my_fds[0].flags=IN_USE;
+		return 0;
+	}
+	if(strncmp((int8_t*)filename,"stdout",strlen("stdout"))==0){
+		my_fds[1].jump_table_pointer=*stdout_jump_table;
+		my_fds[1].inode=NULL;
+		my_fds[1].flags=IN_USE;
+		return 0;
+	}
+	if(read_dentry_by_name(filename,&temp_dentry)!=0)
+		return -1;
+	
+	for(i=2;i<8;i++){
+		if(my_fds[i].flags!=IN_USE){
+			if(strncmp((int8_t*)filename,"rtc",strlen("rtc"))==0)
+				my_fds[i].jump_table_pointer=*rtc_jump_table;
+			else
+				my_fds[i].jump_table_pointer=*files_jump_table;				
+			my_fds[i].inode=temp_dentry.inode;
+			my_fds[i].file_position=0;
+			my_fds[i].flags=IN_USE;
+			return 0;
+		}				
+	}
+	if(i>=8)
+		return -1;//file descriptors are full;	
 	return 0;
 }
 
@@ -164,7 +207,7 @@ int32_t close(int32_t fd){
 		return 0;
 	}
 	return -1;*/
-	switch(fd) {
+	/*switch(fd) {
 		case STDIN:
 			return keyboard_close();
 			break;
@@ -172,9 +215,21 @@ int32_t close(int32_t fd){
 		case STDOUT:
 			return terminal_close();
 			break;
-	}
+	}*/
 
+	if(fd==0 || fd==1 || fd >7)
+		return -1;
+	if(my_fds[fd].flags==NOT_IN_USE)
+		return -1;
+	if(my_fds[fd].flags==IN_USE){
+	/*	my_fds[fd].jump_table_pointer==NULL;
+		my_fds[fd].inode==0;
+		my_fds[fd].file_position==0;
+		my_fds[fd].flags==NOT_IN_USE;
+		return 0;		*/
+	}
 	return -1;
+		
 }
 
 

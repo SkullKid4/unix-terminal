@@ -40,7 +40,8 @@ void keyboard_handler();
 void keyboard_init();
 
 void handle_backspace();
-
+//jump table holder for the function
+void none();
 
 
 #endif

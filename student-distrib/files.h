@@ -38,7 +38,7 @@ uint32_t* data_blocks; // starting address of data blocks
 uint32_t* my_file_sys; // starting address of the file systems
 
 /*functions to be used in file systems*/
-void file_open(uint32_t* add_start);
+int32_t file_open(uint32_t* add_start);
 int32_t file_close(void);
 int32_t file_write(const uint8_t* fname, uint32_t offset, uint8_t* buf,uint32_t length);
 int32_t file_read(const uint8_t* fname, uint32_t offset, uint8_t* buf,uint32_t length);
