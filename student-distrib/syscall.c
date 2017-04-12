@@ -260,9 +260,99 @@ int32_t halt(uint8_t status){
 	return 0;
 }
 
-int32_t execute(const uint8_t* command){
-	return 0;
-}
+ int32_t execute (const uint8_t* command) {
+ 	cli();
+ 	uint32_t process_num = 1; //change for next checkpoint. Maybe change for shell
+ 	uint8_t buf[1024];
+ 	uint8_t com[1024];
+ 	uint8_t buffer[4];
+ 	char* args[1024];
+ 	uint8_t* scan;
+ 	strcpy ((int8_t*)buf, (int8_t*)command);
+ 	uint32_t i = 0;
+ 	uint32_t file_start;
+ 	for (scan = buf; '\0' != *scan && ' ' != *scan && '\n' != *scan; scan++) {
+ 		com[i] = command[i];
+ 		i++;
+ 	}
+ 	strcpy((int8_t*)args, (int8_t*)buf);
+ 	/*
+ 	com[i+1] = '\0';
+ 	args[0] = (char*)buf;
+ 	n_arg = 1;
+ 	if ('\0' != *scan) {
+ 		*scan++ = '\0';
+ 		// parse arguments
+	 	while (1) {
+	 		while (' ' == *scan) scan++;
+	 		if ('\0' == *scan || '\n' == *scan) {
+	 			*scan = '\0';
+	 			break;
+	 		}
+	 		args[n_arg++] = (char*)scan;
+	 		while ('\0' != *scan && ' ' != *scan && '\n' != *scan) scan++;
+	 		if ('\0' != *scan)
+	 			*scan++ = '\0';
+ 		}
+ 	}
+ 	args[n_arg] = NULL;
+ 	if (0 == for)
+ 	*/
+ 	
+ 	//check if file is valid
+ 	dentry_t valid_file_check;
+ 	if (read_dentry_by_name((uint8_t*)com, &valid_file_check) != 0){
+ 		printf("invalid file");
+ 		sti();
+ 		return -1;
+ 	}
+ 	//check for valid exe
+ 	read_data(valid_file_check.inode, 0, buffer, 4);
+ 	if (buffer[0] != 0x7F || buffer[1] != 0x45 || buffer[2] != 0x4C || buffer[3] != 0x46){
+ 		sti();
+ 		return -1;
+ 	}
+ 	// get start address
+ 	read_data(valid_file_check.inode, 24, buffer, 4);
+ 	file_start = *((uint32_t*)buffer);
+
+
+ 	// map new page
+ 	map(VIRTUAL_FILE_PAGE, PHYS_FILE_START + PHYS_FILE_OFFSET * process_num);
+
+ 	// write file into memory
+ 	read_data(valid_file_check.inode, 0, (uint8_t*)VIRTUAL_FILE_START, 100000);
+
+ 	tss.ss0 = KERNEL_DS;
+ 	tss.esp0 = PHYS_FILE_START - EIGHT_KB * (process_num) - 4;
+
+ 	 sti();
+    asm volatile(
+      			 "cli;"
+       			 "mov $0x2B, %%ax;"
+                 "mov %%ax, %%ds;"
+                 "movl $0x83FFFFC, %%eax;"
+                 "pushl $0x23;" //0x2B 0x23
+                 "pushl %%eax;"
+                 "pushfl;"
+                 "popl %%edx;"
+                 "orl $0x200, %%edx;" //enable interrupts and push flags
+                 "pushl %%edx;"
+                 "pushl $0x1B;" //0x23 0x1B
+                 "pushl %0;" 
+                 "iret;"
+                 "HALTED:;"
+                 "leave;"
+                 "ret;"
+                 :	/* no outputs */
+                 :"r"(file_start)	/* input */
+                 :"%edx","%eax"	/* clobbered register */
+                 );
+
+    return 0;
+
+ }
+
 
 int32_t getargs(uint8_t* buf, int32_t nbytes){
 	return 0;

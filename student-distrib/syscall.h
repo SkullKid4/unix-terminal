@@ -8,6 +8,13 @@
 
 #define IN_USE 1
 #define NOT_IN_USE 0
+#define STDIN 0
+#define STDOUT  1
+#define PHYS_FILE_START 0x800000
+#define VIRTUAL_FILE_PAGE 0x8000000
+#define PHYS_FILE_OFFSET 0x400000
+#define VIRTUAL_FILE_START 0x8048000
+#define EIGHT_KB 8192
 
 #define DO_CALL(name, number, arg1, arg2, arg3)       \
 asm volatile ("                    \

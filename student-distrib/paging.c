@@ -58,3 +58,8 @@ int paging_init(void) {
 	return 0;
 
 }
+
+ 	map(uint32_t virt_add, uint32_t phys_add) {
+ 		uint32_t pde = virt_add / FOUR_MB;
+ 		page_directory[pde] = phys_add | 0x87;
+ 	}
