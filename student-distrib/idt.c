@@ -66,6 +66,10 @@ void idt_init()
 		SET_IDT_ENTRY(idt[i], exc_15_22_31);
 	}
 
+	for(i = 0; i < 32; i++) {
+		idt[i].reserved3 = 1;
+	}
+
 
 
 	//change setting on system call
@@ -89,8 +93,9 @@ void gen_interrupt()
 */
 void gen_interrupt(void)
 {
-	clear();
+	//clear();
 	printf("Something happened. We will handle what later.");
+	halt(256);
 	while(1);
 }
 
@@ -102,8 +107,9 @@ void exc_0()
 */
 void exc_0() 
 {
-	clear();
+	//clear();
 	puts("Division by zero");
+	halt(256);
 	while(1);
 }
 
@@ -116,8 +122,9 @@ void exc_1()
 */
 void exc_1()
 {	
-	clear();
+	//clear();
 	puts("Debugger");
+	halt(256);
 	while(1);
 }
 
@@ -130,8 +137,9 @@ void exc_2()
 */
 void exc_2()
 {	
-	clear();
+	//clear();
 	puts("NMI");
+	halt(256);
 	while(1);
 }
 
@@ -145,8 +153,9 @@ void exc_3()
 */
 void exc_3()
 {
-	clear();
+	//clear();
 	puts("Breakpoint");
+	halt(256);
 	while(1);
 }
 
@@ -158,8 +167,9 @@ void exc_4()
   Function: Overflow Exception. prints error and spins
 */
 void exc_4()
-{	clear();
+{	//clear();
 	puts("Overflow");
+	halt(256);
 	while(1);
 }
 
@@ -171,8 +181,9 @@ void exc_5()
   Function: Bounds Exception. prints error and spins
 */
 void exc_5()
-{	clear();
+{	//clear();
 	puts("Bounds");
+	halt(256);
 	while(1);
 }
 
@@ -184,8 +195,9 @@ void exc_6()
   Function: Invalid Opcode Exception. prints error and spins
 */
 void exc_6()
-{	clear();
+{	//clear();
 	puts("Invalid Opcode");
+	halt(256);
 	while(1);
 }
 
@@ -198,8 +210,9 @@ void exc_7()
   Function: Coprocessor not available exception. prints error and spins
 */
 void exc_7()
-{	clear();
+{	//clear();
 	puts("Coprocessor not available");
+	halt(256);
 	while(1);
 }
 
@@ -211,8 +224,9 @@ void exc_8()
   Function:  Double Fault Exception. prints error and spins
 */
 void exc_8()
-{	clear();
+{	//clear();
 	puts("Double fault");
+	halt(256);
 	while(1);
 }
 
@@ -224,8 +238,9 @@ void exc_9()
   Function: Coprocessor Segment Overrun Exception. prints error and spins
 */
 void exc_9()
-{	clear();
+{	//clear();
 	puts("Coprocessor Segment Overrun");
+	halt(256);
 	while(1);
 }
 
@@ -237,8 +252,9 @@ void exc_10()
   Function: Invalid Task State Segment Exception. prints error and spins
 */
 void exc_10()
-{	clear();
+{	//clear();
 	puts("Invalid Task State Segment");
+	halt(256);
 	while(1);
 }
 
@@ -250,8 +266,9 @@ void exc_11()
   Function:  Segment not Present Exception. prints error and spins
 */
 void exc_11()
-{	clear();
+{	//clear();
 	puts("Segment not present");
+	halt(256);
 	while(1);
 }
 
@@ -263,8 +280,9 @@ void exc_12()
   Function: Stack Fault Exception. prints error and spins
 */
 void exc_12()
-{	clear();
+{	//clear();
 	puts("Stack Fault");
+	halt(256);
 	while(1);
 }
 
@@ -276,7 +294,7 @@ void exc_13()
   Function: General Protection Fault Exception. prints error and spins
 */
 void exc_13()
-{	clear();
+{	//clear();
 	puts("General protection fault\n"
 		"\n"
 		"\n"
@@ -291,6 +309,7 @@ void exc_13()
 	 	"   C        C           C           C R T D        C D T R C    \n"
 
 );
+	halt(256);
 	while(1);
 }
 
@@ -301,8 +320,9 @@ void exc_14()
   Function: Page Fault Exception. prints error and spins
 */
 void exc_14()
-{	clear();
+{	//clear();
 	puts("Page fault");
+	halt(256);
 	while(1);
 }
 
@@ -313,8 +333,9 @@ void exc_15_22_31()
   Function: Reserved Exception. prints error and spins
 */
 void exc_15_22_31()	//this one corresponds to 15 and 22-31
-{	clear();
+{	//clear();
 	puts("Reserved by Intel: do not use");
+	halt(256);
 	while(1);
 }
 
@@ -325,8 +346,9 @@ void exc_16()
   Function: Math Fault Exception. prints error and spins
 */
 void exc_16()
-{	clear();
+{	//clear();
 	puts("Math Fault");
+	halt(256);
 	while(1);
 }
 
@@ -338,8 +360,9 @@ void exc_17()
   Function: Alignment Check Exception. prints error and spins
 */
 void exc_17()
-{	clear();
+{	//clear();
 	puts("Alignment Check");
+	halt(256);
 	while(1);
 }
 
@@ -350,8 +373,9 @@ void exc_18()
   Function: Machine Check Exception. prints error and spins
 */
 void exc_18()
-{	clear();
+{	//clear();
 	puts("Machine Check");
+	halt(256);
 	while(1);
 }
 
@@ -363,8 +387,9 @@ void exc_19()
   Function: SIMD Floating-Point Exception. prints error and spins
 */
 void exc_19()
-{	clear();
+{	//clear();
 	puts("SIMD Floating-Point Exception");
+	halt(256);
 	while(1);
 }
  
@@ -375,8 +400,9 @@ void exc_20()
   Function: Virtualization Exception. prints error and spins
 */
 void exc_20()
-{	clear();
+{	//clear();
 	puts("Virtualization Exception");
+	halt(256);
 	while(1);
 }
 
@@ -388,8 +414,9 @@ void exc_21()
   Function: Control Protection Exception. prints error and spins
 */
 void exc_21()
-{	clear();
+{	//clear();
 	puts("Control Protection Exception");
+	halt(256);
 	while(1);
 }
 
