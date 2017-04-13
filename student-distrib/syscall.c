@@ -265,6 +265,7 @@ int32_t halt(uint8_t status){
 
  int32_t execute (const uint8_t* command) {
  	cli();
+ 	//need to remember parent's PID, incrementing on execute & decrementing on halt
  	uint32_t process_num = 0; //change for next checkpoint. Maybe change for shell
  	uint8_t buf[1024];
  	uint8_t com[1024];

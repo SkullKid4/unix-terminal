@@ -150,11 +150,11 @@ entry (unsigned long magic, unsigned long addr)
 		tss.esp0 = 0x800000;
 		ltr(KERNEL_TSS);
 	}
-
+	clear();
 
 	/* Enable interrupts */
 	idt_init();
-
+	
 	/* Init the PIC */
 
 
@@ -177,12 +177,14 @@ entry (unsigned long magic, unsigned long addr)
 	/* Do not enable the following until after you have set up your
 	 * IDT correctly otherwise QEMU will triple fault and simple close
 	 * without showing you any output */
-
-	sti();
 	//clear();
 	//test_rtc();
 	/* Execute the first program (`shell') ... */
-	execute ((uint8_t*)"shell");
+	
+
+	execute((uint8_t*)("shell\0"));
+	sti();
+
 	/* Spin (nicely, so we don't chew up cycles) */
 	asm volatile(".1: hlt; jmp .1;");
 }

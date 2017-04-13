@@ -5,8 +5,8 @@ syscall_link:
 	pushl %ebx
 	pushl %ecx
 	pushl %edx
-	pushl %esp
-	pushl %ebp
+	#pushl %esp
+	#pushl %ebp
 	pushl %esi
 	pushl %edi
 
@@ -31,12 +31,11 @@ syscall_link:
 
 	popl %edi
 	popl %esi
-	popl %ebp
-	popl %esp
+	#popl %ebp
+	#popl %esp
 	popl %edx
 	popl %ecx
 	popl %ebx
-
 	iret
 
 
@@ -68,7 +67,7 @@ jump_user_space:
 	 pushl %eax #
 	 pushfl
      popl %edx
-     orl $0x100, %edx
+     orl $0x200, %edx
      pushl %edx
 	 pushl $0x23 # //0x23 0x1B
 	 movl 8(%ebp), %eax
