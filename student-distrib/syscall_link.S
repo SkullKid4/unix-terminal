@@ -50,17 +50,6 @@ jump_table:
 jump_user_space:
 	 pushl %ebp
   	 movl %esp, %ebp
-  	 #pushl %ebx
-	 # mov $0x2B, %ax # // 0x2B 0x23
-	 # mov %ax, %ds#
-	 # mov %ax, %es#
-	 # mov %ax, %fs#
-	 # mov %ax, %gs#
-	 
-	
-	 #popl %edx	#
-	 # orl $0x200, %edx # //enable interrupts and push flags
-	 # pushl %edx #
 	 
 	 pushl $0x2B # //0x2B 0x23
 	 movl  $0x83FFFFC, %eax# final memory address of file
@@ -77,13 +66,6 @@ jump_user_space:
 HALTED:
 	 leave
 	 ret
-
-EIGHT_KB:
-	.long	8192
-KSS:
-	.long	0x800000
-FP:
-	.long	8396800
 
 
 

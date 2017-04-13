@@ -174,6 +174,7 @@ entry (unsigned long magic, unsigned long addr)
 	/* Initialize devices, memory, filesystem, enable device interrupts on the
 	 * PIC, any other initialization stuff... */
 	paging_init();
+	//sti();
 	/* Do not enable the following until after you have set up your
 	 * IDT correctly otherwise QEMU will triple fault and simple close
 	 * without showing you any output */
@@ -181,9 +182,8 @@ entry (unsigned long magic, unsigned long addr)
 	//test_rtc();
 	/* Execute the first program (`shell') ... */
 	
-
 	execute((uint8_t*)("shell\0"));
-	sti();
+	
 
 	/* Spin (nicely, so we don't chew up cycles) */
 	asm volatile(".1: hlt; jmp .1;");

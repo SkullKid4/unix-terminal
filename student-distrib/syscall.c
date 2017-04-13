@@ -264,13 +264,12 @@ int32_t halt(uint8_t status){
 }
 
  int32_t execute (const uint8_t* command) {
- 	cli();
  	//need to remember parent's PID, incrementing on execute & decrementing on halt
  	uint32_t process_num = 0; //change for next checkpoint. Maybe change for shell
- 	uint8_t buf[1024];
- 	uint8_t com[1024];
+ 	uint8_t buf[256];
+ 	uint8_t com[128];
  	uint8_t buffer[4];
- 	char* args[1024];
+ 	char* args[128];
  	uint8_t* scan;
  	strcpy ((int8_t*)buf, (int8_t*)command);
  	uint32_t i = 0;
@@ -307,13 +306,11 @@ int32_t halt(uint8_t status){
  	dentry_t valid_file_check;
  	if (read_dentry_by_name((uint8_t*)com, &valid_file_check) != 0){
  		//printf("invalid file");
- 		sti();
  		return -1;
  	}
  	//check for valid exe
  	read_data(valid_file_check.inode, 0, buffer, 4);
  	if (buffer[0] != 0x7F || buffer[1] != 0x45 || buffer[2] != 0x4C || buffer[3] != 0x46){
- 		sti();
  		return -1;
  	}
  	// get start address
