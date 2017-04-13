@@ -63,3 +63,4 @@ int paging_init(void) {
  		uint32_t pde = virt_add / FOUR_MB;
  		page_directory[pde] = phys_add | 0x87;
  	}
+ 	

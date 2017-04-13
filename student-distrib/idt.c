@@ -75,7 +75,7 @@ void idt_init()
 	//FOR TRAPS:
 	//see http://wiki.osdev.org/Interrupt_Descriptor_Table#I386_Interrupt_Gate
 
-	puts("Finished enabling interrupts");
+
 }
 
 /*All the functiosns below handle exceptions by clearning the screen and output the exception words*/

@@ -15,8 +15,8 @@ volatile unsigned caps = 0;
 volatile unsigned ctrl = 0;
 
 
-static int keyboard_idx;
-static int last_idx;
+volatile uint8_t keyboard_idx;
+volatile uint8_t last_idx;
 uint32_t count=0;	//index to count for switching files 
 int i;
 int copied; 		// number of bytes copied from read data
@@ -322,24 +322,15 @@ void keyboard_handler(){
       }
 
       keyboard_idx++;
-      //char x[] = "terminal_write";
-      //uint8_t s = STDIN;
-      //uint8_t b = MAX_BUF_SIZE;
-      //DO_CALL(x, 4, 0, keyboard_buf, 128);
-      //DO_CALL(x, 4, s, keyboard_buf, b);
-
-      //x[0] = 'f';
-      //s++;
-      //b++;
-      keyboard_write(keyboard_buf, MAX_BUF_SIZE);
-      last_idx++;
-
       if(ascii == '\n'){
         enter = 1;
-        memset(keyboard_buf, ' ', MAX_BUF_SIZE);   //<------------------------ **** DOES NOT WORK ALL OF THE TIME PLEASE INVESTIGATE
         keyboard_idx = 0;
         last_idx = 0;
       }
+      keyboard_write(keyboard_buf, MAX_BUF_SIZE);
+      last_idx++;
+
+      
           //write the value of the ascii char to the screen
 
     }

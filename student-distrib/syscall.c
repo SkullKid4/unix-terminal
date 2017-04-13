@@ -89,7 +89,7 @@ void read()
   Function: Varies per file descripter. Reading STDIN (the keyboard) reads the last line that was terminated with a new line
 */
 int32_t read(int32_t fd, void* buf, int32_t nbytes){
-	if(nbytes < 0 || buf == NULL || fd < 2 || fd > 7) return -1;	
+	if(nbytes < 0 || buf == NULL) return -1;	
 	
 	switch(fd){
 		case STDIN:
@@ -112,7 +112,7 @@ int32_t write(int32_t fd, const void* buf, int32_t nbytes)
   Function: Writes a number of bytes from a buffer, according to the file descriptor
 */
 int32_t write(int32_t fd, void* buf, int32_t nbytes){
-	if(nbytes < 0 || buf == NULL || fd < 2 || fd > 7) return -1;	
+	if(nbytes < 0 || buf == NULL) return -1;	
 
 	switch(fd){
 		case STDIN:
@@ -305,7 +305,7 @@ int32_t halt(uint8_t status){
  	//check if file is valid
  	dentry_t valid_file_check;
  	if (read_dentry_by_name((uint8_t*)com, &valid_file_check) != 0){
- 		printf("invalid file");
+ 		//printf("invalid file");
  		sti();
  		return -1;
  	}

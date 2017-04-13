@@ -1,6 +1,7 @@
 .globl syscall_link
 
 syscall_link:
+
 	pushl %ebx
 	pushl %ecx
 	pushl %edx
@@ -35,7 +36,8 @@ syscall_link:
 	popl %edx
 	popl %ecx
 	popl %ebx
-	ret
+
+	iret
 
 
 not_valid:
@@ -49,23 +51,78 @@ jump_table:
 jump_user_space:
 	 pushl %ebp
   	 movl %esp, %ebp
-  	 pushl %ebx
-	 mov $0x23, %ax # // 0x2B 0x23
-	 mov %ax, %ds#
-	 mov %ax, %es#
-	 mov %ax, %fs#
-	 mov %ax, %gs#
+  	 #pushl %ebx
+	 # mov $0x2B, %ax # // 0x2B 0x23
+	 # mov %ax, %ds#
+	 # mov %ax, %es#
+	 # mov %ax, %fs#
+	 # mov %ax, %gs#
+	 
+	
+	 #popl %edx	#
+	 # orl $0x200, %edx # //enable interrupts and push flags
+	 # pushl %edx #
+	 
+	 pushl $0x2B # //0x2B 0x23
 	 movl  $0x83FFFFC, %eax# final memory address of file
-	 pushl $0x23 # //0x2B 0x23
 	 pushl %eax #
-	 pushfl		#
-	 popl %edx	#
-	# orl $0x200, %edx # //enable interrupts and push flags
-	# pushl %edx #
-	 pushl $0x1B # //0x23 0x1B
+	 pushfl
+     popl %edx
+     orl $0x100, %edx
+     pushl %edx
+	 pushl $0x23 # //0x23 0x1B
 	 movl 8(%ebp), %eax
 	 pushl %eax
 	 iret
-	 HALTED:
+
+HALTED:
 	 leave
 	 ret
+
+EIGHT_KB:
+	.long	8192
+KSS:
+	.long	0x800000
+FP:
+	.long	8396800
+
+
+
+
+
+
+	 # stack setup for iret
+	 # ss <---user ss (user data segmant)
+	 # esp <--- user esp (user start of stack)
+	 # eflags
+	 # cs <--- user
+	 # eip
+	 # iret
+
+
+
+# jump_user_space:
+# 	 pushl %ebp
+#   	 movl %esp, %ebp
+#   	 pushl %ebx
+# 	 mov $0x23, %ax # // 0x2B 0x23
+# 	 mov %ax, %ds#
+# 	 mov %ax, %es#
+# 	 mov %ax, %fs#
+# 	 mov %ax, %gs#
+# 	 movl  $0x83FFFFC, %eax# final memory address of file
+# 	 pushl $0x23 # //0x2B 0x23
+# 	 pushl %eax #
+# 	 pushfl		#
+# 	 popl %edx	#
+# 	# orl $0x200, %edx # //enable interrupts and push flags
+# 	# pushl %edx #
+# 	 pushl $0x1B # //0x23 0x1B
+# 	 movl 8(%ebp), %eax
+# 	 pushl %eax
+# 	 iret
+# 	 HALTED:
+# 	 leave
+# 	 ret
+
+

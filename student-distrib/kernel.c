@@ -179,9 +179,10 @@ entry (unsigned long magic, unsigned long addr)
 	 * without showing you any output */
 
 	sti();
-	test_rtc();
+	//clear();
+	//test_rtc();
 	/* Execute the first program (`shell') ... */
-
+	execute ((uint8_t*)"shell");
 	/* Spin (nicely, so we don't chew up cycles) */
 	asm volatile(".1: hlt; jmp .1;");
 }
