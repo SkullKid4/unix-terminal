@@ -47,6 +47,7 @@ jump_table:
     .long halt, execute, read, write, open, close, getargs, vidmap, set_handler, sigreturn
 
 .globl jump_user_space
+.globl HALTED
 jump_user_space:
 	 pushl %ebp
   	 movl %esp, %ebp

@@ -34,7 +34,7 @@ void read()
   Function: Varies per file descripter. Reading STDIN (the keyboard) reads the last line that was terminated with a new line
 */
 int32_t read(int32_t fd, void* buf, int32_t nbytes){
-	if(nbytes < 0 || buf == NULL) return -1;	
+	if(nbytes < 0 || buf == NULL || fd > 7 || fd < 0) return -1;	
 	
 	switch(fd){
 		case STDIN:
@@ -44,6 +44,10 @@ int32_t read(int32_t fd, void* buf, int32_t nbytes){
 		case STDOUT:
 			return terminal_read(buf, nbytes);
 			break;
+
+		default:
+			return file_read(file_name[fd], 0, buf, nbytes);
+			break
 	};
 	return -1;
 }
@@ -57,7 +61,7 @@ int32_t write(int32_t fd, const void* buf, int32_t nbytes)
   Function: Writes a number of bytes from a buffer, according to the file descriptor
 */
 int32_t write(int32_t fd, void* buf, int32_t nbytes){
-	if(nbytes < 0 || buf == NULL) return -1;	
+	if(nbytes < 0 || buf == NULL || fd > 7 || fd < 0) return -1;	
 
 	switch(fd){
 		case STDIN:
@@ -67,7 +71,9 @@ int32_t write(int32_t fd, void* buf, int32_t nbytes){
 		case STDOUT:
 			return terminal_write(buf, nbytes);
 			break;
-
+		default:
+			return file_read(file_name[fd], 0, buf, nbytes);
+			break
 	};
 
 	return -1;
@@ -184,18 +190,22 @@ int32_t halt(uint8_t status){
 	curr_process = cur_ppid;
 
 	//retore parent paging
-	unmap(); //child
 	map(VIRTUAL_FILE_PAGE, PHYS_FILE_START + (PHYS_FILE_OFFSET * cur_ppid));
 
 	//close relevent FD's
 	int i;
-	uint32_t* cur_pcb_fd = cur_pcb->FD_array;
-	for(i = 0; i < sizeof(*(cur_pcb_fd)); i++){
-		file_close(cur_pcb_fd[i]);
+	fds_t* cur_pcb_fd = cur_pcb->FDs_array;
+
+	for(i = 2; i < 8; i++){
+		if(cur_pcb_fd[i].flags != 0){
+			file_close(i);
+		}
 	}
 
 	//jump to execute return
-	
+	asm volatile ("              \
+        JMP HALTED              ;\
+	")
 
 	return 0;
 }

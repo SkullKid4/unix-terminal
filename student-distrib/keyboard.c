@@ -117,8 +117,7 @@ int32_t keyboard_write(void* buf, int32_t nbytes) {
 }
 
 int32_t keyboard_close() {
-  disable_irq(KEYBOARD_IRQ);
-  return 0;
+  return -1;
 }
 
 /*

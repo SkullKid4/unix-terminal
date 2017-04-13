@@ -4,7 +4,7 @@
 #include "terminal.h"
 
 /*
-void file_open(const uint8_t* filename)
+void file_init(const uint8_t* filename)
   Input: add_start -- the starting address of file system
   Return Value: none
   Function: set up the file system. Copy necessary statistics to defined 
@@ -12,7 +12,7 @@ void file_open(const uint8_t* filename)
 */
 uint32_t dir_read_idx=0;
 
-int32_t file_open(uint32_t* add_start){
+int32_t file_init(uint32_t* add_start){
 	my_file_sys=add_start;
 	memcpy((void*)(&my_boot_block),(void*)my_file_sys,STAT_SIZE);
 	inodes=my_file_sys+BLOCK_ADDR_SIZE;
