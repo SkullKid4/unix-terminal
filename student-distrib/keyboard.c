@@ -214,6 +214,20 @@ void keyboard_handler(){
         lock = 0;
         return;
       }
+
+      if(ascii == '\n') {
+        memset(keyboard_buf, ' ', MAX_BUF_SIZE);
+        if(screen_y != NUM_ROWS-1) screen_y++;
+        else vert_scroll();
+        screen_x = 0;
+        update_cursor(screen_y, screen_x);
+        keyboard_idx = 0;
+        last_idx = 0;
+        sti();
+        lock = 0;
+        return;
+      }
+      
 	 if(ctrl && ascii == '1'){   //list all files
 		clear();
 		/*for(i=0;i<(int)my_boot_block.num_dentries;i++){
