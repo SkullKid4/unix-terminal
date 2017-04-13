@@ -17,40 +17,12 @@ uint32_t files_jump_table[4]={(uint32_t)file_open,(uint32_t)file_close,(uint32_t
 uint32_t rtc_jump_table[4]={(uint32_t)rtc_open,(uint32_t)rtc_close,(uint32_t)rtc_read,(uint32_t)rtc_write};
 uint32_t dir_jump_table[4]={(uint32_t)dir_open,(uint32_t)dir_close,(uint32_t)dir_read,(uint32_t)dir_write};
 
-
-void system_call_handler()
-{
-
-	register int call_number asm("eax");		//For system calls, the args are passed through registers.
-	register int arg1 asm("ebx");				//See Appendix B in assignment for specifics
-	register int arg2 asm("ecx");
-	register int arg3 asm("edx");
-
-	switch(call_number){
-		case 1:
-		case 2:
-		case 3:
-			read(arg1, (void*)arg2, arg3);				/*LOOK AT THIS NOTE: We need to catch the return values and place them in EAX*/
-			break;
-		case 4:
-			write(arg1, (void*)arg2, arg3);
-			break;
-		case 5:
-			open((uint8_t*)arg1);
-			break;
-		case 6:
-			close(arg1);
-			break;
-		case 7:
-		case 8:
-		case 9:
-		case 10:
-		default:
-			printf("Invaild call number");
-			break;
-	};       
-
-}
+fops_t std_in = {keyboard_read, invalid_function, invalid_function, invalid_function};
+fops_t std_out = {invalid_function, keyboard_write, invalid_function, invalid_function};
+fops_t rtc = {rtc_read, rtc_write, rtc_open, rtc_close};
+fops_t file = {file_read, file_write, file_open, file_close};
+fops_t direct = {dir_read, dir_write, dir_open, dir_close};
+fops_t default_fops = {invalid_function, invalid_function, invalid_function, invalid_function};
 
 /*
 void read()
@@ -229,8 +201,8 @@ int32_t halt(uint8_t status){
 }
 
  int32_t execute (const uint8_t* command) {
- 	//need to remember parent's PID, incrementing on execute & decrementing on halt
- 	uint32_t process_num = 0; //change for next checkpoint. Maybe change for shell
+
+
  	uint8_t buf[256];
  	uint8_t com[128];
  	uint8_t buffer[4];
@@ -239,6 +211,7 @@ int32_t halt(uint8_t status){
  	strcpy ((int8_t*)buf, (int8_t*)command);
  	uint32_t i = 0;
  	uint32_t file_start;
+
  	for (scan = buf; '\0' != *scan && ' ' != *scan && '\n' != *scan; scan++) {
  		com[i] = command[i];
  		i++;
@@ -279,9 +252,23 @@ int32_t halt(uint8_t status){
  		return -1;
  	}
  	// get start address
+
  	read_data(valid_file_check.inode, 24, buffer, 4);
  	file_start = *((uint32_t*)buffer);
 
+ 	uint32_t new_process = get_process();
+ 	if (new_process == -1)
+ 		return -1	//fail if we have 6 processes already
+ 	pcb_t* curr_pcb = PHYS_FILE_START - EIGHT_KB * (new_process + 1);
+ 	curr_pcb->PPID = curr_process;
+ 	curr_pcb->PID = new_process;
+ 	curr_pcb->ESP0 = PHYS_FILE_START - EIGHT_KB * (process_num) - 4
+ 	curr_process = new_process;
+
+ 	//initialize fd_array
+ 	for (i = 0; i < MAX_FILES; i++) {
+ 		curr_pcb->fds[i].fops = default_fops;
+ 	}
 
  	// map new page
  	map(VIRTUAL_FILE_PAGE, PHYS_FILE_START + PHYS_FILE_OFFSET * process_num);
@@ -290,54 +277,9 @@ int32_t halt(uint8_t status){
  	read_data(valid_file_check.inode, 0, (uint8_t*)VIRTUAL_FILE_START, 100000);
 
  	tss.ss0 = KERNEL_DS;
- 	tss.esp0 = PHYS_FILE_START - EIGHT_KB * (process_num) - 4;
+ 	tss.esp0 = curr_pcb->ESP0;
  	jump_user_space(file_start);
  	// sti();
- 	 asm volatile(
-      			// "cli;"
-       			 "mov $0x2B, %%ax;" // 0x2B 0x23
-                 "mov %%ax, %%ds;"
-                 "mov %%ax, %%es;"
-                 "mov %%ax, %%fs;"
-                 "mov %%ax, %%gs;"
-                 "movl  $0x83FFFFC, %%eax;" //final memory address of file's pageu
-                 "pushl $0x2B;" //0x2B 0x23
-                 "pushl %%eax;"
-                 "pushfl;"
-                 "popl %%edx;"
-                 "orl $0x200, %%edx;" //enable interrupts and push flags
-                 "pushl %%edx;"
-                 "pushl $0x2B;" //0x23 0x1B
-                 "pushl %0;" 
-                 "iret;"
-                 "HALTED:;"
-                 "leave;"
-                 "ret;"
-                 :	/* no outputs */
-                 :"r"(file_start)	/* input */
-                 :"%edx","%eax"	/* clobbered register */
-                 );
-    asm volatile(
-      			// "cli;"
-       			 "mov $0x23, %%ax;" // 0x2B 0x23
-                 "mov %%ax, %%ds;"
-                 "movl $0x83FFFFC, %%eax;"
-                 "pushl $0x23;" //0x2B 0x23
-                 "pushl %%eax;"
-                 "pushfl;"
-                 "popl %%edx;"
-                 "orl $0x200, %%edx;" //enable interrupts and push flags
-                 "pushl %%edx;"
-                 "pushl $0x1B;" //0x23 0x1B
-                 "pushl %0;" 
-                 "iret;"
-                 "HALTED1:;"
-                 "leave;"
-                 "ret;"
-                 :	/* no outputs */
-                 :"r"(file_start)	/* input */
-                 :"%edx","%eax"	/* clobbered register */
-                 );
 
     return 0;
 

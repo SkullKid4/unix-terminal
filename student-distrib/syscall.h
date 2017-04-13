@@ -15,6 +15,13 @@
 #define PHYS_FILE_OFFSET 0x400000
 #define VIRTUAL_FILE_START 0x8048000
 #define EIGHT_KB 8192
+#define NUM_PROCESSES 6
+#define MAX_FILES 8
+
+
+#define NOT_SET 0
+#define STDINFLAG 1
+
 
 #define DO_CALL(name, number, arg1, arg2, arg3)       \
 asm volatile ("                    \
@@ -29,6 +36,15 @@ asm volatile ("                    \
   POPL  %EBX              ;\
 ")
 
+
+typedef struct fops {
+  int32_t (*read)(int32_t fd, void* buf, int32_t nbytes);
+  int32_t (*write)(int32_t fd, void* buf, int32_t nbytes);
+  int32_t (*open)(const uint8_t* filename);
+  int32_t (*close)(int32_t fd);
+} fops_t;
+
+
 typedef struct fds{
 	uint32_t jump_table_pointer;
     uint32_t inode;
@@ -39,12 +55,13 @@ typedef struct fds{
 fds_t my_fds[8];
 
 typedef struct pcb{
-	uint32_t PID;
-	uint8_t* FD_array[128]; //<----------- array of fds structs?
-	uint32_t ESP0;
-	uint32_t PPID;
-	uint32_t ARGS;
+  uint32_t PID;
+  fds_t FDs_array[8]; //<----------- array of fds structs?
+  uint32_t ESP0;
+  uint32_t PPID;
+  uint32_t ARGS;
 } pcb_t;
+
 
 
 /*dispacture for the system calls*/
@@ -66,6 +83,10 @@ extern int32_t getargs(uint8_t* buf, int32_t nbytes);
 extern int32_t vidmap(uint8_t** sreen_start);
 extern int32_t set_handler(int32_t signum, void* handler_address);
 extern int32_t sigreturn(void);
+
+int32_t getprocess();
+void invalid_function();
+
 
 
 #endif
