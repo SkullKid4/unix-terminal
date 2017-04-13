@@ -9,40 +9,13 @@
 #include "paging.h"
 #include "x86_desc.h"
 #include "syscall_link.h"
-/*
-void system_call_handler()
-  Input: none
-  Return Value: none 
-  Function: Calls the apropriate system call based in the argumet registers. The call number is found in EAX
-*/
 
-/*void DO_CALL(void name, void number, void arg1, void arg2, void arg3) {
-	asm volatile ("                    \
-.GLOBL " #name "                  ;\
-" #name ":                        ;\
-        PUSHL %EBX              ;\
-  MOVL  $" #number ",%EAX ;\
-  MOVL  $" #arg1 ",%EBX      ;\
-  MOVL  $" #arg2 ",%ECX     ;\
-  MOVL  $" #arg3 ",%EDX     ;\
-  INT $0x80             ;\
-  POPL  %EBX              ;\
-  LEAVE						;\
-  RET 						;\
-  ")
-}*/
-
-/*jump tables for functions using in file descriptors*/
-/*open,close,read,write*/
 void none() {};
 uint32_t stdin_jump_table[4]={(uint32_t)none,(uint32_t)keyboard_close,(uint32_t)keyboard_read,(int32_t)keyboard_write};
 uint32_t stdout_jump_table[4]={(uint32_t)none,(uint32_t)terminal_close,(uint32_t)terminal_read,(int32_t)terminal_write};
 uint32_t files_jump_table[4]={(uint32_t)file_open,(uint32_t)file_close,(uint32_t)file_read,(int32_t)file_write};
 uint32_t rtc_jump_table[4]={(uint32_t)rtc_open,(uint32_t)rtc_close,(uint32_t)rtc_read,(uint32_t)rtc_write};
 uint32_t dir_jump_table[4]={(uint32_t)dir_open,(uint32_t)dir_close,(uint32_t)dir_read,(uint32_t)dir_write};
-
-
-//uint32_t kernel_bottom=0x800000;
 
 
 void system_call_handler()
@@ -126,34 +99,6 @@ int32_t write(int32_t fd, void* buf, int32_t nbytes){
 	};
 
 	return -1;
-	/*int i;
-	
-	if(fd == STDIN){ //change fd plus they wil call this
-		int idx[2];
-		get_keyboard_idx(idx);
-		if(idx[0] != idx[1]){						//this
-			for(i = idx[0]; i < idx[1]; i++){
-				char data = ((char *)buf)[i];
-				putc(data);
-			}
-			return(idx[1] - idx[0]);
-		}
-	} else if(fd == STDOUT){
-		if(strlen(buf) < nbytes){
-			for(i = 0; i < strlen(buf); i++) {
-				char data = ((char *)buf)[i];
-				putc(data);
-			}	
-			return strlen(buf);
-		}
-		for(i = 0; i < nbytes; i++){
-			char data = ((char *)buf)[i];
-			putc(data);
-		}
-		return nbytes;
-	}
-
-	return -1;*/
 }
 
 /*
@@ -260,6 +205,26 @@ Update keyboard.c for writes to STDOUT to go directly to specific write function
 
 
 int32_t halt(uint8_t status){
+	//retore paret data
+	uint32_t cur_ppid = (pcb_t*)(PHYS_FILE_START - (EIGHT_KB * (curr_process + 1)))->PPID;
+	pcb_t* cur_pcb = (pcb_t*)(PHYS_FILE_START - (EIGHT_KB * (curr_ppid + 1)));
+	tss.esp0 = cur_pcb->ESP0;
+	curr_process = cur_ppid;
+
+	//retore parent paging
+	unmap(); //child
+	map(VIRTUAL_FILE_PAGE, PHYS_FILE_START + (PHYS_FILE_OFFSET * cur_ppid));
+
+	//close relevent FD's
+	int i;
+	uint32_t* cur_pcb_fd = cur_pcb->FD_array;
+	for(i = 0; i < sizeof(*(cur_pcb_fd)); i++){
+		file_close(cur_pcb_fd[i]);
+	}
+
+	//jump to execute return
+	
+
 	return 0;
 }
 

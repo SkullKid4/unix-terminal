@@ -40,7 +40,7 @@ fds_t my_fds[8];
 
 typedef struct pcb{
 	uint32_t PID;
-	uint32_t* FD_array[128]; //<----------- array of fds structs?
+	uint8_t* FD_array[128]; //<----------- array of fds structs?
 	uint32_t ESP0;
 	uint32_t PPID;
 	uint32_t ARGS;
