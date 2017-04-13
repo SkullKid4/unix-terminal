@@ -72,7 +72,7 @@ int32_t write(int32_t fd, void* buf, int32_t nbytes){
 			return terminal_write(buf, nbytes);
 			break;
 		default:
-			return file_read(file_name[fd], 0, buf, nbytes);
+			return file_write(file_name[fd], 0, buf, nbytes);
 			break
 	};
 
@@ -184,6 +184,11 @@ Update keyboard.c for writes to STDOUT to go directly to specific write function
 
 int32_t halt(uint8_t status){
 	//retore paret data
+	if(curr_process == 0){
+		end_process(0);
+		execute((uint8_t*)("shell\0"));
+	}
+
 	uint32_t cur_ppid = (pcb_t*)(PHYS_FILE_START - (EIGHT_KB * (curr_process + 1)))->PPID;
 	pcb_t* cur_pcb = (pcb_t*)(PHYS_FILE_START - (EIGHT_KB * (curr_ppid + 1)));
 	tss.esp0 = cur_pcb->ESP0;
