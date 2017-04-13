@@ -16,11 +16,16 @@
 #define VIRTUAL_FILE_START 0x8048000
 #define EIGHT_KB 8192
 #define NUM_PROCESSES 6
-#define MAX_FILES 8
+#define MAX_FILE_CHAR 32
 
 
 #define NOT_SET 0
 #define STDINFLAG 1
+#define STDOUTFLAG 2
+#define RTCFLAG 3
+#define FILEFLAG 4
+#define DIRFLAG 5
+#define FILE_START 0
 
 
 #define DO_CALL(name, number, arg1, arg2, arg3)       \
@@ -36,6 +41,7 @@ asm volatile ("                    \
   POPL  %EBX              ;\
 ")
 
+uint32_t = curr_process;
 
 typedef struct fops {
   int32_t (*read)(int32_t fd, void* buf, int32_t nbytes);
@@ -57,6 +63,7 @@ fds_t my_fds[8];
 typedef struct pcb{
   uint32_t PID;
   fds_t FDs_array[8]; //<----------- array of fds structs?
+  uint8_t file_name[MAX_FILE][MAX_FILE_CHAR]
   uint32_t ESP0;
   uint32_t PPID;
   uint32_t ARGS;
@@ -86,6 +93,8 @@ extern int32_t sigreturn(void);
 
 int32_t getprocess();
 void invalid_function();
+void end_process(int32_t proc_num);
+void do_nothing();
 
 
 

@@ -13,7 +13,9 @@
 #define STAT_ADDR_SIZE 16
 #define POS_FILE_TYPE 8
 #define POS_FILE_INODE 9
-
+#define RTCTYPE 0
+#define DIRTYPE 1
+#define FILETYPE 2
 
 typedef struct dentry{
     uint8_t file_name[MAX_FILE_CHAR+1];

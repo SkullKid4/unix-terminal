@@ -11,18 +11,20 @@
 #include "syscall_link.h"
 
 void none() {};
-uint32_t stdin_jump_table[4]={(uint32_t)none,(uint32_t)keyboard_close,(uint32_t)keyboard_read,(int32_t)keyboard_write};
-uint32_t stdout_jump_table[4]={(uint32_t)none,(uint32_t)terminal_close,(uint32_t)terminal_read,(int32_t)terminal_write};
-uint32_t files_jump_table[4]={(uint32_t)file_open,(uint32_t)file_close,(uint32_t)file_read,(int32_t)file_write};
-uint32_t rtc_jump_table[4]={(uint32_t)rtc_open,(uint32_t)rtc_close,(uint32_t)rtc_read,(uint32_t)rtc_write};
+uint32_t stdin_jump_table[4]={(uint32_t)invalid_function,(uint32_t)invalid_function,(uint32_t)keyboard_read,(int32_t)invalid_function};
+uint32_t stdout_jump_table[4]={(uint32_t)invalid_function,(uint32_t)invalid_function,(uint32_t)invalid_function,(int32_t)terminal_write};
+uint32_t rtc_jump_table[4]={(uint32_t)rtc_open,(uint32_t)do_nothing,(uint32_t)rtc_read,(uint32_t)rtc_write};
 uint32_t dir_jump_table[4]={(uint32_t)dir_open,(uint32_t)dir_close,(uint32_t)dir_read,(uint32_t)dir_write};
+uint32_t default_fops[4]={(uint32_t)invalid_function,(uint32_t)invalid_function,(uint32_t)invalid_function,(uint32_t)invalid_function}; 
 
+/*
 fops_t std_in = {keyboard_read, invalid_function, invalid_function, invalid_function};
-fops_t std_out = {invalid_function, keyboard_write, invalid_function, invalid_function};
+fops_t std_out = {invalid_function, terminal_write, invalid_function, invalid_function};
 fops_t rtc = {rtc_read, rtc_write, rtc_open, rtc_close};
 fops_t file = {file_read, file_write, file_open, file_close};
 fops_t direct = {dir_read, dir_write, dir_open, dir_close};
 fops_t default_fops = {invalid_function, invalid_function, invalid_function, invalid_function};
+*/
 
 /*
 void read()
@@ -33,22 +35,30 @@ void read()
   Return Value: The number of bytes read
   Function: Varies per file descripter. Reading STDIN (the keyboard) reads the last line that was terminated with a new line
 */
+// look at later -Sam
 int32_t read(int32_t fd, void* buf, int32_t nbytes){
+	int32_t read_bytes;
 	if(nbytes < 0 || buf == NULL || fd > 7 || fd < 0) return -1;	
 	
-	switch(fd){
-		case STDIN:
-			return keyboard_read(buf, nbytes);
-			break;
+	if (fd == STDIN)
+		return keyboard_read(buf, nbytes);
 
-		case STDOUT:
-			return terminal_read(buf, nbytes);
-			break;
+	if (fd == STDOUT)
+		return terminal_read(buf, nbytes);
 
-		default:
-			return file_read(file_name[fd], 0, buf, nbytes);
-			break
-	};
+	pcb_t* curr_pcb = PHYS_FILE_START - EIGHT_KB * (new_process + 1);
+	if (curr_pcb.FDs_array[fd].flags == NOT_SET)
+		return -1;
+	if (curr_pcb->FDs_array[fd].flags == RTCFLAG)
+		rtc_write(buf, nbytes);
+	if (curr_pcb->FDs_array[fd].flags == DIRFLAG)
+			return dir_read(curr_pcb->file_name[fd]);
+	if (curr_pcb->FDs_array[fd].flags == FILEFLAG) {
+		read_bytes = file_read(curr_pcb->file_name[fd], curr_pcb->FDs_array[fd].file_position, buf, nbytes);
+		curr_pcb->FDs_array[fd].file_position += read_bytes;
+		return read_bytes;
+	}
+			
 	return -1;
 }
 
@@ -61,23 +71,19 @@ int32_t write(int32_t fd, const void* buf, int32_t nbytes)
   Function: Writes a number of bytes from a buffer, according to the file descriptor
 */
 int32_t write(int32_t fd, void* buf, int32_t nbytes){
-	if(nbytes < 0 || buf == NULL || fd > 7 || fd < 0) return -1;	
+	if(nbytes < 0 || buf == NULL || fd < 0 || fd > 7) return -1;	
 
-	switch(fd){
-		case STDIN:
-			return keyboard_write(buf, nbytes);
-			break;
+	if (fd == STDOUT)
+		return terminal_write(buf, nbytes);
 
-		case STDOUT:
-			return terminal_write(buf, nbytes);
-			break;
-		default:
-			return file_write(file_name[fd], 0, buf, nbytes);
-			break
-	};
-
+	pcb_t* curr_pcb = PHYS_FILE_START - EIGHT_KB * (new_process + 1);
+	if (curr_pcb.FDs_array[fd].flags == NOT_SET)
+		return -1;
+	if (curr_pcb.FDs_array[fd].flags == RTCFLAG)
+		return rtc_write(buf, nbytes);
 	return -1;
 }
+
 
 /*
 int32_t open(const uint8_t* filename)
@@ -88,16 +94,13 @@ int32_t open(const uint8_t* filename)
 int32_t open(const uint8_t* filename){
 	dentry_t temp_dentry;
 	int i=2;
+	pcb_t* curr_pcb = PHYS_FILE_START - EIGHT_KB * (new_process + 1);
 	if(strncmp((int8_t*)filename,"stdin",strlen("stdin"))==0){
-		my_fds[0].jump_table_pointer=*stdin_jump_table;
-		my_fds[0].inode=NULL;
-		my_fds[0].flags=IN_USE;
+		curr_pcb->FDs_array[0].jump_table_pointer=stdin_jump_table;
 		return 0;
 	}
 	if(strncmp((int8_t*)filename,"stdout",strlen("stdout"))==0){
-		my_fds[1].jump_table_pointer=*stdout_jump_table;
-		my_fds[1].inode=NULL;
-		my_fds[1].flags=IN_USE;
+		curr_pcb->FDs_array[1].jump_table_pointer=stdout_jump_table;
 		return 0;
 	}
 	if(read_dentry_by_name(filename,&temp_dentry)!=0)
@@ -105,13 +108,27 @@ int32_t open(const uint8_t* filename){
 	
 	for(i=2;i<8;i++){
 		if(my_fds[i].flags!=IN_USE){
-			if(strncmp((int8_t*)filename,"rtc",strlen("rtc"))==0)
-				my_fds[i].jump_table_pointer=*rtc_jump_table;
-			else
-				my_fds[i].jump_table_pointer=*files_jump_table;				
-			my_fds[i].inode=temp_dentry.inode;
-			my_fds[i].file_position=0;
-			my_fds[i].flags=IN_USE;
+			if (temp_dentry.file_type == RTCTYPE) {
+				curr_pcb->FDs_array[i].jump_table_pointer=rtc_jump_table;
+				curr_pcb->FDs_array[i].flags = RTCFLAG;
+				curr_pcb->FDs_array[i].file_position=FILE_START;
+				return i;
+			}
+			else if (temp_dentry.file_type == DIRTYPE) {
+				curr_pcb->FDs_array[i].jump_table_pointer=dir_jump_table;				
+				curr_pcb->FDs_array[i].inode=temp_dentry.inode;
+				curr_pcb->FDs_array[i].file_position=FILE_START;
+				curr_pcb->FDs_array[i].flags=DIRFLAG;
+				strcpy(curr_pcb->file_name[i], filename);
+				return i;
+			else if (temp_dentry.file_type == FILETYPE) {
+				curr_pcb->FDs_array[i].jump_table_pointer=dir_jump_table;				
+				curr_pcb->FDs_array[i].inode=temp_dentry.inode;
+				curr_pcb->FDs_array[i].file_position=FILE_START;
+				curr_pcb->FDs_array[i].flags=DIRFLAG;
+				strcpy(curr_pcb->file_name[i], filename);
+				return i;
+			}
 			return 0;
 		}				
 	}
@@ -142,21 +159,22 @@ int32_t close(int32_t fd){
 			return terminal_close();
 			break;
 	}*/
-
-	if(fd==0 || fd==1 || fd >7)
+	pcb_t* curr_pcb = PHYS_FILE_START - EIGHT_KB * (new_process + 1);
+	if(fd==0 || fd==1 || fd >7 || fd < 0)
 		return -1;
-	if(my_fds[fd].flags==NOT_IN_USE)
+	if(curr_pcb->FDs_array[fd].flags==NOT_SET)
 		return -1;
-	if(my_fds[fd].flags==IN_USE){
-	/*	my_fds[fd].jump_table_pointer==NULL;
-		my_fds[fd].inode==0;
-		my_fds[fd].file_position==0;
-		my_fds[fd].flags==NOT_IN_USE;
-		return 0;		*/
+	if(curr_pcb->FDs_array[fd].flags==IN_USE){
+		curr_pcb->FDs_array[fd].jump_table_pointer=default_fops;
+		curr_pcb->FDs_array[fd].inode=0;
+		curr_pcb->FDs_array[fd].file_position=0;
+		curr_pcb->FDs_array[fd]=NOT_SET;
+		return 0;		
 	}
 	return -1;
 		
 }
+
 
 
 
@@ -277,13 +295,22 @@ int32_t halt(uint8_t status){
  	pcb_t* curr_pcb = PHYS_FILE_START - EIGHT_KB * (new_process + 1);
  	curr_pcb->PPID = curr_process;
  	curr_pcb->PID = new_process;
- 	curr_pcb->ESP0 = PHYS_FILE_START - EIGHT_KB * (process_num) - 4
+ 	curr_pcb->ESP0 = PHYS_FILE_START - EIGHT_KB * (process_num) - 4;
  	curr_process = new_process;
 
  	//initialize fd_array
  	for (i = 0; i < MAX_FILES; i++) {
  		curr_pcb->fds[i].fops = default_fops;
+ 		curr_pcb->fds[i].inode = -1;
+ 		curr_pcb->fds[i].file_position = FILE_START;
+ 		curr_pcb->fds[i].flags = NOT_SET;
  	}
+
+ 	process_control_block->fds[0].jump_table_pointer = stdin_jump_table;
+ 	process_control_block->fds[0].flags = STDINFLAG;
+  	process_control_block->fds[0].jump_table_pointer = stdout_jump_table;
+ 	process_control_block->fds[0].flags = STDOUTFLAG;
+
 
  	// map new page
  	map(VIRTUAL_FILE_PAGE, PHYS_FILE_START + PHYS_FILE_OFFSET * process_num);
@@ -301,6 +328,7 @@ int32_t halt(uint8_t status){
  }
 
 
+
 int32_t getargs(uint8_t* buf, int32_t nbytes){
 	return 0;
 }
@@ -314,6 +342,28 @@ int32_t set_handler(int32_t signum, void* handler_address){
 }
 
 int32_t sigreturn(void){
+	return 0;
+}
+
+int32_t get_process() {
+	int i;
+	for (i = 0; i < NUM_PROCESSES; i++) {
+		if (process_array[i] == 0) {
+			process_array[i] = 1;
+			return i;
+		}
+	}
+	return -1;
+}
+void end_process(int32_t proc_num) {
+	process_array[proc_num] = 0;
+}
+
+void invalid_function(){
+	return -1;
+}
+
+void do_nothing(){
 	return 0;
 }
 
