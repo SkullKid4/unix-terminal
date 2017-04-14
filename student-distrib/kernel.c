@@ -165,7 +165,7 @@ entry (unsigned long magic, unsigned long addr)
 
 	keyboard_init();
 
-	rtc_init();
+	//rtc_init();
 
 	/*File system initiation*/
 	module_t* mod = (module_t*)mbi->mods_addr;
@@ -181,7 +181,7 @@ entry (unsigned long magic, unsigned long addr)
 	//clear();
 	//test_rtc();
 	/* Execute the first program (`shell') ... */
-	
+	clear_process();
 	execute((uint8_t*)("shell\0"));
 	
 

@@ -98,6 +98,7 @@ int32_t keyboard_read(void* buf, int32_t nbytes) {
       ((char *)buf)[i] = keyboard_buf[i];
     }
     enter = 0;          //set the volatile enter to zero
+    memset(keyboard_buf, ' ', MAX_BUF_SIZE);
     return (i-j);       //the number of bytes read
 }
 
@@ -215,13 +216,13 @@ void keyboard_handler(){
       }
 
       if(ascii == '\n') {
-        memset(keyboard_buf, ' ', MAX_BUF_SIZE);
         if(screen_y != NUM_ROWS-1) screen_y++;
         else vert_scroll();
         screen_x = 0;
         update_cursor(screen_y, screen_x);
         keyboard_idx = 0;
         last_idx = 0;
+        enter = 1;
         sti();
         lock = 0;
         return;
