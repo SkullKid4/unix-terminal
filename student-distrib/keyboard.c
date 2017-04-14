@@ -91,14 +91,17 @@ int32_t keyboard_read(void* buf, int32_t nbytes) {
         }
       }
     }
-    for(i = j; keyboard_buf[i] != '\0'; i++){   //copys the keyboard buffer to the given buffer
+    for(i = j; keyboard_buf[i] != '\0' && keyboard_buf[i] != '\n'; i++){   //copys the keyboard buffer to the given buffer
       if((i-j) == nbytes){
         break;
       }
       ((char *)buf)[i] = keyboard_buf[i];
     }
+    ((char *)buf)[i] = '\0';
     enter = 0;          //set the volatile enter to zero
     memset(keyboard_buf, ' ', MAX_BUF_SIZE);
+    keyboard_idx = 0;
+    last_idx = 0;
     return (i-j);       //the number of bytes read
 }
 
@@ -220,8 +223,9 @@ void keyboard_handler(){
         else vert_scroll();
         screen_x = 0;
         update_cursor(screen_y, screen_x);
-        keyboard_idx = 0;
-        last_idx = 0;
+       // keyboard_idx = 0;
+        //last_idx = 0;
+        keyboard_buf[keyboard_idx] = ascii;
         enter = 1;
         sti();
         lock = 0;
@@ -338,8 +342,9 @@ void keyboard_handler(){
       keyboard_idx++;
       if(ascii == '\n'){
         enter = 1;
-        keyboard_idx = 0;
-        last_idx = 0;
+        keyboard_buf[keyboard_idx] = ascii;
+        //keyboard_idx = 0;
+        //last_idx = 0;
       }
       keyboard_write(keyboard_buf, MAX_BUF_SIZE);
       last_idx++;
