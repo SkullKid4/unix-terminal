@@ -74,6 +74,7 @@ extern int32_t close(int32_t fd);
 
 
 extern int32_t halt(uint8_t status);
+extern int32_t halt_from_exc();
 extern int32_t execute(const uint8_t* command);
 extern int32_t getargs(uint8_t* buf, int32_t nbytes);
 extern int32_t vidmap(uint8_t** sreen_start);

@@ -11,7 +11,7 @@ syscall_link:
 	pushl %edi
 
 
-		#prepair for sytem call
+		#prepare for sytem call
 	cmpl $0, %eax
 	jle not_valid
 	cmpl $11, %eax

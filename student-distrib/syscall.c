@@ -201,6 +201,13 @@ Update keyboard.c for writes to STDOUT to go directly to specific write function
 */
 
 
+/*
+int32_t halt
+  Input: status - 8 bit halt status
+  Return Value: 32 bit halt status
+  Function: halts a process, returning control to the parent process
+  			if trying to halt shell (only if process 0), restarts the shell
+*/
 int32_t halt(uint8_t status){
 	//retore paret data
 	end_process(curr_process);
@@ -233,9 +240,9 @@ int32_t halt(uint8_t status){
                  "mov %0, %%eax;"
                  "mov %1, %%esp;"
                  "mov %2, %%ebp;"
-                // "leave;"
-                // "ret;"
-                 "jmp HALTEDS;"
+                 "leave;"
+                 "ret;"
+                 //"jmp HALTED;"
                  :                      /* no outputs */
                  :"r"((uint32_t)status), "r"(child_pcb->ESP0), "r"(child_pcb->EBP0)   /* inputs */
                  :"%eax"                 /* clobbered registers */
@@ -243,6 +250,65 @@ int32_t halt(uint8_t status){
 
 	return 0;
 }
+
+/*
+int32_t halt_from_exc
+  Input: none
+  Return Value: 256 to indicate halt from exception
+  Function: halts a process, returning control to the parent process
+  			if trying to halt shell (only if process 0), restarts the shell
+*/
+int32_t halt_from_exc(){
+	//retore paret data
+	end_process(curr_process);
+	if(curr_process == 0){
+		end_process(0);
+		execute((uint8_t*)("shell\0"));
+	}
+	pcb_t* child_pcb = (pcb_t*)(PHYS_FILE_START - EIGHT_KB * (curr_process + 1));
+	uint32_t cur_ppid = ((pcb_t*)(PHYS_FILE_START - (EIGHT_KB * (curr_process + 1))))->PPID;
+	pcb_t* cur_pcb = (pcb_t*)(PHYS_FILE_START - (EIGHT_KB * (cur_ppid + 1)));
+	tss.esp0 = PHYS_FILE_START - EIGHT_KB * (cur_ppid) - 4;//; cur_pcb->ESP0;
+	curr_process = cur_ppid;
+
+	//retore parent paging
+	map(VIRTUAL_FILE_PAGE, PHYS_FILE_START + (PHYS_FILE_OFFSET * cur_ppid));
+
+	//close relevent FD's
+	int i;
+	fds_t* cur_pcb_fd = cur_pcb->FDs_array;
+
+	for(i = 2; i < 8; i++){
+		if(cur_pcb_fd[i].flags != 0){
+			close(i);
+		}
+	}
+
+	//jump to execute return
+    asm volatile(
+				 ""
+                 "mov %0, %%eax;"
+                 "mov %1, %%esp;"
+                 "mov %2, %%ebp;"
+                 "leave;"
+                 "ret;"
+                 //"jmp HALTED;"
+                 :                      /* no outputs */
+                 :"r"(256), "r"(child_pcb->ESP0), "r"(child_pcb->EBP0)   /* inputs */
+                 :"%eax"                 /* clobbered registers */
+                 );
+
+	return 0;
+}
+
+/*
+int32_t execute
+  Input: command - the process to execute
+  Return Value: -1 if cannot execute
+  				0-255 if halted by "halt" function
+  				256 if halted by exception
+  Function: executes a process
+*/
 
  int32_t execute (const uint8_t* command) {
 
@@ -347,23 +413,59 @@ int32_t halt(uint8_t status){
  }
 
 
-
+/*
+int32_t getargs
+  Input: buf - buffer to write command line args into
+  		nbytes - # bytes to write
+  Return Value:  0 on success
+				-1 on failure
+  Function: writes command line arguments into a buffer for userspace
+*/
 int32_t getargs(uint8_t* buf, int32_t nbytes){
 	return 0;
 }
 
+/*
+int32_t vidmap
+  Input: screen_start - pointer to address in userspace to load video memory into
+  Return Value: 0 on success
+  				-1 on failure
+  Function: maps video memory into user space
+*/
 int32_t vidmap(uint8_t** sreen_start){
 	return 0;
 }
 
+/*
+int32_t set_handler
+  Input: signum - which signal handler to change
+  		handler_address - points to user-level function to run when signal is received
+  Return Value: 0 on success
+  				-1 on failure
+  Function: sets a signal handler to a user-specified funciton
+*/
 int32_t set_handler(int32_t signum, void* handler_address){
 	return 0;
 }
 
+/*
+int32_t sigreturn
+  Input: none
+  Return Value: 0 on success
+  				-1 on failure
+  Function: copies hardware context from user-level stack to processor
+*/
 int32_t sigreturn(void){
 	return 0;
 }
 
+
+/*
+int32_t get_process
+  Input: none
+  Return Value: the index of the new process to run, -1 if max # processes already running
+  Function: used to parse running processes and find a space for the process to run, asserts a maximum number of processes
+*/
 int32_t get_process() {
 	int i;
 	for (i = 0; i < NUM_PROCESSES; i++) {
@@ -374,18 +476,32 @@ int32_t get_process() {
 	}
 	return -1;
 }
+
+/*
+void end_process
+  Input: proc_num - the process to end
+  Return Value: none
+  Function: sets the entry in process_array for the process to 0, indicating that another process may be run in its place
+*/
 void end_process(int32_t proc_num) {
 	process_array[proc_num] = 0;
 }
 
-int32_t invalid_function(){
+
+/*int32_t invalid_function(){
 	return -1;
-}
+}*/
 
-int32_t do_nothing(){
+/*int32_t do_nothing(){
 	return 0;
-}
+}*/
 
+/*
+void clear_process
+  Input: none
+  Return Value: none
+  Function: sets all entries in process_array to 0, used before executing shell in kernel.c
+*/
 void clear_process(){
 	int i;
 	for (i = 0; i < 6; i++){

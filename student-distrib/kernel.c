@@ -180,6 +180,7 @@ entry (unsigned long magic, unsigned long addr)
 	 * without showing you any output */
 	//clear();
 	//test_rtc();
+	
 	/* Execute the first program (`shell') ... */
 	clear_process();
 	execute((uint8_t*)("shell\0"));

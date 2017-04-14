@@ -95,7 +95,7 @@ void gen_interrupt(void)
 {
 	//clear();
 	printf("Something happened. We will handle what later.");
-	halt(256);
+	halt_from_exc();
 	while(1);
 }
 
@@ -109,7 +109,7 @@ void exc_0()
 {
 	//clear();
 	puts("Division by zero");
-	halt(256);
+	halt_from_exc();
 	while(1);
 }
 
@@ -124,7 +124,7 @@ void exc_1()
 {	
 	//clear();
 	puts("Debugger");
-	halt(256);
+	halt_from_exc();
 	while(1);
 }
 
@@ -139,7 +139,7 @@ void exc_2()
 {	
 	//clear();
 	puts("NMI");
-	halt(256);
+	halt_from_exc();
 	while(1);
 }
 
@@ -155,7 +155,7 @@ void exc_3()
 {
 	//clear();
 	puts("Breakpoint");
-	halt(256);
+	halt_from_exc();
 	while(1);
 }
 
@@ -169,7 +169,7 @@ void exc_4()
 void exc_4()
 {	//clear();
 	puts("Overflow");
-	halt(256);
+	halt_from_exc();
 	while(1);
 }
 
@@ -183,7 +183,7 @@ void exc_5()
 void exc_5()
 {	//clear();
 	puts("Bounds");
-	halt(256);
+	halt_from_exc();
 	while(1);
 }
 
@@ -197,7 +197,7 @@ void exc_6()
 void exc_6()
 {	//clear();
 	puts("Invalid Opcode");
-	halt(256);
+	halt_from_exc();
 	while(1);
 }
 
@@ -212,7 +212,7 @@ void exc_7()
 void exc_7()
 {	//clear();
 	puts("Coprocessor not available");
-	halt(256);
+	halt_from_exc();
 	while(1);
 }
 
@@ -226,7 +226,7 @@ void exc_8()
 void exc_8()
 {	//clear();
 	puts("Double fault");
-	halt(256);
+	halt_from_exc();
 	while(1);
 }
 
@@ -240,7 +240,7 @@ void exc_9()
 void exc_9()
 {	//clear();
 	puts("Coprocessor Segment Overrun");
-	halt(256);
+	halt_from_exc();
 	while(1);
 }
 
@@ -254,7 +254,7 @@ void exc_10()
 void exc_10()
 {	//clear();
 	puts("Invalid Task State Segment");
-	halt(256);
+	halt_from_exc();
 	while(1);
 }
 
@@ -268,7 +268,7 @@ void exc_11()
 void exc_11()
 {	//clear();
 	puts("Segment not present");
-	halt(256);
+	halt_from_exc();
 	while(1);
 }
 
@@ -282,7 +282,7 @@ void exc_12()
 void exc_12()
 {	//clear();
 	puts("Stack Fault");
-	halt(256);
+	halt_from_exc();
 	while(1);
 }
 
@@ -309,7 +309,7 @@ void exc_13()
 	 	"   C        C           C           C R T D        C D T R C    \n"
 
 );
-	halt(256);
+	halt_from_exc();
 	while(1);
 }
 
@@ -322,7 +322,7 @@ void exc_14()
 void exc_14()
 {	//clear();
 	puts("Page fault");
-	halt(256);
+	halt_from_exc();
 	while(1);
 }
 
@@ -335,7 +335,7 @@ void exc_15_22_31()
 void exc_15_22_31()	//this one corresponds to 15 and 22-31
 {	//clear();
 	puts("Reserved by Intel: do not use");
-	halt(256);
+	halt_from_exc();
 	while(1);
 }
 
@@ -348,7 +348,7 @@ void exc_16()
 void exc_16()
 {	//clear();
 	puts("Math Fault");
-	halt(256);
+	halt_from_exc();
 	while(1);
 }
 
@@ -362,7 +362,7 @@ void exc_17()
 void exc_17()
 {	//clear();
 	puts("Alignment Check");
-	halt(256);
+	halt_from_exc();
 	while(1);
 }
 
@@ -375,7 +375,7 @@ void exc_18()
 void exc_18()
 {	//clear();
 	puts("Machine Check");
-	halt(256);
+	halt_from_exc();
 	while(1);
 }
 
@@ -389,7 +389,7 @@ void exc_19()
 void exc_19()
 {	//clear();
 	puts("SIMD Floating-Point Exception");
-	halt(256);
+	halt_from_exc();
 	while(1);
 }
  
@@ -402,7 +402,7 @@ void exc_20()
 void exc_20()
 {	//clear();
 	puts("Virtualization Exception");
-	halt(256);
+	halt_from_exc();
 	while(1);
 }
 
@@ -416,7 +416,7 @@ void exc_21()
 void exc_21()
 {	//clear();
 	puts("Control Protection Exception");
-	halt(256);
+	halt_from_exc();
 	while(1);
 }
 

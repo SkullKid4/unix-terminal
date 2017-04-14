@@ -59,6 +59,14 @@ int paging_init(void) {
 
 }
 
+/*
+void map
+  Input: virt_add - virtual address
+  		phys_add - physical address
+  Return Value: none
+  Function: maps a physical address to a virtual address, marking it as present
+  			also flushes the TLB
+*/
  void map(uint32_t virt_add, uint32_t phys_add) {
  		uint32_t pde = virt_add / FOUR_MB;
  		page_directory[pde] = phys_add | 0x87;
