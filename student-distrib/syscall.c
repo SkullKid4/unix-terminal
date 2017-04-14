@@ -9,14 +9,14 @@
 #include "paging.h"
 #include "x86_desc.h"
 #include "syscall_link.h"
-
+/*
 void none() {};
 uint32_t stdin_jump_table[4]={(uint32_t)invalid_function,(uint32_t)invalid_function,(uint32_t)keyboard_read,(int32_t)invalid_function};
 uint32_t stdout_jump_table[4]={(uint32_t)invalid_function,(uint32_t)invalid_function,(uint32_t)invalid_function,(int32_t)terminal_write};
 uint32_t rtc_jump_table[4]={(uint32_t)rtc_open,(uint32_t)do_nothing,(uint32_t)rtc_read,(uint32_t)rtc_write};
 uint32_t dir_jump_table[4]={(uint32_t)dir_open,(uint32_t)dir_close,(uint32_t)dir_read,(uint32_t)dir_write};
 uint32_t default_fops[4]={(uint32_t)invalid_function,(uint32_t)invalid_function,(uint32_t)invalid_function,(uint32_t)invalid_function}; 
-
+*/
 /*
 fops_t std_in = {keyboard_read, invalid_function, invalid_function, invalid_function};
 fops_t std_out = {invalid_function, terminal_write, invalid_function, invalid_function};
@@ -208,10 +208,10 @@ int32_t halt(uint8_t status){
 		end_process(0);
 		execute((uint8_t*)("shell\0"));
 	}
-
+	pcb_t* child_pcb = (pcb_t*)(PHYS_FILE_START - EIGHT_KB * (curr_process + 1));
 	uint32_t cur_ppid = ((pcb_t*)(PHYS_FILE_START - (EIGHT_KB * (curr_process + 1))))->PPID;
 	pcb_t* cur_pcb = (pcb_t*)(PHYS_FILE_START - (EIGHT_KB * (cur_ppid + 1)));
-	tss.esp0 = cur_pcb->ESP0;
+	tss.esp0 = PHYS_FILE_START - EIGHT_KB * (cur_ppid) - 4;//; cur_pcb->ESP0;
 	curr_process = cur_ppid;
 
 	//retore parent paging
@@ -231,11 +231,13 @@ int32_t halt(uint8_t status){
     asm volatile(
 				 ""
                  "mov %0, %%eax;"
-                // "mov %1, %%esp;"
-               //  "mov %2, %%ebp;"
-                 "jmp HALTED;"
+                 "mov %1, %%esp;"
+                 "mov %2, %%ebp;"
+                // "leave;"
+                // "ret;"
+                 "jmp HALTEDS;"
                  :                      /* no outputs */
-                 :"r"((uint32_t)status)//, "r"(cur_pcb->ESP0), "r"(cur_pcb->EBP0)   /* inputs */
+                 :"r"((uint32_t)status), "r"(child_pcb->ESP0), "r"(child_pcb->EBP0)   /* inputs */
                  :"%eax"                 /* clobbered registers */
                  );
 
@@ -245,7 +247,7 @@ int32_t halt(uint8_t status){
  int32_t execute (const uint8_t* command) {
 
 
- 	uint8_t buf[256];
+ 	uint8_t buf[128];
  	uint8_t com[128];
  	uint8_t buffer[4];
  	char* args[128];
@@ -305,13 +307,8 @@ int32_t halt(uint8_t status){
  	pcb_t* curr_pcb = (pcb_t*)(PHYS_FILE_START - EIGHT_KB * (new_process + 1));
  	curr_pcb->PPID = curr_process;
  	curr_pcb->PID = new_process;
- 	curr_pcb->ESP0 = PHYS_FILE_START - EIGHT_KB * (new_process) - 4;
  	curr_process = new_process;
- 	asm volatile("			\n\
-				movl %%ebp, %%eax 	\n\
-				movl %%esp, %%ebx 	\n\
-			"
-	:"=a"(curr_pcb->EBP0), "=b"(curr_pcb->ESP0));
+
 
  	//initialize fd_array
  	for (i = 0; i < MAX_FILE; i++) {
@@ -335,7 +332,13 @@ int32_t halt(uint8_t status){
 
 
  	tss.ss0 = KERNEL_DS;
- 	tss.esp0 = curr_pcb->ESP0;
+ 	tss.esp0 = PHYS_FILE_START - EIGHT_KB * (new_process) - 4;
+ 	 	asm volatile("			\n\
+				movl %%ebp, %%eax 	\n\
+				movl %%esp, %%ebx 	\n\
+			"
+	:"=a"(curr_pcb->EBP0), "=b"(curr_pcb->ESP0));
+
  	jump_user_space(file_start);
  	// sti();
 

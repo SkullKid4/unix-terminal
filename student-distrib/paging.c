@@ -62,5 +62,9 @@ int paging_init(void) {
  void map(uint32_t virt_add, uint32_t phys_add) {
  		uint32_t pde = virt_add / FOUR_MB;
  		page_directory[pde] = phys_add | 0x87;
+ 		asm (
+ 	"movl	%%cr3,%%eax ;"
+	"movl	%%eax,%%cr3 "
+	: : :"eax", "cc");
  	}
  	
