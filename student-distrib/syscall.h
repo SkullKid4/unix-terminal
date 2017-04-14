@@ -56,6 +56,7 @@ typedef struct pcb{
   uint32_t ESP0;
   uint32_t PPID;
   uint32_t ARGS;
+  uint32_t EBP0;
 } pcb_t;
 
 

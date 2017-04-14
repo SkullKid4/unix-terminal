@@ -203,6 +203,7 @@ Update keyboard.c for writes to STDOUT to go directly to specific write function
 
 int32_t halt(uint8_t status){
 	//retore paret data
+	end_process(curr_process);
 	if(curr_process == 0){
 		end_process(0);
 		execute((uint8_t*)("shell\0"));
@@ -227,9 +228,16 @@ int32_t halt(uint8_t status){
 	}
 
 	//jump to execute return
-	asm volatile ("              \
-        JMP HALTED              ;\
-	");
+    asm volatile(
+				 ""
+                 "mov %0, %%eax;"
+                // "mov %1, %%esp;"
+               //  "mov %2, %%ebp;"
+                 "jmp HALTED;"
+                 :                      /* no outputs */
+                 :"r"((uint32_t)status)//, "r"(cur_pcb->ESP0), "r"(cur_pcb->EBP0)   /* inputs */
+                 :"%eax"                 /* clobbered registers */
+                 );
 
 	return 0;
 }
@@ -250,6 +258,7 @@ int32_t halt(uint8_t status){
  		com[i] = command[i];
  		i++;
  	}
+ 	com[i] = '\0';
  	strcpy((int8_t*)args, (int8_t*)buf);
  	/*
  	com[i+1] = '\0';
@@ -298,6 +307,11 @@ int32_t halt(uint8_t status){
  	curr_pcb->PID = new_process;
  	curr_pcb->ESP0 = PHYS_FILE_START - EIGHT_KB * (new_process) - 4;
  	curr_process = new_process;
+ 	asm volatile("			\n\
+				movl %%ebp, %%eax 	\n\
+				movl %%esp, %%ebx 	\n\
+			"
+	:"=a"(curr_pcb->EBP0), "=b"(curr_pcb->ESP0));
 
  	//initialize fd_array
  	for (i = 0; i < MAX_FILE; i++) {
@@ -318,6 +332,7 @@ int32_t halt(uint8_t status){
 
  	// write file into memory
  	read_data(valid_file_check.inode, 0, (uint8_t*)VIRTUAL_FILE_START, 100000);
+
 
  	tss.ss0 = KERNEL_DS;
  	tss.esp0 = curr_pcb->ESP0;
