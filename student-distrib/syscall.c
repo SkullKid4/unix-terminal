@@ -46,15 +46,15 @@ int32_t read(int32_t fd, void* buf, int32_t nbytes){
 	if (fd == STDOUT)
 		return terminal_read(buf, nbytes);
 
-	pcb_t* curr_pcb = PHYS_FILE_START - EIGHT_KB * (new_process + 1);
-	if (curr_pcb.FDs_array[fd].flags == NOT_SET)
+	pcb_t* curr_pcb = (pcb_t*)(PHYS_FILE_START - EIGHT_KB * (curr_process + 1));
+	if (curr_pcb->FDs_array[fd].flags == NOT_SET)
 		return -1;
 	if (curr_pcb->FDs_array[fd].flags == RTCFLAG)
 		rtc_write(buf, nbytes);
 	if (curr_pcb->FDs_array[fd].flags == DIRFLAG)
 			return dir_read(curr_pcb->file_name[fd]);
 	if (curr_pcb->FDs_array[fd].flags == FILEFLAG) {
-		read_bytes = file_read(curr_pcb->file_name[fd], curr_pcb->FDs_array[fd].file_position, buf, nbytes);
+		read_bytes = file_read((uint8_t*)curr_pcb->file_name[fd], curr_pcb->FDs_array[fd].file_position, (uint8_t*)buf, nbytes);
 		curr_pcb->FDs_array[fd].file_position += read_bytes;
 		return read_bytes;
 	}
@@ -76,10 +76,10 @@ int32_t write(int32_t fd, void* buf, int32_t nbytes){
 	if (fd == STDOUT)
 		return terminal_write(buf, nbytes);
 
-	pcb_t* curr_pcb = PHYS_FILE_START - EIGHT_KB * (new_process + 1);
-	if (curr_pcb.FDs_array[fd].flags == NOT_SET)
+	pcb_t* curr_pcb = (pcb_t*)(PHYS_FILE_START - EIGHT_KB * (curr_process + 1));
+	if (curr_pcb->FDs_array[fd].flags == NOT_SET)
 		return -1;
-	if (curr_pcb.FDs_array[fd].flags == RTCFLAG)
+	if (curr_pcb->FDs_array[fd].flags == RTCFLAG)
 		return rtc_write(buf, nbytes);
 	return -1;
 }
@@ -94,13 +94,13 @@ int32_t open(const uint8_t* filename)
 int32_t open(const uint8_t* filename){
 	dentry_t temp_dentry;
 	int i=2;
-	pcb_t* curr_pcb = PHYS_FILE_START - EIGHT_KB * (new_process + 1);
+	pcb_t* curr_pcb = (pcb_t*)(PHYS_FILE_START - EIGHT_KB * (curr_process + 1));
 	if(strncmp((int8_t*)filename,"stdin",strlen("stdin"))==0){
-		curr_pcb->FDs_array[0].jump_table_pointer=stdin_jump_table;
+		//curr_pcb->FDs_array[0].jump_table_pointer=stdin_jump_table;
 		return 0;
 	}
 	if(strncmp((int8_t*)filename,"stdout",strlen("stdout"))==0){
-		curr_pcb->FDs_array[1].jump_table_pointer=stdout_jump_table;
+		//curr_pcb->FDs_array[1].jump_table_pointer=stdout_jump_table;
 		return 0;
 	}
 	if(read_dentry_by_name(filename,&temp_dentry)!=0)
@@ -109,24 +109,25 @@ int32_t open(const uint8_t* filename){
 	for(i=2;i<8;i++){
 		if(my_fds[i].flags!=IN_USE){
 			if (temp_dentry.file_type == RTCTYPE) {
-				curr_pcb->FDs_array[i].jump_table_pointer=rtc_jump_table;
+				//curr_pcb->FDs_array[i].jump_table_pointer=rtc_jump_table;
 				curr_pcb->FDs_array[i].flags = RTCFLAG;
 				curr_pcb->FDs_array[i].file_position=FILE_START;
 				return i;
 			}
 			else if (temp_dentry.file_type == DIRTYPE) {
-				curr_pcb->FDs_array[i].jump_table_pointer=dir_jump_table;				
+				//curr_pcb->FDs_array[i].jump_table_pointer=dir_jump_table;				
 				curr_pcb->FDs_array[i].inode=temp_dentry.inode;
 				curr_pcb->FDs_array[i].file_position=FILE_START;
 				curr_pcb->FDs_array[i].flags=DIRFLAG;
-				strcpy(curr_pcb->file_name[i], filename);
+				strcpy((int8_t*)curr_pcb->file_name[i], (int8_t*)filename);
 				return i;
+			}
 			else if (temp_dentry.file_type == FILETYPE) {
-				curr_pcb->FDs_array[i].jump_table_pointer=dir_jump_table;				
+				//curr_pcb->FDs_array[i].jump_table_pointer=dir_jump_table;				
 				curr_pcb->FDs_array[i].inode=temp_dentry.inode;
 				curr_pcb->FDs_array[i].file_position=FILE_START;
 				curr_pcb->FDs_array[i].flags=DIRFLAG;
-				strcpy(curr_pcb->file_name[i], filename);
+				strcpy((int8_t*)curr_pcb->file_name[i], (int8_t*)filename);
 				return i;
 			}
 			return 0;
@@ -159,16 +160,16 @@ int32_t close(int32_t fd){
 			return terminal_close();
 			break;
 	}*/
-	pcb_t* curr_pcb = PHYS_FILE_START - EIGHT_KB * (new_process + 1);
+	pcb_t* curr_pcb = (pcb_t*)(PHYS_FILE_START - EIGHT_KB * (curr_process + 1));
 	if(fd==0 || fd==1 || fd >7 || fd < 0)
 		return -1;
 	if(curr_pcb->FDs_array[fd].flags==NOT_SET)
 		return -1;
 	if(curr_pcb->FDs_array[fd].flags==IN_USE){
-		curr_pcb->FDs_array[fd].jump_table_pointer=default_fops;
+		//curr_pcb->FDs_array[fd].jump_table_pointer=default_fops;
 		curr_pcb->FDs_array[fd].inode=0;
 		curr_pcb->FDs_array[fd].file_position=0;
-		curr_pcb->FDs_array[fd]=NOT_SET;
+		curr_pcb->FDs_array[fd].flags=NOT_SET;
 		return 0;		
 	}
 	return -1;
@@ -207,8 +208,8 @@ int32_t halt(uint8_t status){
 		execute((uint8_t*)("shell\0"));
 	}
 
-	uint32_t cur_ppid = (pcb_t*)(PHYS_FILE_START - (EIGHT_KB * (curr_process + 1)))->PPID;
-	pcb_t* cur_pcb = (pcb_t*)(PHYS_FILE_START - (EIGHT_KB * (curr_ppid + 1)));
+	uint32_t cur_ppid = ((pcb_t*)(PHYS_FILE_START - (EIGHT_KB * (curr_process + 1))))->PPID;
+	pcb_t* cur_pcb = (pcb_t*)(PHYS_FILE_START - (EIGHT_KB * (cur_ppid + 1)));
 	tss.esp0 = cur_pcb->ESP0;
 	curr_process = cur_ppid;
 
@@ -221,14 +222,14 @@ int32_t halt(uint8_t status){
 
 	for(i = 2; i < 8; i++){
 		if(cur_pcb_fd[i].flags != 0){
-			file_close(i);
+			close(i);
 		}
 	}
 
 	//jump to execute return
 	asm volatile ("              \
         JMP HALTED              ;\
-	")
+	");
 
 	return 0;
 }
@@ -291,29 +292,29 @@ int32_t halt(uint8_t status){
 
  	uint32_t new_process = get_process();
  	if (new_process == -1)
- 		return -1	//fail if we have 6 processes already
- 	pcb_t* curr_pcb = PHYS_FILE_START - EIGHT_KB * (new_process + 1);
+ 		return -1;	//fail if we have 6 processes already
+ 	pcb_t* curr_pcb = (pcb_t*)(PHYS_FILE_START - EIGHT_KB * (new_process + 1));
  	curr_pcb->PPID = curr_process;
  	curr_pcb->PID = new_process;
- 	curr_pcb->ESP0 = PHYS_FILE_START - EIGHT_KB * (process_num) - 4;
+ 	curr_pcb->ESP0 = PHYS_FILE_START - EIGHT_KB * (new_process) - 4;
  	curr_process = new_process;
 
  	//initialize fd_array
- 	for (i = 0; i < MAX_FILES; i++) {
- 		curr_pcb->fds[i].fops = default_fops;
- 		curr_pcb->fds[i].inode = -1;
- 		curr_pcb->fds[i].file_position = FILE_START;
- 		curr_pcb->fds[i].flags = NOT_SET;
+ 	for (i = 0; i < MAX_FILE; i++) {
+ 		//curr_pcb->FDs_array[i].jump_table_pointer = default_fops;
+ 		curr_pcb->FDs_array[i].inode = -1;
+ 		curr_pcb->FDs_array[i].file_position = FILE_START;
+ 		curr_pcb->FDs_array[i].flags = NOT_SET;
  	}
 
- 	process_control_block->fds[0].jump_table_pointer = stdin_jump_table;
- 	process_control_block->fds[0].flags = STDINFLAG;
-  	process_control_block->fds[0].jump_table_pointer = stdout_jump_table;
- 	process_control_block->fds[0].flags = STDOUTFLAG;
+ 	//curr_pcb->FDs_array[0].jump_table_pointer = stdin_jump_table;
+ 	curr_pcb->FDs_array[0].flags = STDINFLAG;
+  	//curr_pcb->FDs_array[0].jump_table_pointer = stdout_jump_table;
+ 	curr_pcb->FDs_array[0].flags = STDOUTFLAG;
 
 
  	// map new page
- 	map(VIRTUAL_FILE_PAGE, PHYS_FILE_START + PHYS_FILE_OFFSET * process_num);
+ 	map(VIRTUAL_FILE_PAGE, PHYS_FILE_START + PHYS_FILE_OFFSET * new_process);
 
  	// write file into memory
  	read_data(valid_file_check.inode, 0, (uint8_t*)VIRTUAL_FILE_START, 100000);
@@ -359,12 +360,17 @@ void end_process(int32_t proc_num) {
 	process_array[proc_num] = 0;
 }
 
-void invalid_function(){
+int32_t invalid_function(){
 	return -1;
 }
 
-void do_nothing(){
+int32_t do_nothing(){
 	return 0;
 }
 
-
+void clear_process(){
+	int i;
+	for (i = 0; i < 6; i++){
+		process_array[i] = 0;
+	}
+}
