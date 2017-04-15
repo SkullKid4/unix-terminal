@@ -7,7 +7,6 @@
 #define STDOUT	1
 
 #define IN_USE 1
-#define NOT_IN_USE 0
 #define STDIN 0
 #define STDOUT  1
 #define PHYS_FILE_START 0x800000

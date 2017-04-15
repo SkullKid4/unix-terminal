@@ -50,9 +50,10 @@ int32_t read(int32_t fd, void* buf, int32_t nbytes){
 	if (curr_pcb->FDs_array[fd].flags == NOT_SET)
 		return -1;
 	if (curr_pcb->FDs_array[fd].flags == RTCFLAG)
-		rtc_write(buf, nbytes);
+		//rtc_write(buf, nbytes);
+		return rtc_read();
 	if (curr_pcb->FDs_array[fd].flags == DIRFLAG)
-			return dir_read(curr_pcb->file_name[fd]);
+		return dir_read(curr_pcb->file_name[fd]);//<--need buf for dir_read?
 	if (curr_pcb->FDs_array[fd].flags == FILEFLAG) {
 		read_bytes = file_read((uint8_t*)curr_pcb->file_name[fd], curr_pcb->FDs_array[fd].file_position, (uint8_t*)buf, nbytes);
 		curr_pcb->FDs_array[fd].file_position += read_bytes;
@@ -107,12 +108,12 @@ int32_t open(const uint8_t* filename){
 		return -1;
 	
 	for(i=2;i<8;i++){
-		if(my_fds[i].flags!=IN_USE){
+		if(curr_pcb->FDs_array[i].flags!=IN_USE){
 			if (temp_dentry.file_type == RTCTYPE) {
 				//curr_pcb->FDs_array[i].jump_table_pointer=rtc_jump_table;
 				curr_pcb->FDs_array[i].flags = RTCFLAG;
 				curr_pcb->FDs_array[i].file_position=FILE_START;
-				return i;
+				//return i;
 			}
 			else if (temp_dentry.file_type == DIRTYPE) {
 				//curr_pcb->FDs_array[i].jump_table_pointer=dir_jump_table;				
@@ -120,15 +121,15 @@ int32_t open(const uint8_t* filename){
 				curr_pcb->FDs_array[i].file_position=FILE_START;
 				curr_pcb->FDs_array[i].flags=DIRFLAG;
 				strcpy((int8_t*)curr_pcb->file_name[i], (int8_t*)filename);
-				return i;
+				//return i;
 			}
 			else if (temp_dentry.file_type == FILETYPE) {
 				//curr_pcb->FDs_array[i].jump_table_pointer=dir_jump_table;				
 				curr_pcb->FDs_array[i].inode=temp_dentry.inode;
 				curr_pcb->FDs_array[i].file_position=FILE_START;
-				curr_pcb->FDs_array[i].flags=DIRFLAG;
+				curr_pcb->FDs_array[i].flags=FILEFLAG;
 				strcpy((int8_t*)curr_pcb->file_name[i], (int8_t*)filename);
-				return i;
+				//return i;
 			}
 			return 0;
 		}				
@@ -209,7 +210,7 @@ int32_t halt
   			if trying to halt shell (only if process 0), restarts the shell
 */
 int32_t halt(uint8_t status){
-	//retore paret data
+	//retore parent data
 	end_process(curr_process);
 	if(curr_process == 0){
 		end_process(0);
@@ -387,7 +388,7 @@ int32_t execute
  	//curr_pcb->FDs_array[0].jump_table_pointer = stdin_jump_table;
  	curr_pcb->FDs_array[0].flags = STDINFLAG;
   	//curr_pcb->FDs_array[0].jump_table_pointer = stdout_jump_table;
- 	curr_pcb->FDs_array[0].flags = STDOUTFLAG;
+ 	curr_pcb->FDs_array[1].flags = STDOUTFLAG;
 
 
  	// map new page
