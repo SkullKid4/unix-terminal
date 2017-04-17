@@ -75,4 +75,4 @@ void map
 	"movl	%%eax,%%cr3 "
 	: : :"eax", "cc");
  	}
- 	
+
