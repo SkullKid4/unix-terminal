@@ -71,19 +71,40 @@ extern int32_t open(const uint8_t* filename);
 /*closes files*/
 extern int32_t close(int32_t fd);
 
-
+/*CLOSES A PROGRAM BY RESTORING PARENT DATA*/
 extern int32_t halt(uint8_t status);
+
+/*CLOSES A PROGRAM BY RESTORING PARENT DATA when a execption is given*/
 extern int32_t halt_from_exc();
+
+/*loads a program into memory and gives control to that program*/
 extern int32_t execute(const uint8_t* command);
+
+/*get the arguments of the user program*/
 extern int32_t getargs(uint8_t* buf, int32_t nbytes);
+
+/*loads video memory into user space*/
 extern int32_t vidmap(uint8_t** sreen_start);
+
+/*sets a signal handler to a user-specified funciton*/
 extern int32_t set_handler(int32_t signum, void* handler_address);
+
+/*copies hardware context from user-level stack to processor*/
 extern int32_t sigreturn(void);
 
+/*used to parse running processes and find a space for the process to run, asserts a maximum number of processes*/
 int32_t get_process();
+
+/*not implimented*/
 int32_t invalid_function();
+
+/*sets the entry in process_array for the process to 0, indicating that another process may be run in its place*/
 void end_process(int32_t proc_num);
+
+/*not i plimented*/
 int32_t do_nothing();
+
+/*sets all entries in process_array to 0, used before executing shell in kernel.c*/
 void clear_process();
 
 

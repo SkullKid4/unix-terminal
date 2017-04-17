@@ -26,7 +26,7 @@ int32_t terminal_write
   		nbytes - number of bytes to write
   Return Value: number of bytes read
   				-1 on failure
-  Function: 
+  Function: writes the contents of the buffer to the terminal
 */
 int32_t terminal_write(void* buf, int32_t nbytes) {
 	if(buf == NULL || nbytes < 0) return -1;
