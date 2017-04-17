@@ -26,6 +26,9 @@
 #define FILEFLAG 4
 #define DIRFLAG 5
 #define FILE_START 0
+#define BUF_SIZE 128
+#define SMALL_BUF 4
+#define READ_WHOLE_FILE 100000
 
 
 volatile uint32_t curr_process;

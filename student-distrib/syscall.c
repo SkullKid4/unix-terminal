@@ -38,7 +38,7 @@ void read()
 // look at later -Sam
 int32_t read(int32_t fd, void* buf, int32_t nbytes){
 	int32_t read_bytes;
-	if(nbytes < 0 || buf == NULL || fd > 7 || fd < 0) return -1;	
+	if(nbytes < 0 || buf == NULL || fd > 7 || fd < 0) return -1;	//fail if fd is out of range of 0-7
 	
 	if (fd == STDIN)
 		return keyboard_read(buf, nbytes);
@@ -72,7 +72,7 @@ int32_t write(int32_t fd, const void* buf, int32_t nbytes)
   Function: Writes a number of bytes from a buffer, according to the file descriptor
 */
 int32_t write(int32_t fd, void* buf, int32_t nbytes){
-	if(nbytes < 0 || buf == NULL || fd < 0 || fd > 7) return -1;	
+	if(nbytes < 0 || buf == NULL || fd < 0 || fd > 7) return -1;	//fail if fd is out of range of 0-7
 
 	if (fd == STDOUT)
 		return terminal_write(buf, nbytes);
@@ -106,7 +106,7 @@ int32_t open(const uint8_t* filename){
 	}
 	if(read_dentry_by_name(filename,&temp_dentry)!=0)
 		return -1;
-	
+	//get the first open entry in the fd array, and set it with the appropriate info depending on type
 	for(i=2;i<8;i++){
 		if(curr_pcb->FDs_array[i].flags!=IN_USE){
 			if (temp_dentry.file_type == RTCTYPE) {
@@ -162,7 +162,7 @@ int32_t close(int32_t fd){
 			break;
 	}*/
 	pcb_t* curr_pcb = (pcb_t*)(PHYS_FILE_START - EIGHT_KB * (curr_process + 1));
-	if(fd==0 || fd==1 || fd >7 || fd < 0)
+	if(fd==0 || fd==1 || fd >7 || fd < 0) //fail if fd is out of range of 0-7
 		return -1;
 	if(curr_pcb->FDs_array[fd].flags==NOT_SET)
 		return -1;
@@ -210,16 +210,18 @@ int32_t halt
   			if trying to halt shell (only if process 0), restarts the shell
 */
 int32_t halt(uint8_t status){
-	//retore parent data
+	//restore parent data
 	end_process(curr_process);
 	if(curr_process == 0){
 		end_process(0);
 		execute((uint8_t*)("shell\0"));
 	}
+	//get pcb pointers
 	pcb_t* child_pcb = (pcb_t*)(PHYS_FILE_START - EIGHT_KB * (curr_process + 1));
 	uint32_t cur_ppid = ((pcb_t*)(PHYS_FILE_START - (EIGHT_KB * (curr_process + 1))))->PPID;
 	pcb_t* cur_pcb = (pcb_t*)(PHYS_FILE_START - (EIGHT_KB * (cur_ppid + 1)));
-	tss.esp0 = PHYS_FILE_START - EIGHT_KB * (cur_ppid) - 4;//; cur_pcb->ESP0;
+	//set tss
+	tss.esp0 = PHYS_FILE_START - EIGHT_KB * (cur_ppid) - 4;
 	curr_process = cur_ppid;
 
 	//retore parent paging
@@ -236,6 +238,7 @@ int32_t halt(uint8_t status){
 	}
 
 	//jump to execute return
+	//first restore parent esp and ebp, and get return value
     asm volatile(
 				 ""
                  "mov %0, %%eax;"
@@ -260,19 +263,21 @@ int32_t halt_from_exc
   			if trying to halt shell (only if process 0), restarts the shell
 */
 int32_t halt_from_exc(){
-	//retore paret data
+	//retore parent data
 	end_process(curr_process);
 	if(curr_process == 0){
 		end_process(0);
 		execute((uint8_t*)("shell\0"));
 	}
+	//get pcb pointers
 	pcb_t* child_pcb = (pcb_t*)(PHYS_FILE_START - EIGHT_KB * (curr_process + 1));
 	uint32_t cur_ppid = ((pcb_t*)(PHYS_FILE_START - (EIGHT_KB * (curr_process + 1))))->PPID;
 	pcb_t* cur_pcb = (pcb_t*)(PHYS_FILE_START - (EIGHT_KB * (cur_ppid + 1)));
-	tss.esp0 = PHYS_FILE_START - EIGHT_KB * (cur_ppid) - 4;//; cur_pcb->ESP0;
+	//set tss
+	tss.esp0 = PHYS_FILE_START - EIGHT_KB * (cur_ppid) - 4;
 	curr_process = cur_ppid;
 
-	//retore parent paging
+	//restore parent paging
 	map(VIRTUAL_FILE_PAGE, PHYS_FILE_START + (PHYS_FILE_OFFSET * cur_ppid));
 
 	//close relevent FD's
@@ -286,6 +291,7 @@ int32_t halt_from_exc(){
 	}
 
 	//jump to execute return
+	//first restore parent esp and ebp, and get return value (256 because of exception)
     asm volatile(
 				 ""
                  "mov %0, %%eax;"
@@ -295,7 +301,7 @@ int32_t halt_from_exc(){
                  "ret;"
                  //"jmp HALTED;"
                  :                      /* no outputs */
-                 :"r"(256), "r"(child_pcb->ESP0), "r"(child_pcb->EBP0)   /* inputs */
+                 :"r"(256), "r"(child_pcb->ESP0), "r"(child_pcb->EBP0)   /* inputs */ //return 256 when returning execute because of exception
                  :"%eax"                 /* clobbered registers */
                  );
 
@@ -314,15 +320,16 @@ int32_t execute
  int32_t execute (const uint8_t* command) {
 
 
- 	uint8_t buf[128];
- 	uint8_t com[128];
- 	uint8_t buffer[4];
- 	char* args[128];
+ 	uint8_t buf[BUF_SIZE];
+ 	uint8_t com[BUF_SIZE];
+ 	uint8_t buffer[SMALL_BUF];
+ 	char* args[BUF_SIZE];
  	uint8_t* scan;
  	strcpy ((int8_t*)buf, (int8_t*)command);
  	uint32_t i = 0;
  	uint32_t file_start;
 
+ 	// parse command
  	for (scan = buf; '\0' != *scan && ' ' != *scan && '\n' != *scan; scan++) {
  		com[i] = command[i];
  		i++;
@@ -359,15 +366,17 @@ int32_t execute
  		return -1;
  	}
  	//check for valid exe
- 	read_data(valid_file_check.inode, 0, buffer, 4);
- 	if (buffer[0] != 0x7F || buffer[1] != 0x45 || buffer[2] != 0x4C || buffer[3] != 0x46){
+ 	read_data(valid_file_check.inode, 0, buffer, SMALL_BUF);
+ 	if (buffer[0] != 0x7F || buffer[1] != 0x45 || buffer[2] != 0x4C || buffer[3] != 0x46){ //check first four bytes of file to determine that it is a valid exe
+ 																						// file The first four bytes must match these exactly, or it's invalid
  		return -1;
  	}
  	// get start address
 
- 	read_data(valid_file_check.inode, 24, buffer, 4);
+ 	read_data(valid_file_check.inode, 24, buffer, SMALL_BUF); //read bytes 24-27 to get the location of the first line of code to execute
  	file_start = *((uint32_t*)buffer);
 
+ 	//initialize pcb
  	uint32_t new_process = get_process();
  	if (new_process == -1)
  		return -1;	//fail if we have 6 processes already
@@ -395,11 +404,12 @@ int32_t execute
  	map(VIRTUAL_FILE_PAGE, PHYS_FILE_START + PHYS_FILE_OFFSET * new_process);
 
  	// write file into memory
- 	read_data(valid_file_check.inode, 0, (uint8_t*)VIRTUAL_FILE_START, 100000);
+ 	read_data(valid_file_check.inode, 0, (uint8_t*)VIRTUAL_FILE_START, READ_WHOLE_FILE); //100000 is just a large number to read the whole file
 
-
+ 	//set tss
  	tss.ss0 = KERNEL_DS;
  	tss.esp0 = PHYS_FILE_START - EIGHT_KB * (new_process) - 4;
+ 	//store ebp and esp
  	 	asm volatile("			\n\
 				movl %%ebp, %%eax 	\n\
 				movl %%esp, %%ebx 	\n\
@@ -505,7 +515,7 @@ void clear_process
 */
 void clear_process(){
 	int i;
-	for (i = 0; i < 6; i++){
+	for (i = 0; i < 6; i++){ // We can have a maximum of 6 processes. set them all to unused.
 		process_array[i] = 0;
 	}
 }
