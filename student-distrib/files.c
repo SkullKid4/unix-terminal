@@ -272,6 +272,8 @@ int32_t read_data(uint32_t inode, uint32_t offset, uint8_t* buf,uint32_t length)
 	//check if offset is longer than the file length
 	if(offset>curr_length)
 		return -1;
+	if (offset == curr_length)
+		return 0;
 	
 	uint8_t* curr_data_block;//starting address of current data block to be read from
 	int curr_data_idx,curr_block_byte;
@@ -305,7 +307,7 @@ int32_t read_data(uint32_t inode, uint32_t offset, uint8_t* buf,uint32_t length)
 			file_reached_end=1;
 	}
 	if(file_reached_end)
-		return 0;
+		return copied;
 	return copied;
 }
 

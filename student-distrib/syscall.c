@@ -324,7 +324,7 @@ int32_t execute
  	strcpy ((int8_t*)buf, (int8_t*)command);
  	uint32_t i = 0;
  	uint32_t file_start;
- 	uint8_t arg_start;
+ 	uint8_t arg_start = 0;
 
  	// parse command
  	for (scan = buf; '\0' != *scan && ' ' != *scan && '\n' != *scan; scan++) {
@@ -342,12 +342,14 @@ while(command[i] == ' ' ) {
  	if (new_process == -1)
  		return -1;	//fail if we have 6 processes already
  	pcb_t* curr_pcb = (pcb_t*)(PHYS_FILE_START - EIGHT_KB * (new_process + 1));
- 	arg_start = i;
+
  	while(command[i] != '\0'){
- 		curr_pcb->args[i-arg_start] = command[i];
+ 		curr_pcb->args[arg_start] = command[i];
  		i++;
+ 		arg_start++;
  	}
- 	curr_pcb->args[i-arg_start] = '\0';
+ 	arg_start++;
+ 	curr_pcb->args[arg_start] = '\0';
  	
  	//check if file is valid
  	dentry_t valid_file_check;
