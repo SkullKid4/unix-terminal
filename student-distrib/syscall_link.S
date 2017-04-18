@@ -41,7 +41,12 @@ syscall_link:
 
 not_valid:				#return -1 on error
 	movl $-1, %eax
-	ret 			
+	popl %edi		#retosre registers
+	popl %esi
+	popl %edx
+	popl %ecx
+	popl %ebx
+	iret	
 
 jump_table:
     .long halt, execute, read, write, open, close, getargs, vidmap, set_handler, sigreturn
