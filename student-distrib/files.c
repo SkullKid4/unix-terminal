@@ -74,7 +74,7 @@ int32_t file_read
 int32_t file_read(const uint8_t* fname, uint32_t offset, uint8_t* buf,uint32_t length){
 	dentry_t curr_dentry;
 	if(read_dentry_by_name(fname,&curr_dentry)==0){
-		return read_data(curr_dentry.inode,0,buf,length);
+		return read_data(curr_dentry.inode,offset,buf,length);
 	}
 	return -1;
 }
