@@ -44,7 +44,7 @@ int32_t read(int32_t fd, void* buf, int32_t nbytes){
 		return keyboard_read(buf, nbytes);
 
 	if (fd == STDOUT)
-		return terminal_read(buf, nbytes);
+		return -1;//return terminal_read(buf, nbytes);
 
 	pcb_t* curr_pcb = (pcb_t*)(PHYS_FILE_START - EIGHT_KB * (curr_process + 1));
 	if (curr_pcb->FDs_array[fd].flags == NOT_SET)
@@ -53,7 +53,7 @@ int32_t read(int32_t fd, void* buf, int32_t nbytes){
 		//rtc_write(buf, nbytes);
 		return rtc_read();
 	if (curr_pcb->FDs_array[fd].flags == DIRFLAG)
-		return dir_read(curr_pcb->file_name[fd]);//<--need buf for dir_read?
+		return dir_readnew(buf);//dir_read(curr_pcb->file_name[fd]);//<--need buf for dir_read?
 	if (curr_pcb->FDs_array[fd].flags == FILEFLAG) {
 		read_bytes = file_read((uint8_t*)curr_pcb->file_name[fd], curr_pcb->FDs_array[fd].file_position, (uint8_t*)buf, nbytes);
 		curr_pcb->FDs_array[fd].file_position += read_bytes;
@@ -108,12 +108,12 @@ int32_t open(const uint8_t* filename){
 		return -1;
 	//get the first open entry in the fd array, and set it with the appropriate info depending on type
 	for(i=2;i<8;i++){
-		if(curr_pcb->FDs_array[i].flags!=IN_USE){
+		if(curr_pcb->FDs_array[i].flags == NOT_SET){
 			if (temp_dentry.file_type == RTCTYPE) {
 				//curr_pcb->FDs_array[i].jump_table_pointer=rtc_jump_table;
 				curr_pcb->FDs_array[i].flags = RTCFLAG;
 				curr_pcb->FDs_array[i].file_position=FILE_START;
-				//return i;
+				return i;
 			}
 			else if (temp_dentry.file_type == DIRTYPE) {
 				//curr_pcb->FDs_array[i].jump_table_pointer=dir_jump_table;				
@@ -121,7 +121,7 @@ int32_t open(const uint8_t* filename){
 				curr_pcb->FDs_array[i].file_position=FILE_START;
 				curr_pcb->FDs_array[i].flags=DIRFLAG;
 				strcpy((int8_t*)curr_pcb->file_name[i], (int8_t*)filename);
-				//return i;
+				return i;
 			}
 			else if (temp_dentry.file_type == FILETYPE) {
 				//curr_pcb->FDs_array[i].jump_table_pointer=dir_jump_table;				
@@ -129,7 +129,7 @@ int32_t open(const uint8_t* filename){
 				curr_pcb->FDs_array[i].file_position=FILE_START;
 				curr_pcb->FDs_array[i].flags=FILEFLAG;
 				strcpy((int8_t*)curr_pcb->file_name[i], (int8_t*)filename);
-				//return i;
+				return i;
 			}
 			return 0;
 		}				
@@ -166,14 +166,11 @@ int32_t close(int32_t fd){
 		return -1;
 	if(curr_pcb->FDs_array[fd].flags==NOT_SET)
 		return -1;
-	if(curr_pcb->FDs_array[fd].flags==IN_USE){
 		//curr_pcb->FDs_array[fd].jump_table_pointer=default_fops;
-		curr_pcb->FDs_array[fd].inode=0;
-		curr_pcb->FDs_array[fd].file_position=0;
-		curr_pcb->FDs_array[fd].flags=NOT_SET;
-		return 0;		
-	}
-	return -1;
+	curr_pcb->FDs_array[fd].inode=0;
+	curr_pcb->FDs_array[fd].file_position=0;
+	curr_pcb->FDs_array[fd].flags=NOT_SET;
+	return 0;		
 		
 }
 
@@ -323,11 +320,11 @@ int32_t execute
  	uint8_t buf[BUF_SIZE];
  	uint8_t com[BUF_SIZE];
  	uint8_t buffer[SMALL_BUF];
- 	char* args[BUF_SIZE];
  	uint8_t* scan;
  	strcpy ((int8_t*)buf, (int8_t*)command);
  	uint32_t i = 0;
  	uint32_t file_start;
+ 	uint8_t arg_start;
 
  	// parse command
  	for (scan = buf; '\0' != *scan && ' ' != *scan && '\n' != *scan; scan++) {
@@ -335,29 +332,22 @@ int32_t execute
  		i++;
  	}
  	com[i] = '\0';
- 	strcpy((int8_t*)args, (int8_t*)buf);
- 	/*
- 	com[i+1] = '\0';
- 	args[0] = (char*)buf;
- 	n_arg = 1;
- 	if ('\0' != *scan) {
- 		*scan++ = '\0';
- 		// parse arguments
-	 	while (1) {
-	 		while (' ' == *scan) scan++;
-	 		if ('\0' == *scan || '\n' == *scan) {
-	 			*scan = '\0';
-	 			break;
-	 		}
-	 		args[n_arg++] = (char*)scan;
-	 		while ('\0' != *scan && ' ' != *scan && '\n' != *scan) scan++;
-	 		if ('\0' != *scan)
-	 			*scan++ = '\0';
- 		}
+
+
+
+while(command[i] == ' ' ) {
+ 		i++;
  	}
- 	args[n_arg] = NULL;
- 	if (0 == for)
- 	*/
+ 	uint32_t new_process = get_process();
+ 	if (new_process == -1)
+ 		return -1;	//fail if we have 6 processes already
+ 	pcb_t* curr_pcb = (pcb_t*)(PHYS_FILE_START - EIGHT_KB * (new_process + 1));
+ 	arg_start = i;
+ 	while(command[i] != '\0'){
+ 		curr_pcb->args[i-arg_start] = command[i];
+ 		i++;
+ 	}
+ 	curr_pcb->args[i-arg_start] = '\0';
  	
  	//check if file is valid
  	dentry_t valid_file_check;
@@ -377,10 +367,6 @@ int32_t execute
  	file_start = *((uint32_t*)buffer);
 
  	//initialize pcb
- 	uint32_t new_process = get_process();
- 	if (new_process == -1)
- 		return -1;	//fail if we have 6 processes already
- 	pcb_t* curr_pcb = (pcb_t*)(PHYS_FILE_START - EIGHT_KB * (new_process + 1));
  	curr_pcb->PPID = curr_process;
  	curr_pcb->PID = new_process;
  	curr_process = new_process;
@@ -433,6 +419,10 @@ int32_t getargs
   Function: writes command line arguments into a buffer for userspace
 */
 int32_t getargs(uint8_t* buf, int32_t nbytes){
+	if (buf == NULL)
+		return -1;
+	pcb_t* curr_pcb = (pcb_t*)(PHYS_FILE_START - EIGHT_KB * (curr_process + 1));
+	strcpy((int8_t*)buf, (int8_t*)curr_pcb->args);
 	return 0;
 }
 
@@ -443,7 +433,12 @@ int32_t vidmap
   				-1 on failure
   Function: maps video memory into user space
 */
-int32_t vidmap(uint8_t** sreen_start){
+int32_t vidmap(uint8_t** screen_start){
+	//check if screen_start is in the user file.
+	if ( (uint32_t)screen_start < VIRTUAL_FILE_PAGE || (uint32_t)screen_start > VIRTUAL_FILE_PAGE + PHYS_FILE_OFFSET)
+		return -1;
+	map_w_pt(USER_VID_MEM, VIDEO);
+	*screen_start = (uint8_t*)USER_VID_MEM;
 	return 0;
 }
 
@@ -456,7 +451,7 @@ int32_t set_handler
   Function: sets a signal handler to a user-specified funciton
 */
 int32_t set_handler(int32_t signum, void* handler_address){
-	return 0;
+	return -1;
 }
 
 /*
@@ -467,7 +462,7 @@ int32_t sigreturn
   Function: copies hardware context from user-level stack to processor
 */
 int32_t sigreturn(void){
-	return 0;
+	return -1;
 }
 
 

@@ -11,6 +11,7 @@ void file_init(const uint8_t* filename)
 			struct in file.h and critical addresses
 */
 uint32_t dir_read_idx=0;
+uint32_t dir_read_idx_new = 0;
 
 
 /*
@@ -125,6 +126,45 @@ int32_t dir_write
 int32_t dir_write(void){
 	return -1;
 }
+
+/*
+int32_t dir_read
+  Input: none
+  Return Value: 0 -- always success
+  Function: Stores the next filename in the buf
+*/
+
+int32_t dir_readnew(int8_t* buf){
+	//int i;
+	//uint32_t file_size;
+	//int8_t temp[10];
+	uint32_t curr_length=0;
+	if(dir_read_idx_new>=my_boot_block.num_dentries) {
+
+		dir_read_idx_new = 0;
+		return 0;
+	}
+	//memcpy(&file_size,inodes+(my_dentry[dir_read_idx_new].inode)*BLOCK_ADDR_SIZE,4);
+	//strcpy(buf,"file_name:");
+	//curr_length+=strlen("file_name:");
+	strcpy(buf,(int8_t*)my_dentry[dir_read_idx_new].file_name);//,strlen((int8_t*)my_dentry[dir_read_idx].file_name));
+	curr_length+=strlen((int8_t*)my_dentry[dir_read_idx_new].file_name);
+	//strncpy(buf+curr_length,"file_type:",strlen("file_type:"));
+	//curr_length+=strlen("file_type:");
+	//strcpy(temp," ");
+	//itoa(my_dentry[dir_read_idx].file_type, temp, 10);
+	//strncpy(buf+curr_length,temp,strlen(temp));
+	//curr_length+=strlen(temp);
+	//strncpy(buf+curr_length,"file_size:",strlen("file_size:"));
+	//curr_length+=strlen("file_size:");
+	//strcpy(temp," ");
+	//itoa(file_size, temp, 10);
+	//strncpy(buf+curr_length,temp,strlen(temp));
+	//curr_length+=strlen(temp);
+	dir_read_idx_new++;
+	return curr_length;
+}
+
 /*
 int32_t dir_read
   Input: none
@@ -177,7 +217,7 @@ int32_t read_dentry_by_name(const uint8_t* fname, dentry_t* dentry){
 	int i;
 	//search for the given file name, and copy necessary coresponding info of the file to given pointer dentry_t*
 	for(i=0;i<my_boot_block.num_dentries;i++){
-		if(strncmp((int8_t*)(my_dentry[i].file_name),(int8_t*)fname,strlen((int8_t*)fname))==0){
+		if(strncmp((int8_t*)(my_dentry[i].file_name),(int8_t*)fname,strlen((int8_t*)fname))==0 && strlen((int8_t*)fname) == strlen((int8_t*)(my_dentry[i].file_name))) {
 			memset(dentry->file_name,' ',MAX_FILE_CHAR+1);
 			strcpy((int8_t*)(dentry->file_name),(int8_t*)fname);
 			dentry->file_type=my_dentry[i].file_type;

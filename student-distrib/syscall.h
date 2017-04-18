@@ -17,6 +17,8 @@
 #define NUM_PROCESSES 6
 #define MAX_FILE_CHAR 32
 #define MAX_FILE 8
+#define USER_VID_MEM 0x9000000
+#define VIDEO 0xB8000
 
 
 #define NOT_SET 0
@@ -54,6 +56,7 @@ uint32_t process_array[6];
 typedef struct pcb{
   uint32_t PID;
   fds_t FDs_array[8]; //<----------- array of fds structs?
+  int8_t args[BUF_SIZE];
   int8_t file_name[MAX_FILE][MAX_FILE_CHAR];
   uint32_t ESP0;
   uint32_t PPID;
@@ -87,7 +90,7 @@ extern int32_t execute(const uint8_t* command);
 extern int32_t getargs(uint8_t* buf, int32_t nbytes);
 
 /*loads video memory into user space*/
-extern int32_t vidmap(uint8_t** sreen_start);
+extern int32_t vidmap(uint8_t** screen_start);
 
 /*sets a signal handler to a user-specified funciton*/
 extern int32_t set_handler(int32_t signum, void* handler_address);
