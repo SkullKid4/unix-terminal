@@ -165,7 +165,8 @@ entry (unsigned long magic, unsigned long addr)
 
 	keyboard_init();
 
-	//rtc_init();
+	rtc_init();
+	rtc_open();
 
 	/*File system initiation*/
 	module_t* mod = (module_t*)mbi->mods_addr;
