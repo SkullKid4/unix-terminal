@@ -30,8 +30,9 @@ char one_line_buf[NUM_COLS+1];
 
 void get_keyboard_idx(int* data);
 
-extern int32_t keyboard_read(void* buf, int32_t nbytes);
-extern int32_t keyboard_write(void* buf, int32_t nbytes);
+extern int32_t keyboard_read(int32_t fd, void* buf, int32_t nbytes);
+extern int32_t keyboard_write(int32_t fd, void* buf, int32_t nbytes);
+extern int32_t keyboard_open(const uint8_t* filename);
 extern int32_t keyboard_close();
 /* function that is called from the idt table when interrupts occor*/
 void keyboard_handler();

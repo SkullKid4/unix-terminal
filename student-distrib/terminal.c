@@ -16,7 +16,7 @@ int32_t terminal_read
   Return Value: 0
   Function: does nothing (shouldn't be called)
 */
-int32_t terminal_read(void* buf, int32_t nbytes) {
+int32_t terminal_read(int32_t fd, void* buf, int32_t nbytes) {
 	return 0;
 }
 
@@ -28,7 +28,7 @@ int32_t terminal_write
   				-1 on failure
   Function: writes the contents of the buffer to the terminal
 */
-int32_t terminal_write(void* buf, int32_t nbytes) {
+int32_t terminal_write(int32_t fd, void* buf, int32_t nbytes) {
 	if(buf == NULL || nbytes < 0) return -1;
 	int i;
 	if(strlen(buf) < nbytes){
@@ -46,11 +46,11 @@ int32_t terminal_write(void* buf, int32_t nbytes) {
 }
 
 
-/*int32_t terminal_open() {
+int32_t terminal_open(const uint8_t* filename) {
 	return 0;
 }
 
 int32_t terminal_close() {
 	return 0;
-}*/
+}
 

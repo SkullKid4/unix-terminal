@@ -71,7 +71,7 @@ unsigned char keyboard_map[128][2] =
     {'\0', '\0'}, /* All other keys are undefined */
 };
 
-int32_t keyboard_read(void* buf, int32_t nbytes) {
+int32_t keyboard_read(int32_t fd, void* buf, int32_t nbytes) {
 	while(enter == 0){        //wait until enter is pressed
       //wait
     };
@@ -97,16 +97,17 @@ int32_t keyboard_read(void* buf, int32_t nbytes) {
       }
       ((char *)buf)[i] = keyboard_buf[i];
     }
-    ((char *)buf)[i] = '\0';
+    ((char *)buf)[i] = '\n';
+    ((char *)buf)[i+1] = '\0';
     enter = 0;          //set the volatile enter to zero
     memset(keyboard_buf, ' ', MAX_BUF_SIZE);
     keyboard_idx = 0;
     last_idx = 0;
-    return (i-j);       //the number of bytes read
+    return (i-j+2);       //the number of bytes read
 }
 
 
-int32_t keyboard_write(void* buf, int32_t nbytes) {
+int32_t keyboard_write(int32_t fd, void* buf, int32_t nbytes) {
   int i;
   int idx[2];
   get_keyboard_idx(idx);
@@ -120,9 +121,14 @@ int32_t keyboard_write(void* buf, int32_t nbytes) {
 	return -1;
 }
 
+int32_t keyboard_open(const uint8_t* filename) {
+  return 0;
+}
+
 int32_t keyboard_close() {
   return -1;
 }
+
 
 /*
 void keyboard_init()
@@ -252,7 +258,7 @@ void keyboard_handler(){
 		for(i=0;i<(int)my_boot_block.num_dentries;i++){
 			strncpy(one_line_buf," ",NUM_COLS+1);
 			dir_read(one_line_buf);
-			terminal_write(one_line_buf,strlen(one_line_buf));
+			terminal_write(1, one_line_buf,strlen(one_line_buf));
 			putc('\n');
 		}
 		sti(); 
@@ -272,8 +278,8 @@ void keyboard_handler(){
 				putc(buf[i]);
 			}		
 			putc('\n');
-			terminal_write("file_name:",strlen("file_name:"));
-			terminal_write(curr_dentry.file_name,strlen((int8_t*)curr_dentry.file_name));
+			terminal_write(1, "file_name:",strlen("file_name:"));
+			terminal_write(1, curr_dentry.file_name,strlen((int8_t*)curr_dentry.file_name));
 		}
 		 sti();
 		 lock=0;
@@ -293,8 +299,8 @@ void keyboard_handler(){
 				putc(buf[i]);
 			}
 			putc('\n');
-			terminal_write("file_name:",strlen("file_name:"));
-			terminal_write(curr_dentry.file_name,strlen((int8_t*)curr_dentry.file_name));			
+			terminal_write(1, "file_name:",strlen("file_name:"));
+			terminal_write(1, curr_dentry.file_name,strlen((int8_t*)curr_dentry.file_name));			
 			count++;
 		}
 		sti();
@@ -346,7 +352,7 @@ void keyboard_handler(){
         //keyboard_idx = 0;
         //last_idx = 0;
       }
-      keyboard_write(keyboard_buf, MAX_BUF_SIZE);
+      keyboard_write(0, keyboard_buf, MAX_BUF_SIZE);
       last_idx++;
 
       
@@ -393,7 +399,7 @@ void handle_backspace(){
     int screen_temp = --screen_x;
     keyboard_buf[keyboard_idx-1] = '\0';
     last_idx--;
-    keyboard_write(keyboard_buf, MAX_BUF_SIZE);
+    keyboard_write(0, keyboard_buf, MAX_BUF_SIZE);
     screen_x = screen_temp;
     screen_y = screen_y_temp;
     keyboard_idx--;

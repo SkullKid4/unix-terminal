@@ -42,6 +42,7 @@ typedef struct fops {
   int32_t (*close)(int32_t fd);
 } fops_t;
 
+fops_t fops_table[5]; //STDIN, STDOUT, RTC, File, Directory
 
 typedef struct fds{
 	uint32_t* jump_table_pointer;
@@ -66,8 +67,8 @@ typedef struct pcb{
 
 
 
-/*dispacture for the system calls*/
 
+extern void init_fops_table();
 /*function for reading data to buffers*/
 extern int32_t read(int32_t fd, void* buf, int32_t nbytes);
 /*function to writing to buffers*/

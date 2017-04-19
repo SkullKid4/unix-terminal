@@ -36,12 +36,43 @@ void read()
   Function: Varies per file descripter. Reading STDIN (the keyboard) reads the last line that was terminated with a new line
 */
 // look at later -Sam
+
+/*void init_fops_table() {
+	fops_table[STDIN].read = &keyboard_read;
+	fops_table[STDIN].write = &keyboard_write;
+	fops_table[STDIN].open = &keyboard_open;
+	fops_table[STDIN].close = &keyboard_close;
+
+	fops_table[STDOUT].read = &terminal_read;
+	fops_table[STDOUT].write = &terminal_write;
+	fops_table[STDOUT].open = &terminal_open;
+	fops_table[STDOUT].close = &terminal_close;
+
+	fops_table[RTCFLAG].read = &rtc_read;
+	fops_table[RTCFLAG].write = &rtc_write;
+	fops_table[RTCFLAG].open = &rtc_open;
+	fops_table[RTCFLAG].close = &rtc_close;
+
+	fops_table[FILEFLAG].read = &file_read;
+	fops_table[FILEFLAG].write = &file_write;
+	fops_table[FILEFLAG].open = &file_open;
+	fops_table[FILEFLAG].close = &file_close;
+
+	fops_table[DIRFLAG].read = &dir_read;
+	fops_table[DIRFLAG].write = &dir_write;
+	fops_table[DIRFLAG].open = &dir_open;
+	fops_table[DIRFLAG].close = &dir_close;
+}*/
+
+
+
+
 int32_t read(int32_t fd, void* buf, int32_t nbytes){
 	int32_t read_bytes;
 	if(nbytes < 0 || buf == NULL || fd > 7 || fd < 0) return -1;	//fail if fd is out of range of 0-7
 	
 	if (fd == STDIN)
-		return keyboard_read(buf, nbytes);
+		return keyboard_read(0, buf, nbytes);
 
 	if (fd == STDOUT)
 		return -1;//return terminal_read(buf, nbytes);
@@ -59,8 +90,10 @@ int32_t read(int32_t fd, void* buf, int32_t nbytes){
 		curr_pcb->FDs_array[fd].file_position += read_bytes;
 		return read_bytes;
 	}
-			
+
 	return -1;
+			
+	//return fops_table[curr_pcb->FDs_array[fd].flags]->read(fd,buf,nbytes);
 }
 
 /*
@@ -75,14 +108,17 @@ int32_t write(int32_t fd, void* buf, int32_t nbytes){
 	if(nbytes < 0 || buf == NULL || fd < 0 || fd > 7) return -1;	//fail if fd is out of range of 0-7
 
 	if (fd == STDOUT)
-		return terminal_write(buf, nbytes);
+		return terminal_write(1, buf, nbytes);
 
 	pcb_t* curr_pcb = (pcb_t*)(PHYS_FILE_START - EIGHT_KB * (curr_process + 1));
 	if (curr_pcb->FDs_array[fd].flags == NOT_SET)
 		return -1;
 	if (curr_pcb->FDs_array[fd].flags == RTCFLAG)
 		return rtc_write(buf, nbytes);
+
 	return -1;
+
+	//return fops_table[curr_pcb->FDs_array[fd].flags]->write(fd,buf,nbytes);
 }
 
 
@@ -98,10 +134,12 @@ int32_t open(const uint8_t* filename){
 	pcb_t* curr_pcb = (pcb_t*)(PHYS_FILE_START - EIGHT_KB * (curr_process + 1));
 	if(strncmp((int8_t*)filename,"stdin",strlen("stdin"))==0){
 		//curr_pcb->FDs_array[0].jump_table_pointer=stdin_jump_table;
+		curr_pcb->FDs_array[0].flags = 0;
 		return 0;
 	}
 	if(strncmp((int8_t*)filename,"stdout",strlen("stdout"))==0){
 		//curr_pcb->FDs_array[1].jump_table_pointer=stdout_jump_table;
+		curr_pcb->FDs_array[1].flags = 1;
 		return 0;
 	}
 	if(read_dentry_by_name(filename,&temp_dentry)!=0)
@@ -116,7 +154,7 @@ int32_t open(const uint8_t* filename){
 				return i;
 			}
 			else if (temp_dentry.file_type == DIRTYPE) {
-				//curr_pcb->FDs_array[i].jump_table_pointer=dir_jump_table;				
+				//curr_pcb->FDs_array[i].jump_table_pointer=dir_jump_table;	
 				curr_pcb->FDs_array[i].inode=temp_dentry.inode;
 				curr_pcb->FDs_array[i].file_position=FILE_START;
 				curr_pcb->FDs_array[i].flags=DIRFLAG;
@@ -171,6 +209,8 @@ int32_t close(int32_t fd){
 	curr_pcb->FDs_array[fd].file_position=0;
 	curr_pcb->FDs_array[fd].flags=NOT_SET;
 	return 0;		
+
+	//return fops_
 		
 }
 
@@ -305,6 +345,8 @@ int32_t halt_from_exc(){
 	return 0;
 }
 
+
+
 /*
 int32_t execute
   Input: command - the process to execute
@@ -324,7 +366,7 @@ int32_t execute
  	strcpy ((int8_t*)buf, (int8_t*)command);
  	uint32_t i = 0;
  	uint32_t file_start;
- 	uint8_t arg_start = 0;
+ 	uint8_t arg_start;
 
  	// parse command
  	for (scan = buf; '\0' != *scan && ' ' != *scan && '\n' != *scan; scan++) {
@@ -342,14 +384,12 @@ while(command[i] == ' ' ) {
  	if (new_process == -1)
  		return -1;	//fail if we have 6 processes already
  	pcb_t* curr_pcb = (pcb_t*)(PHYS_FILE_START - EIGHT_KB * (new_process + 1));
-
+ 	arg_start = i;
  	while(command[i] != '\0'){
- 		curr_pcb->args[arg_start] = command[i];
+ 		curr_pcb->args[i-arg_start] = command[i];
  		i++;
- 		arg_start++;
  	}
- 	arg_start++;
- 	curr_pcb->args[arg_start] = '\0';
+ 	curr_pcb->args[i-arg_start] = '\0';
  	
  	//check if file is valid
  	dentry_t valid_file_check;
@@ -495,8 +535,8 @@ void end_process(int32_t proc_num) {
 	process_array[proc_num] = 0;
 }
 
-
-/*int32_t invalid_function(){
+/*
+int32_t invalid_function(uint8_t* buf, int32_t nbytes){
 	return -1;
 }*/
 
