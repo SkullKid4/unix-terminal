@@ -13,11 +13,11 @@
 int32_t terminal_read
   Input: buf - buffer to read to
   		nbytes - number of bytes to read
-  Return Value: 0
+  Return Value: -1
   Function: does nothing (shouldn't be called)
 */
 int32_t terminal_read(int32_t fd, void* buf, int32_t nbytes) {
-	return 0;
+	return -1;
 }
 
 /*
