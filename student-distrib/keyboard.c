@@ -91,19 +91,18 @@ int32_t keyboard_read(int32_t fd, void* buf, int32_t nbytes) {
         }
       }
     }
-    for(i = j; keyboard_buf[i] != '\0' && keyboard_buf[i] != '\n'; i++){   //copys the keyboard buffer to the given buffer
+    for(i = j; keyboard_buf[i] != '\0' && keyboard_buf[i-1] != '\n'; i++){   //copys the keyboard buffer to the given buffer
       if((i-j) == nbytes){
         break;
       }
       ((char *)buf)[i] = keyboard_buf[i];
     }
-    ((char *)buf)[i] = '\n';
-    ((char *)buf)[i+1] = '\0';
+    ((char *)buf)[i] = '\0';
     enter = 0;          //set the volatile enter to zero
     memset(keyboard_buf, ' ', MAX_BUF_SIZE);
     keyboard_idx = 0;
     last_idx = 0;
-    return (i-j+2);       //the number of bytes read
+    return (i-j);       //the number of bytes read
 }
 
 
