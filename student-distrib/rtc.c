@@ -78,9 +78,9 @@ int32_t rtc_read
   Input: none
   Return Value: 0
   Function: waits for the next rtc interrupt.
-	spins until that interrupt occurs
+  spins until that interrupt occurs
 */
-int32_t rtc_read(void) {
+int32_t rtc_read(int32_t fd, void* buf, int32_t nbytes) {
   int32_t x = 3;
   while (!rtc_interrupt){
   }
@@ -92,15 +92,15 @@ int32_t rtc_read(void) {
 /*
 int32_t rtc_write
   Input: buf -- frequency to write to 
-		 nbytes -- number of bytes to write to
+     nbytes -- number of bytes to write to
   Return Value: 4 -- success -1 -- failure
   Function: write to RTC with frequeny rate
 */
-int rtc_write(int32_t * buf, int32_t nbytes) {
+int rtc_write(int32_t fd, void* buf, int32_t nbytes) {
   cli();
   if (nbytes != 4 || buf == NULL)
     return -1;
-  int32_t freq = *buf;
+  int32_t freq = *((int32_t*)buf);
   return set_rate(freq);
   sti();
 }
@@ -111,7 +111,7 @@ int32_t set_rate
   Input: freq -- frequency to set rate to 
   Return Value: 4 -- success 
   Function: Sets the rate of the RTC. Only powers of 2 Hertz of to 1024 Hz are valid
-			if an invalid rate is requested, no change is made.
+      if an invalid rate is requested, no change is made.
 */
 
 int32_t set_rate(int32_t freq) {
@@ -168,8 +168,8 @@ int32_t set_rate(int32_t freq) {
   Input: none
   Return Value: none 
   Function:  Function for testing the rtc system calls
-			it open the rtc, setting the initial frequence to 0 HZ.
-			Then, it prints the letter 'l' every time the RTC sends an interrupt.
+      it open the rtc, setting the initial frequence to 0 HZ.
+      Then, it prints the letter 'l' every time the RTC sends an interrupt.
 */
 
 void test_rtc(void) {
@@ -177,12 +177,12 @@ void test_rtc(void) {
   rtc_open();
   int rtc_write_var[1];
   rtc_write_var[0] = 0;
-  rtc_write(rtc_write_var, WRITE_BYTES);
+  rtc_write(2, rtc_write_var, WRITE_BYTES);
   sti();
   char buf[1];
   buf[0] = 'l';
   while (1){
-    rtc_read();
+    rtc_read(0, 0, 0);
     write(STDOUT, buf, 1);
   }
 }
@@ -192,7 +192,7 @@ void test_rtc(void) {
   Input: none
   Return Value: none 
   Function: Changes the frequency of the rtc. every time this is called, the frequency doubles,
-			except at 1024 hz, it goes to 0, and at 0 hz, it goes to 2 hz
+      except at 1024 hz, it goes to 0, and at 0 hz, it goes to 2 hz
 */
 void toggle_freq(void) {
   int8_t freq_const;

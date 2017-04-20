@@ -31,10 +31,10 @@
 /*InitialiZ_e RTC interrupts*/
 void rtc_handler();
 void rtc_init();
-int rtc_open(void);
+int rtc_open();
 int rtc_close(void);
-int rtc_read(void);
-int rtc_write(int * buf, int nbytes);
+int rtc_read(int fd, void* buf, int nbytes);
+int rtc_write(int fd, void* buf, int nbytes);
 int set_rate(int freq);
 void test_rtc(void);
 void toggle_freq(void);
