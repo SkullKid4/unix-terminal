@@ -134,7 +134,7 @@ int32_t dir_read
   Function: Stores the next filename in the buf
 */
 
-int32_t dir_readnew(int8_t* buf){
+int32_t dir_readnew(int32_t fd, void* buf, int32_t nbytes) {
 	//int i;
 	//uint32_t file_size;
 	//int8_t temp[10];

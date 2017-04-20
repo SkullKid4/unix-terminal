@@ -37,40 +37,36 @@ void read()
 */
 // look at later -Sam
 
-/*void init_fops_table() {
-	fops_table[STDIN].read = &keyboard_read;
-	fops_table[STDIN].write = &keyboard_write;
-	fops_table[STDIN].open = &keyboard_open;
-	fops_table[STDIN].close = &keyboard_close;
+void init_fops_table() {
+	fops_table[NOT_SET].read = &invalid_function;
+	fops_table[NOT_SET].write = &invalid_function;
 
-	fops_table[STDOUT].read = &terminal_read;
-	fops_table[STDOUT].write = &terminal_write;
-	fops_table[STDOUT].open = &terminal_open;
-	fops_table[STDOUT].close = &terminal_close;
+	fops_table[STDINFLAG].read = &keyboard_read;
+	fops_table[STDINFLAG].write = &keyboard_write;
+
+	fops_table[STDOUTFLAG].read = &terminal_read;
+	fops_table[STDOUTFLAG].write = &terminal_write;
 
 	fops_table[RTCFLAG].read = &rtc_read;
 	fops_table[RTCFLAG].write = &rtc_write;
-	fops_table[RTCFLAG].open = &rtc_open;
-	fops_table[RTCFLAG].close = &rtc_close;
 
-	fops_table[FILEFLAG].read = &file_read;
-	fops_table[FILEFLAG].write = &file_write;
-	fops_table[FILEFLAG].open = &file_open;
-	fops_table[FILEFLAG].close = &file_close;
+	fops_table[FILEFLAG].read = &file_read_setup;
+	fops_table[FILEFLAG].write = &invalid_function;
 
-	fops_table[DIRFLAG].read = &dir_read;
-	fops_table[DIRFLAG].write = &dir_write;
-	fops_table[DIRFLAG].open = &dir_open;
-	fops_table[DIRFLAG].close = &dir_close;
-}*/
+	fops_table[DIRFLAG].read = &dir_readnew;
+	fops_table[DIRFLAG].write = &invalid_function;
+}
 
 
 
 
 int32_t read(int32_t fd, void* buf, int32_t nbytes){
-	int32_t read_bytes;
 	if(nbytes < 0 || buf == NULL || fd > 7 || fd < 0) return -1;	//fail if fd is out of range of 0-7
+	pcb_t* curr_pcb = (pcb_t*)(PHYS_FILE_START - EIGHT_KB * (curr_process + 1));
+	return fops_table[curr_pcb->FDs_array[fd].flags]->read(fd,buf,nbytes);
 	
+	/*
+	int32_t read_bytes;
 	if (fd == STDIN)
 		return keyboard_read(0, buf, nbytes);
 
@@ -91,9 +87,16 @@ int32_t read(int32_t fd, void* buf, int32_t nbytes){
 		return read_bytes;
 	}
 
-	return -1;
+	return -1;*/
 			
 	//return fops_table[curr_pcb->FDs_array[fd].flags]->read(fd,buf,nbytes);
+}
+
+int32_t file_read_setup(int32_t fd, void* buf, int32_t nbytes) {
+	int32_t read_bytes;
+	read_bytes = file_read((uint8_t*)curr_pcb->file_name[fd], curr_pcb->FDs_array[fd].file_position, (uint8_t*)buf, nbytes);
+	curr_pcb->FDs_array[fd].file_position += read_bytes;
+	return read_bytes;
 }
 
 /*
@@ -106,8 +109,10 @@ int32_t write(int32_t fd, const void* buf, int32_t nbytes)
 */
 int32_t write(int32_t fd, void* buf, int32_t nbytes){
 	if(nbytes < 0 || buf == NULL || fd < 0 || fd > 7) return -1;	//fail if fd is out of range of 0-7
+	pcb_t* curr_pcb = (pcb_t*)(PHYS_FILE_START - EIGHT_KB * (curr_process + 1));
+	return fops_table[curr_pcb->FDs_array[fd].flags]->write(fd,buf,nbytes);
 
-	if (fd == STDOUT)
+	/*if (fd == STDOUT)
 		return terminal_write(1, buf, nbytes);
 
 	pcb_t* curr_pcb = (pcb_t*)(PHYS_FILE_START - EIGHT_KB * (curr_process + 1));
@@ -116,7 +121,7 @@ int32_t write(int32_t fd, void* buf, int32_t nbytes){
 	if (curr_pcb->FDs_array[fd].flags == RTCFLAG)
 		return rtc_write(buf, nbytes);
 
-	return -1;
+	return -1;*/
 
 	//return fops_table[curr_pcb->FDs_array[fd].flags]->write(fd,buf,nbytes);
 }
