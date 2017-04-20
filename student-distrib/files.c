@@ -2,6 +2,7 @@
 #include "lib.h"
 #include "keyboard.h"
 #include "terminal.h"
+#include "syscall.h"
 
 /*
 void file_init(const uint8_t* filename)

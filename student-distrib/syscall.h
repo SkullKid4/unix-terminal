@@ -70,7 +70,7 @@ extern void init_fops_table();
 /*function for reading data to buffers*/
 extern int32_t read(int32_t fd, void* buf, int32_t nbytes);
 
-int32_t file_read_setup(int32_t fd, void* buf, int32_t nbytes) {
+int32_t file_read_setup(int32_t fd, void* buf, int32_t nbytes);
 
 /*function to writing to buffers*/
 extern int32_t write(int32_t fd, void* buf, int32_t nbytes);
@@ -104,7 +104,7 @@ extern int32_t sigreturn(void);
 int32_t get_process();
 
 /*not implimented*/
-int32_t invalid_function();
+int32_t invalid_function(int32_t fd, void* buf, int32_t nbytes);
 
 /*sets the entry in process_array for the process to 0, indicating that another process may be run in its place*/
 void end_process(int32_t proc_num);

@@ -63,7 +63,7 @@ void init_fops_table() {
 int32_t read(int32_t fd, void* buf, int32_t nbytes){
 	if(nbytes < 0 || buf == NULL || fd > 7 || fd < 0) return -1;	//fail if fd is out of range of 0-7
 	pcb_t* curr_pcb = (pcb_t*)(PHYS_FILE_START - EIGHT_KB * (curr_process + 1));
-	return fops_table[curr_pcb->FDs_array[fd].flags]->read(fd,buf,nbytes);
+	return fops_table[curr_pcb->FDs_array[fd].flags].read(fd,buf,nbytes);
 	
 	/*
 	int32_t read_bytes;
@@ -94,6 +94,7 @@ int32_t read(int32_t fd, void* buf, int32_t nbytes){
 
 int32_t file_read_setup(int32_t fd, void* buf, int32_t nbytes) {
 	int32_t read_bytes;
+	pcb_t* curr_pcb = (pcb_t*)(PHYS_FILE_START - EIGHT_KB * (curr_process + 1));
 	read_bytes = file_read((uint8_t*)curr_pcb->file_name[fd], curr_pcb->FDs_array[fd].file_position, (uint8_t*)buf, nbytes);
 	curr_pcb->FDs_array[fd].file_position += read_bytes;
 	return read_bytes;
@@ -110,7 +111,7 @@ int32_t write(int32_t fd, const void* buf, int32_t nbytes)
 int32_t write(int32_t fd, void* buf, int32_t nbytes){
 	if(nbytes < 0 || buf == NULL || fd < 0 || fd > 7) return -1;	//fail if fd is out of range of 0-7
 	pcb_t* curr_pcb = (pcb_t*)(PHYS_FILE_START - EIGHT_KB * (curr_process + 1));
-	return fops_table[curr_pcb->FDs_array[fd].flags]->write(fd,buf,nbytes);
+	return fops_table[curr_pcb->FDs_array[fd].flags].write(fd,buf,nbytes);
 
 	/*if (fd == STDOUT)
 		return terminal_write(1, buf, nbytes);
@@ -139,12 +140,12 @@ int32_t open(const uint8_t* filename){
 	pcb_t* curr_pcb = (pcb_t*)(PHYS_FILE_START - EIGHT_KB * (curr_process + 1));
 	if(strncmp((int8_t*)filename,"stdin",strlen("stdin"))==0){
 		//curr_pcb->FDs_array[0].jump_table_pointer=stdin_jump_table;
-		curr_pcb->FDs_array[0].flags = 0;
+		curr_pcb->FDs_array[STDINFLAG].flags = STDINFLAG;
 		return 0;
 	}
 	if(strncmp((int8_t*)filename,"stdout",strlen("stdout"))==0){
 		//curr_pcb->FDs_array[1].jump_table_pointer=stdout_jump_table;
-		curr_pcb->FDs_array[1].flags = 1;
+		curr_pcb->FDs_array[STDOUTFLAG].flags = STDOUTFLAG;
 		return 0;
 	}
 	if(read_dentry_by_name(filename,&temp_dentry)!=0)
@@ -540,10 +541,11 @@ void end_process(int32_t proc_num) {
 	process_array[proc_num] = 0;
 }
 
-/*
-int32_t invalid_function(uint8_t* buf, int32_t nbytes){
+
+int32_t invalid_function(int32_t fd, void* buf, int32_t nbytes) {
 	return -1;
-}*/
+}
+
 
 /*int32_t do_nothing(){
 	return 0;

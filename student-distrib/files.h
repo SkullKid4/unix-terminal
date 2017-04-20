@@ -43,7 +43,7 @@ uint32_t* my_file_sys; // starting address of the file systems
 int32_t file_init(uint32_t* add_start);
 int32_t file_close(void);
 int32_t file_write(const uint8_t* fname, uint32_t offset, uint8_t* buf,uint32_t length);
-int32_t file_read(const uint8_t* fname, uint32_t offset, uint8_t* buf,uint32_t length);
+extern int32_t file_read(const uint8_t* fname, uint32_t offset, uint8_t* buf,uint32_t length);
 int32_t write_data(uint32_t inode, uint32_t offset, uint8_t* buf,uint32_t length);
 int32_t dir_open(void);
 int32_t dir_close(void);
