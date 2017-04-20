@@ -28,20 +28,29 @@ int32_t terminal_write
   				-1 on failure
   Function: writes the contents of the buffer to the terminal
 */
+//volatile unsigned tlock = 0;
+
 int32_t terminal_write(int32_t fd, void* buf, int32_t nbytes) {
+	//while(tlock == 1){}
+	//tlock = 1;
 	if(buf == NULL || nbytes < 0) return -1;
+	cli();
 	int i;
 	if(strlen(buf) < nbytes){
 		for(i = 0; i < strlen(buf); i++) {
 			char data = ((char *)buf)[i];
 			putc(data);
 		}	
+		//tlock = 0;
+		sti();
 		return strlen(buf);
 	}
 	for(i = 0; i < nbytes; i++){
 		char data = ((char *)buf)[i];
 		putc(data);
 	}
+	//tlock = 0;
+	sti();
 	return nbytes;
 }
 

@@ -5,6 +5,7 @@
 #include "i8259.h"
 #include "syscall.h"
 #include "terminal.h"
+#include "syscall_link.h"
 
 volatile int rtc_interrupt;
 volatile unsigned rtc_lock = 0;
@@ -20,7 +21,7 @@ void rtc_init(){
   prev = inb(RTC_DATA_PORT); // get current value of B
   outb(0x8B, RTC_REGISTER_PORT); // select Register B again
   outb(prev | 0x40, RTC_DATA_PORT); // set bit 6 of Register B
-  SET_IDT_ENTRY(idt[RTC_IDT_IDX], (rtc_handler));
+  SET_IDT_ENTRY(idt[RTC_IDT_IDX], (rtc_linkage));
   enable_irq(RTC_IRQ);
 }
 

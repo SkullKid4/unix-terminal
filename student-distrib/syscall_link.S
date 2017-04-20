@@ -78,6 +78,14 @@ HALTED:
 	 ret
 
 
+.globl rtc_linkage
+rtc_linkage:
+	pushal
+	call rtc_handler
+	popal
+	iret
+
+
 
 
 

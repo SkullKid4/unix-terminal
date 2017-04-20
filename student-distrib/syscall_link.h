@@ -20,4 +20,6 @@ void jump_user_space(int entry_point)
 */
 void jump_user_space(int entry_point);
 
+void rtc_linkage();
+
 #endif

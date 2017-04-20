@@ -321,7 +321,13 @@ void exc_14()
 */
 void exc_14()
 {	//clear();
-	puts("Page fault");
+	puts("Page fault\n");
+	uint32_t fault_addr;
+	asm volatile(
+		"mov %%cr2, %0"	
+		: "=r"(fault_addr)
+		);
+	printf("0x%x\n", fault_addr);
 	halt_from_exc();
 	while(1);
 }
