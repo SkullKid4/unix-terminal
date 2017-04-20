@@ -211,6 +211,12 @@ void keyboard_handler(){
 
       ascii = keyboard_map[keycode][shift];
 
+      if(ascii == '\0'){
+        sti();
+        lock = 0;
+        return;
+      }
+
       //Crtl button cases
 
       if(ctrl && ascii == 'l'){
