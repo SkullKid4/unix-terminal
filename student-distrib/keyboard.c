@@ -8,6 +8,7 @@
 #include "rtc.h"
 #include "types.h"
 #include "terminal.h"
+#include "syscall_link.h"
 
 volatile unsigned lock = 0;       //used to lock the thread when writing keyboard output to the screen
 volatile unsigned shift = 0;      //2a or 36 on press;
@@ -140,7 +141,7 @@ void keyboard_init(){
   keyboard_idx = 0;
   last_idx = 0;
   enter = 0;
-  SET_IDT_ENTRY(idt[KEYBOARD_IDT_IDX], (keyboard_handler)); //init idt entry and irq signal
+  SET_IDT_ENTRY(idt[KEYBOARD_IDT_IDX], (keyboard_linkage)); //init idt entry and irq signal
   enable_irq(KEYBOARD_IRQ);
 }
 

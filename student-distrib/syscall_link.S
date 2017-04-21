@@ -85,6 +85,13 @@ rtc_linkage:
 	popal
 	iret
 
+.globl keyboard_linkage
+keyboard_linkage:
+	pushal
+	call keyboard_handler
+	popal
+	iret
+
 
 
 
