@@ -53,12 +53,22 @@ int32_t terminal_write(int32_t fd, void* buf, int32_t nbytes) {
 	sti();
 	return nbytes;
 }
-
+/*
+int32_t terminal_open
+  Input: filename-be consistent with open syscalls prototype
+  Return Value: 0
+  Function: does nothing (shouldn't be called)
+*/
 
 int32_t terminal_open(const uint8_t* filename) {
 	return 0;
 }
-
+/*
+int32_t terminal_close
+  Input: none
+  Return Value: 0
+  Function: does nothing (shouldn't be called)
+*/
 int32_t terminal_close() {
 	return 0;
 }

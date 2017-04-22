@@ -57,11 +57,18 @@ void init_fops_table() {
 	fops_table[DIRFLAG].write = &invalid_function;
 }
 
-
+/*
+int32_t read(int32_t fd, const void* buf, int32_t nbytes)
+  Input: fd - file descriptor, indicates where this is being called from
+  		buf - the buffer to read
+  		nbytes - number of bytes to read
+  Return Value: returns number of bytes read, or -1 on failure
+  Function: Read a number of bytes to a buffer, according to the file descriptor
+*/
 
 
 int32_t read(int32_t fd, void* buf, int32_t nbytes){
-	if(nbytes < 0 || buf == NULL || fd > 7 || fd < 0) return -1;	//fail if fd is out of range of 0-7
+	if(nbytes < 0 || buf == NULL || fd > MAX_FILE-1 || fd < 0) return -1;	//fail if fd is out of range of 0-7
 	pcb_t* curr_pcb = (pcb_t*)(PHYS_FILE_START - EIGHT_KB * (curr_process + 1));
 	return fops_table[curr_pcb->FDs_array[fd].flags].read(fd,buf,nbytes);
 	
@@ -91,7 +98,15 @@ int32_t read(int32_t fd, void* buf, int32_t nbytes){
 			
 	//return fops_table[curr_pcb->FDs_array[fd].flags]->read(fd,buf,nbytes);
 }
-
+/*
+int32_t file_read_setup(int32_t fd, const void* buf, int32_t nbytes)
+  Input: fd - file descriptor, indicates where this is being called from
+  		buf - the buffer to read
+  		nbytes - number of bytes to read
+		Return Value: returns number of bytes read, or -1 on failure
+  Function: helper function for file_read in order to achieve one-line argument for read, 
+			Read a number of bytes to a buffer, according to the file descriptor
+*/
 int32_t file_read_setup(int32_t fd, void* buf, int32_t nbytes) {
 	int32_t read_bytes;
 	pcb_t* curr_pcb = (pcb_t*)(PHYS_FILE_START - EIGHT_KB * (curr_process + 1));
@@ -109,7 +124,7 @@ int32_t write(int32_t fd, const void* buf, int32_t nbytes)
   Function: Writes a number of bytes from a buffer, according to the file descriptor
 */
 int32_t write(int32_t fd, void* buf, int32_t nbytes){
-	if(nbytes < 0 || buf == NULL || fd < 0 || fd > 7) return -1;	//fail if fd is out of range of 0-7
+	if(nbytes < 0 || buf == NULL || fd < 0 || fd > MAX_FILE-1) return -1;	//fail if fd is out of range of 0-7
 	pcb_t* curr_pcb = (pcb_t*)(PHYS_FILE_START - EIGHT_KB * (curr_process + 1));
 	return fops_table[curr_pcb->FDs_array[fd].flags].write(fd,buf,nbytes);
 
@@ -206,7 +221,7 @@ int32_t close(int32_t fd){
 			break;
 	}*/
 	pcb_t* curr_pcb = (pcb_t*)(PHYS_FILE_START - EIGHT_KB * (curr_process + 1));
-	if(fd==0 || fd==1 || fd >7 || fd < 0) //fail if fd is out of range of 0-7
+	if(fd==STDIN || fd==STDOUT || fd >MAX_FILE-1 || fd < 0) //fail if fd is out of range of 0-7
 		return -1;
 	if(curr_pcb->FDs_array[fd].flags==NOT_SET)
 		return -1;
@@ -327,7 +342,7 @@ int32_t halt_from_exc(){
 	int i;
 	fds_t* cur_pcb_fd = cur_pcb->FDs_array;
 
-	for(i = 2; i < 8; i++){
+	for(i = 2; i < MAX_FILE; i++){
 		if(cur_pcb_fd[i].flags != 0){
 			close(i);
 		}
@@ -540,7 +555,12 @@ void end_process
 void end_process(int32_t proc_num) {
 	process_array[proc_num] = 0;
 }
-
+/*
+int32_t invalid_function(int32_t fd, const void* buf, int32_t nbytes)
+  Input: fd,buf,nbytes-be consistent with read and write syscalls arguments
+  Return Value: -1
+  Function: place holders for invalid syscalls in file structs
+*/
 
 int32_t invalid_function(int32_t fd, void* buf, int32_t nbytes) {
 	return -1;
@@ -559,7 +579,7 @@ void clear_process
 */
 void clear_process(){
 	int i;
-	for (i = 0; i < 6; i++){ // We can have a maximum of 6 processes. set them all to unused.
+	for (i = 0; i < NUM_PROCESSES; i++){ // We can have a maximum of 6 processes. set them all to unused.
 		process_array[i] = 0;
 	}
 }

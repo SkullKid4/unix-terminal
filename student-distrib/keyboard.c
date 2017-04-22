@@ -72,6 +72,14 @@ unsigned char keyboard_map[128][2] =
     {'\0', '\0'}, /* All other keys are undefined */
 };
 
+/*
+int32_t keyboard_read(int32_t fd, const void* buf, int32_t nbytes)
+  Input: fd - file descriptor, indicates where this is being called from
+  		buf - the buffer to read 
+  		nbytes - number of bytes to read
+  Return Value: returns number of bytes read from keyboard, or -1 on failure
+  Function: read a number of bytes to a buffer, according to the file descriptor
+*/
 int32_t keyboard_read(int32_t fd, void* buf, int32_t nbytes) {
 	while(enter == 0){        //wait until enter is pressed
       //wait
@@ -105,7 +113,14 @@ int32_t keyboard_read(int32_t fd, void* buf, int32_t nbytes) {
     last_idx = 0;
     return (i-j);       //the number of bytes read
 }
-
+/*
+int32_t keyboard_write(int32_t fd, const void* buf, int32_t nbytes)
+  Input: fd - file descriptor, indicates where this is being called from
+  		buf - the buffer to read 
+  		nbytes - number of bytes to read
+  Return Value: returns number of bytes written to keyboard, or -1 on failure
+  Function: write a number of bytes to a buffer, according to the file descriptor
+*/
 
 int32_t keyboard_write(int32_t fd, void* buf, int32_t nbytes) {
   int i;
@@ -120,11 +135,21 @@ int32_t keyboard_write(int32_t fd, void* buf, int32_t nbytes) {
     }
 	return -1;
 }
-
+/*
+int32_t keyboard_open
+  Input: file_name-be consistent with other open syscall functions
+  Return Value: 0
+  Function: does nothing (shouldn't be called)
+*/
 int32_t keyboard_open(const uint8_t* filename) {
   return 0;
 }
-
+/*
+int32_t keyboard_close
+  Input: none
+  Return Value: -1
+  Function: does nothing (shouldn't be called)
+*/
 int32_t keyboard_close() {
   return -1;
 }
@@ -413,46 +438,3 @@ void handle_backspace(){
   update_cursor(screen_y, screen_x);
 }
 
-/*int32_t keyboard_read(void* buf, int32_t nbytes) {
-	while(enter == 0){        //wait until enter is pressed
-      //wait
-    };
-
-    int idx[2];
-    int i;
-    int j = 0;            //holds the index of the first char to copy to the buffer
-    int count = 0;          //hold the number of new lines seen so far
-    get_keyboard_idx(idx);      //get the idecies of the keyboard
-
-    for(i = (idx[1]-1); i >= 0; i--){ //start at the right end of the buffer and go until 0
-      if(keyboard_buf[i] == '\n'){
-        count++;
-        if(count == 2){     //if the new line count is 2 then youre done
-          j = i+1;
-          break;
-        }
-      }
-    }
-    for(i = j; keyboard_buf[i] != '\0'; i++){   //copys the keyboard buffer to the given buffer
-      if((i-j) == nbytes){
-        break;
-      }
-      ((char *)buf)[i] = keyboard_buf[i];
-    }
-    enter = 0;          //set the volatile enter to zero
-    return (i-j);       //the number of bytes read
-}
-
-int32_t keyboard_write(void* buf, int32_t nbytes) {
-  int i;
-  int idx[2];
-  get_keyboard_idx(idx);
-    if(idx[0] != idx[1]){           //this
-      for(i = idx[0]; i < idx[1]; i++){
-       char data = ((char *)buf)[i];
-       putc(data);
-      }
-     return(idx[1] - idx[0]);
-    }
-	return -1;
-}*/

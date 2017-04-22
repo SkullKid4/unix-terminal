@@ -20,9 +20,19 @@ void jump_user_space(int entry_point)
   Function: arranges arguments on the stack for iret
 */
 void jump_user_space(int entry_point);
-
+/*
+void rtc_linkage
+  Input: None
+  Return Value: none
+  Function: save all registers and pop all registers before calling rtc interrupt handlers
+*/
 void rtc_linkage();
-
+/*
+void keyboard_handler
+  Input: None
+  Return Value: none
+  Function: save all registers and pop all registers before calling keyboard interrupt handlers
+*/
 void keyboard_linkage();
 
 #endif

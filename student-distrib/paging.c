@@ -76,7 +76,14 @@ void map
 	"movl	%%eax,%%cr3 "
 	: : :"eax", "cc");
  	}
-
+/*
+void map_w_pt
+  Input: virt_add - virtual address
+  		phys_add - physical address
+  Return Value: none
+  Function: maps a video memory physical address to a virtual address, marking it as present
+  			also flushes the TLB
+*/
  void map_w_pt(uint32_t virt_add, uint32_t phys_add) {
  	uint32_t pde = virt_add / FOUR_MB;
  	page_directory[pde] = ((uint32_t)user_video_page_table) | 0x7;
