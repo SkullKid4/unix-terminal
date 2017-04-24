@@ -69,8 +69,7 @@ int32_t read(int32_t fd, const void* buf, int32_t nbytes)
 
 int32_t read(int32_t fd, void* buf, int32_t nbytes){
 	if(nbytes < 0 || buf == NULL || fd > MAX_FILE-1 || fd < 0) return -1;	//fail if fd is out of range of 0-7
-	pcb_t* curr_pcb = (pcb_t*)(PHYS_FILE_START - EIGHT_KB * (curr_process + 1));
-	return fops_table[curr_pcb->FDs_array[fd].flags].read(fd,buf,nbytes);
+	return fops_table[current_pcb->FDs_array[fd].flags].read(fd,buf,nbytes);
 	
 	/*
 	int32_t read_bytes;
@@ -125,8 +124,7 @@ int32_t write(int32_t fd, const void* buf, int32_t nbytes)
 */
 int32_t write(int32_t fd, void* buf, int32_t nbytes){
 	if(nbytes < 0 || buf == NULL || fd < 0 || fd > MAX_FILE-1) return -1;	//fail if fd is out of range of 0-7
-	pcb_t* curr_pcb = (pcb_t*)(PHYS_FILE_START - EIGHT_KB * (curr_process + 1));
-	return fops_table[curr_pcb->FDs_array[fd].flags].write(fd,buf,nbytes);
+	return fops_table[current_pcb->FDs_array[fd].flags].write(fd,buf,nbytes);
 
 	/*if (fd == STDOUT)
 		return terminal_write(1, buf, nbytes);
@@ -405,6 +403,7 @@ while(command[i] == ' ' ) {
  	if (new_process == -1)
  		return -1;	//fail if we have 6 processes already
  	pcb_t* curr_pcb = (pcb_t*)(PHYS_FILE_START - EIGHT_KB * (new_process + 1));
+ 	current_pcb = curr_pcb;
  	arg_start = i;
  	while(command[i] != '\0'){
  		curr_pcb->args[i-arg_start] = command[i];

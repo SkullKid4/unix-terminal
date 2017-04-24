@@ -60,7 +60,7 @@ typedef struct pcb{
   uint32_t EBP0;
 } pcb_t;
 
-
+volatile pcb_t* current_pcb;
 
 
 extern void init_fops_table();
