@@ -3,9 +3,6 @@
 
 #include "lib.h"
 
-#define STDIN	0
-#define STDOUT	1
-
 #define IN_USE 1
 #define STDIN 0
 #define STDOUT  1
@@ -34,7 +31,7 @@
 
 
 volatile uint32_t curr_process;
-
+/*file struct pointers for read and write*/
 typedef struct fops {
   int32_t (*read)(int32_t fd, void* buf, int32_t nbytes);
   int32_t (*write)(int32_t fd, void* buf, int32_t nbytes);
@@ -54,7 +51,7 @@ uint32_t process_array[6];
 
 typedef struct pcb{
   uint32_t PID;
-  fds_t FDs_array[8]; //<----------- array of fds structs?
+  fds_t FDs_array[8]; 
   int8_t args[BUF_SIZE];
   int8_t file_name[MAX_FILE][MAX_FILE_CHAR];
   uint32_t ESP0;
@@ -63,7 +60,7 @@ typedef struct pcb{
   uint32_t EBP0;
 } pcb_t;
 
-
+volatile pcb_t* current_pcb;
 
 
 extern void init_fops_table();

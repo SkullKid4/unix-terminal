@@ -79,6 +79,7 @@ HALTED:
 
 
 .globl rtc_linkage
+#save all registers and pop all registers before calling interrupt handlers
 rtc_linkage:
 	pushal
 	call rtc_handler

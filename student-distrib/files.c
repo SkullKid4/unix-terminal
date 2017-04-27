@@ -216,16 +216,7 @@ int32_t read_dentry_by_name(const uint8_t* fname, dentry_t* dentry){
 		return -1;
 	int i;
 	if(strlen((int8_t*)fname)>32) {
-		for(i=0;i<my_boot_block.num_dentries;i++){
-			if(strncmp((int8_t*)(my_dentry[i].file_name),(int8_t*)fname,32)==0) {
-				memset(dentry->file_name,' ',MAX_FILE_CHAR+1);
-				strcpy((int8_t*)(dentry->file_name),(int8_t*)fname);
-				dentry->file_type=my_dentry[i].file_type;
-				dentry->inode=my_dentry[i].inode;
-				return 0;
-		}			
-	}
-	return -1;
+		return -1;
 
 	}
 	//search for the given file name, and copy necessary coresponding info of the file to given pointer dentry_t*
