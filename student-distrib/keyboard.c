@@ -206,6 +206,8 @@ void keyboard_handler(){
           shift = 0;
         } else if(keycode == CTRL_UP){
           ctrl = 0;
+        } else if(keycode == ALT_UP){
+          alt = 0;
         }
         sti();
         lock = 0;
@@ -243,8 +245,15 @@ void keyboard_handler(){
         return;
       }
 
-      if(keycode == ALT_UP) {
-        alt = 0;
+      if(alt) {
+        switch(keycode) {
+          case F1:
+            switch_terminal(0);
+          case F2:
+            switch_terminal(1);
+          case F3:
+            switch_terminal(2);
+        }
         sti();
         lock = 0;
         return;
@@ -369,20 +378,6 @@ void keyboard_handler(){
     set_rate(0);       //set rate to 0 to end test
     sti();
     lock=0;
-    return;
-  }
-
-  if(alt) {
-    switch(keycode) {
-      case F1:
-        switch_terminal(0);
-      case F2:
-        switch_terminal(1);
-      case F3:
-        switch_terminal(2);
-    }
-    sti();
-    lock = 0;
     return;
   }
 

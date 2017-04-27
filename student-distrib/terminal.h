@@ -6,13 +6,15 @@
 #include "keyboard.h"
 
 typedef struct terminal {
+	uint8_t active;
 	int x;
 	int y;
 	pcb_t* pcb;
 	char input_buf[MAX_BUF_SIZE+1];
 	char screen[NUM_ROWS * NUM_COLS];
 } terminal_t;
-volatile terminal_t terminals[3];
+
+terminal_t terminals[3];
 
 /*does nothing (shouldn't be called)*/
 extern int32_t terminal_read(int32_t fd, void* buf, int32_t nbytes);

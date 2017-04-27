@@ -76,7 +76,9 @@ int32_t terminal_close() {
 }
 
 void switch_terminal(int32_t newt) {
-	//swap TSS
+	if(terminals[newt].active == 0){
+		
+	}
 	//clear();
 	//print screen text
 	screen_x = 0;

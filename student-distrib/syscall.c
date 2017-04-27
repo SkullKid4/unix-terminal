@@ -396,7 +396,7 @@ int32_t execute
 
 
 
-while(command[i] == ' ' ) {
+	while(command[i] == ' ' ) {
  		i++;
  	}
  	uint32_t new_process = get_process();
