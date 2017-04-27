@@ -7,7 +7,9 @@
 #include "rtc.h"
 #include "keyboard.h"
 #include "types.h"
+#include "terminal.h"
 
+int32_t curr_terminal = 0;
 
 /*
 int32_t terminal_read
@@ -81,13 +83,13 @@ void switch_terminal(int32_t newt) {
 	screen_y = 0;
 	int i;
 	for(i = 0; i < NUM_ROWS * NUM_COLS; i++) {
-		putc(terminals[newt]->screen[i]);
+		putc(terminals[newt].screen[i]);
 	}
-	screen_x = terminals[newt]->x;
-	screen_y = terminals[newt]->y;
+	screen_x = terminals[newt].x;
+	screen_y = terminals[newt].y;
 	update_cursor(screen_y, screen_x);
 	curr_terminal = newt;
-	if(terminals[newt]->pcb->PID == NULL)
-		execute("shell\0");
+	if((terminals[newt].pcb)->PID == NULL)
+		execute((uint8_t*)("shell\0"));
 }
 

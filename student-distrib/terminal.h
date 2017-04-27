@@ -12,11 +12,7 @@ typedef struct terminal {
 	char input_buf[MAX_BUF_SIZE+1];
 	char screen[NUM_ROWS * NUM_COLS];
 } terminal_t;
-
-extern terminal_t terminals[3];
-
-int32_t curr_terminal = 0;
-
+volatile terminal_t terminals[3];
 
 /*does nothing (shouldn't be called)*/
 extern int32_t terminal_read(int32_t fd, void* buf, int32_t nbytes);
