@@ -14,7 +14,6 @@ volatile unsigned lock = 0;       //used to lock the thread when writing keyboar
 volatile unsigned shift = 0;      //2a or 36 on press;
 volatile unsigned caps = 0;
 volatile unsigned ctrl = 0;
-volatile unsigned alt = 0;
 
 
 volatile uint8_t keyboard_idx;
@@ -193,7 +192,7 @@ void keyboard_handler(){
   
     if (status & 0x01) {                    //if the status is set, get the code from the keyboard port
       keycode = inb(KEYBOARD_DATA_PORT);
-      //printf("Keycode is: 0x%x", keycode);
+      //printf("Keycode is: %d", keycode);
       if(keycode == BACKSPACE && ((screen_x + screen_y) != 0)){
         handle_backspace();
         sti();
@@ -231,20 +230,6 @@ void keyboard_handler(){
       }
       if(keycode == CTRL_DOWN){
         ctrl = 1;
-        sti();
-        lock = 0;
-        return;
-      }
-
-      if(keycode == ALT_DOWN) {
-        alt = 1;
-        sti();
-        lock = 0;
-        return;
-      }
-
-      if(keycode == ALT_UP) {
-        alt = 0;
         sti();
         lock = 0;
         return;
@@ -370,21 +355,6 @@ void keyboard_handler(){
     lock=0;
     return;
   }
-
-  if(alt) {
-    switch(keycode) {
-      case F1:
-        switch_terminal(0);
-      case F2:
-        switch_terminal(1);
-      case F3:
-        switch_terminal(2);
-    }
-    sti();
-    lock = 0;
-    return;
-  }
-
       if(keyboard_idx == MAX_BUF_SIZE){
         sti();
         lock = 0;
