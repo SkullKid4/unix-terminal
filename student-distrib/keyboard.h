@@ -21,6 +21,13 @@
 #define CTRL_UP					0x9D
 #define BACKSPACE				0x0E
 
+#define ALT_DOWN				0x38
+#define ALT_UP				    0xB8
+#define	F1						0x3B
+#define F2						0x3C
+#define F3						0x3D
+
+
 #define MAX_BUF_SIZE			128
 
 volatile unsigned enter;

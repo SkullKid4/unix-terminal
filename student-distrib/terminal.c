@@ -73,3 +73,21 @@ int32_t terminal_close() {
 	return 0;
 }
 
+void switch_terminal(int32_t newt) {
+	//swap TSS
+	//clear();
+	//print screen text
+	screen_x = 0;
+	screen_y = 0;
+	int i;
+	for(i = 0; i < NUM_ROWS * NUM_COLS; i++) {
+		putc(terminals[newt]->screen[i]);
+	}
+	screen_x = terminals[newt]->x;
+	screen_y = terminals[newt]->y;
+	update_cursor(screen_y, screen_x);
+	curr_terminal = newt;
+	if(terminals[newt]->pcb->PID == NULL)
+		execute("shell\0");
+}
+
