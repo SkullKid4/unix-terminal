@@ -268,12 +268,12 @@ int32_t halt
 int32_t halt(uint8_t status){
 	//restore parent data
 	end_process(curr_process);
-	if(curr_process == 0){
-		end_process(0);
+	pcb_t* child_pcb = (pcb_t*)(PHYS_FILE_START - EIGHT_KB * (curr_process + 1));
+	if(child_pcb->PPID == -1){
+		terminals[get_cur_term()].active = 0;
 		execute((uint8_t*)("shell\0"));
 	}
 	//get pcb pointers
-	pcb_t* child_pcb = (pcb_t*)(PHYS_FILE_START - EIGHT_KB * (curr_process + 1));
 	uint32_t cur_ppid = ((pcb_t*)(PHYS_FILE_START - (EIGHT_KB * (curr_process + 1))))->PPID;
 	pcb_t* cur_pcb = (pcb_t*)(PHYS_FILE_START - (EIGHT_KB * (cur_ppid + 1)));
 	//set tss
@@ -321,12 +321,12 @@ int32_t halt_from_exc
 int32_t halt_from_exc(){
 	//retore parent data
 	end_process(curr_process);
-	if(curr_process == 0){
-		end_process(0);
+	pcb_t* child_pcb = (pcb_t*)(PHYS_FILE_START - EIGHT_KB * (curr_process + 1));
+	if(child_pcb->PPID == -1){
+		terminals[get_cur_term()].active = 0;
 		execute((uint8_t*)("shell\0"));
 	}
 	//get pcb pointers
-	pcb_t* child_pcb = (pcb_t*)(PHYS_FILE_START - EIGHT_KB * (curr_process + 1));
 	uint32_t cur_ppid = ((pcb_t*)(PHYS_FILE_START - (EIGHT_KB * (curr_process + 1))))->PPID;
 	pcb_t* cur_pcb = (pcb_t*)(PHYS_FILE_START - (EIGHT_KB * (cur_ppid + 1)));
 	//set tss
@@ -400,8 +400,10 @@ int32_t execute
  		i++;
  	}
  	uint32_t new_process = get_process();
- 	if (new_process == -1)
- 		return -1;	//fail if we have 6 processes already
+ 	if (new_process == -1){
+ 		printf("too many processes\n");
+ 		return 0;	//fail if we have 6 processes already
+ 	}
  	pcb_t* curr_pcb = (pcb_t*)(PHYS_FILE_START - EIGHT_KB * (new_process + 1));
  	current_pcb = curr_pcb;
  	arg_start = i;
@@ -415,6 +417,7 @@ int32_t execute
  	dentry_t valid_file_check;
  	if (read_dentry_by_name((uint8_t*)com, &valid_file_check) != 0){
  		//printf("invalid file");
+ 		clear_process(new_process);
  		return -1;
  	}
  	//check for valid exe
@@ -429,7 +432,13 @@ int32_t execute
  	file_start = *((uint32_t*)buffer);
 
  	//initialize pcb
+ 	if (terminals[get_cur_term()].active == 0) {
+ 		terminals[get_cur_term()].active = 1;
+ 		curr_pcb->PPID = -1;
+ 	}
+ 	else
  	curr_pcb->PPID = curr_process;
+ 	
  	curr_pcb->PID = new_process;
  	curr_process = new_process;
 
@@ -581,4 +590,13 @@ void clear_process(){
 	for (i = 0; i < NUM_PROCESSES; i++){ // We can have a maximum of 6 processes. set them all to unused.
 		process_array[i] = 0;
 	}
+}
+
+uint32_t get_current_process() {
+	return curr_process;
+}
+
+pcb_t* get_pcb_pointer(int process){
+	return (pcb_t*)(PHYS_FILE_START - EIGHT_KB * (process + 1));
+
 }

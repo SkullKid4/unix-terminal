@@ -112,5 +112,8 @@ int32_t do_nothing();
 /*sets all entries in process_array to 0, used before executing shell in kernel.c*/
 void clear_process();
 
+uint32_t get_current_process();
+
+pcb_t* get_pcb_pointer(int process);
 
 #endif

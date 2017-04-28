@@ -7,6 +7,7 @@
 
 typedef struct terminal {
 	uint8_t active;
+	int current_process;
 	int x;
 	int y;
 	pcb_t* pcb;
@@ -25,6 +26,11 @@ extern int32_t terminal_write(int32_t fd, void* buf, int32_t nbytes);
 extern int32_t terminal_open();
 extern int32_t terminal_close();
 extern void switch_terminal(int32_t newt);
+void save_terminal_state();
+
+void restore_terminal_state(int newt);
+
+int get_cur_term();
 
 
 #endif
