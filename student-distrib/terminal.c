@@ -109,7 +109,6 @@ void switch_terminal(int32_t newt)  {
 	if(terminals[newt].active == 0){
 		save_terminal_state();
 		clear();
-		//terminals[newt].active = 1;
 		pcb_t* old_pcb = get_pcb_pointer(terminals[curr_terminal_number].current_process);
 		curr_terminal_number = newt;
 
@@ -121,21 +120,13 @@ void switch_terminal(int32_t newt)  {
                  :"=a"(old_pcb->EBP0), "=b"(old_pcb->ESP0)
 	);
 	sti();
-	//execute((uint8_t*)"shell");
 	return;
 	}
 
 	save_terminal_state();
 	restore_terminal_state(newt);
 	update_cursor(screen_x, screen_y);
-	//key_buffer = terms[term_id].key_buffer;
-	//current_term_id = term_id;
-        /* Remap video memory to 136 MB */
-        //uint8_t * screen_start;
-       // vidmap(&screen_start);
-        //if (terms[current_term_executing].id != current_term_id) {
-         //   remapVideoWithPageTable((uint32_t)screen_start, (uint32_t)terms[current_term_executing].video_mem);
-        //}
+
 	pcb_t* old_pcb = get_pcb_pointer(terminals[curr_terminal_number].current_process);
 	curr_terminal_number = newt;
 
@@ -167,23 +158,6 @@ void switch_terminal(int32_t newt)  {
 
 }
 
-
-void set_terminal_x(int x_location) {
-	terminals[curr_terminal_number].x = x_location;
-}
-
-
-void set_terminal_y(int y_location) {
-	terminals[curr_terminal_number].y = y_location;
-}
-
-int get_terminal_x() {
-	return terminals[curr_terminal_number].x;
-}
-
-int get_terminal_y() {
-	return terminals[curr_terminal_number].y;
-}
 
 void save_terminal_state(){
 	terminals[curr_terminal_number].x = screen_x;
