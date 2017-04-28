@@ -14,6 +14,7 @@
 #include "syscall.h"
 #include "files.h"
 #include "terminal.h"
+#include "pit.h"
 
 /* Macros. */
 /* Check if the bit BIT in FLAGS is set. */

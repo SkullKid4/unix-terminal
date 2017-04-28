@@ -36,4 +36,6 @@ void keyboard_handler
 */
 void keyboard_linkage();
 
+void pit_linkage();
+
 #endif

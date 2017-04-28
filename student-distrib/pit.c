@@ -1,11 +1,18 @@
-#include "pit.h"
 #include "lib.h"
 #include "syscall_link.h"
+#include "idt.h"
+#include "i8259.h"
+#include "pit.h"
+#include "x86_desc.h"
 
-int32_t timer_tick=0;
-int32_t pit_lock =0;
-
-void pit_init () {
+volatile int32_t timer_ticks=0;
+volatile int32_t pit_lock =0;
+#define CHANNEL_0 0x40
+#define CHANNEL_1 0x41
+#define CHANNEL_2 0X42
+#define PIT_IRQ   0
+#define PIT_IDT_IDX 0x20
+void pit_init (){
 /* 	mov al, 0x36
 out 0x43, al    ;tell the PIT which channel we're setting
 
@@ -17,8 +24,8 @@ out 0x40, al    ;send high byte*/
 	outb(0x36,0x43);
 	outb(0x9B,CHANNEL_0);
 	outb(0x2E,CHANNEL_0);
-	SET_IDT_ENTRY(idt[PIT_IDT_IDX],(scheduler_linkage));
-	enable(PIT_IRQ);
+	SET_IDT_ENTRY(idt[PIT_IDT_IDX],(pit_linkage));
+	enable_irq(PIT_IRQ);
 }
 
 void pit_handler()
@@ -33,7 +40,7 @@ void pit_handler()
     *  display a message on the screen */
 		if (timer_ticks % 18 == 0)
 		{
-			putc("One second has passed\n");
+			puts("One second has passed\n");
 		}
 		sti();
 		pit_lock=0;
