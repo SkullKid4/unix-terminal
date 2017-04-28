@@ -120,6 +120,7 @@ void switch_terminal(int32_t newt)  {
                  :"=a"(old_pcb->EBP0), "=b"(old_pcb->ESP0)
 	);
 	sti();
+	execute((uint8_t*)("shell\0"));
 	return;
 	}
 

@@ -32,5 +32,7 @@ void restore_terminal_state(int newt);
 
 int get_cur_term();
 
+void set_curr_process(int process_number);
+
 
 #endif

@@ -279,6 +279,7 @@ int32_t halt(uint8_t status){
 	//set tss
 	tss.esp0 = PHYS_FILE_START - EIGHT_KB * (cur_ppid) - 4;
 	curr_process = cur_ppid;
+	set_curr_process(curr_process);
 
 	//retore parent paging
 	map(VIRTUAL_FILE_PAGE, PHYS_FILE_START + (PHYS_FILE_OFFSET * cur_ppid));
@@ -332,6 +333,7 @@ int32_t halt_from_exc(){
 	//set tss
 	tss.esp0 = PHYS_FILE_START - EIGHT_KB * (cur_ppid) - 4;
 	curr_process = cur_ppid;
+	set_curr_process(curr_process);
 
 	//restore parent paging
 	map(VIRTUAL_FILE_PAGE, PHYS_FILE_START + (PHYS_FILE_OFFSET * cur_ppid));
@@ -441,6 +443,7 @@ int32_t execute
  	
  	curr_pcb->PID = new_process;
  	curr_process = new_process;
+ 	set_curr_process(curr_process);
 
 
  	//initialize fd_array
