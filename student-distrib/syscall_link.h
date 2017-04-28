@@ -1,6 +1,7 @@
 #ifndef SYSCALL_LINK_H
 #define SYSCALL_LINK_H
 #include "keyboard.h"
+#include "pit.h"
 
 /*
 int syscall_link(int cmd, int arg1, int arg2, int arg3)

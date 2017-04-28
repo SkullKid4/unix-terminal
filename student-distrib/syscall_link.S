@@ -92,7 +92,14 @@ keyboard_linkage:
 	call keyboard_handler
 	popal
 	iret
-
+	
+.globl scheduler_linkage
+scheduler_linkage:
+	pushal
+	#call scheduler_handler
+	call pit_handler
+	popal
+	iret
 
 
 
