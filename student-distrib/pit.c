@@ -7,11 +7,9 @@
 
 volatile int32_t timer_ticks=0;
 volatile int32_t pit_lock =0;
-#define CHANNEL_0 0x40
-#define CHANNEL_1 0x41
-#define CHANNEL_2 0X42
-#define PIT_IRQ   0
-#define PIT_IDT_IDX 0x20
+
+
+
 void pit_init (){
 /* 	mov al, 0x36
 out 0x43, al    ;tell the PIT which channel we're setting
@@ -21,9 +19,9 @@ out 0x40, al    ;send low byte
 mov al, ah
 out 0x40, al    ;send high byte*/
 	
-	outb(0x36,0x43);
-	outb(0x9B,CHANNEL_0);
-	outb(0x2E,CHANNEL_0);
+	outb(PIT_PORT,SELECT_CHANNEL);
+	outb(LOW_BYTE,CHANNEL_0);	//setting pit frequency to 100 Hz
+	outb(HIGH_BYTE,CHANNEL_0);
 	SET_IDT_ENTRY(idt[PIT_IDT_IDX],(pit_linkage));
 	enable_irq(PIT_IRQ);
 }
@@ -34,6 +32,7 @@ void pit_handler()
 	if(pit_lock==0){
 		pit_lock=1;
 		cli();
+		send_eoi(PIT_IRQ);
 		timer_ticks++;
 
     /* Every 18 clocks (approximately 1 second), we will
