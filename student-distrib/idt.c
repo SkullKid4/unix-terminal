@@ -196,7 +196,7 @@ void exc_6()
 */
 void exc_6()
 {	//clear();
-	puts("Invalid Opcode");
+	puts("Invalid Opcode\n");
 	halt_from_exc();
 	while(1);
 }

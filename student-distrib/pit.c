@@ -39,7 +39,7 @@ void pit_handler()
     *  display a message on the screen */
 		if (timer_ticks % 18 == 0)
 		{
-			puts("One second has passed\n");
+			//puts("One second has passed\n");
 		}
 		sti();
 		pit_lock=0;

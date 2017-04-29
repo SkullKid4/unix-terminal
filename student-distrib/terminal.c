@@ -87,6 +87,7 @@ void terminal_init() {
 		terminals[i].active = 0;
 		terminals[i].x = 0;
 		terminals[i].y = 0;
+		memset(terminals[i].input_buf, ' ', MAX_BUF_SIZE);
 		
 		for(j=0; j<NUM_ROWS*NUM_COLS; j++) {
         	*(uint8_t *)(terminals[i].screen + (i << 1)) = '\0';
@@ -97,12 +98,16 @@ void terminal_init() {
 }
 
 void switch_terminal(int32_t newt)  {
+<<<<<<< HEAD
+=======
+	//cli();
+>>>>>>> 7eed315d2250a7cffbe20553ff6b67c80a576db2
 	if(newt == curr_terminal_number){
-		sti();
+		//sti();
 		return;
 	}
 	if(newt > 2){
-		sti();
+		//sti();
 		return;
 	}
 	if(terminals[newt].active == 0){
@@ -118,13 +123,21 @@ void switch_terminal(int32_t newt)  {
                  "
                  :"=a"(old_pcb->EBP_SWITCH), "=b"(old_pcb->ESP_SWITCH)
 	);
+<<<<<<< HEAD
 
+=======
+	//sti();
+>>>>>>> 7eed315d2250a7cffbe20553ff6b67c80a576db2
 	execute((uint8_t*)("shell\0"));
 	return;
 	}
 
 	save_terminal_state();
 	restore_terminal_state(newt);
+<<<<<<< HEAD
+=======
+	//update_cursor(screen_x, screen_y);
+>>>>>>> 7eed315d2250a7cffbe20553ff6b67c80a576db2
 
 	pcb_t* old_pcb = get_pcb_pointer(terminals[curr_terminal_number].current_process);
 	curr_terminal_number = newt;
@@ -166,6 +179,11 @@ void save_terminal_state(){
 	terminals[curr_terminal_number].x = screen_x;
 	terminals[curr_terminal_number].y = screen_y;
 	memcpy(terminals[curr_terminal_number].screen, video_mem, 2 *NUM_ROWS * NUM_COLS);
+	memcpy(terminals[curr_terminal_number].input_buf, keyboard_buf, MAX_BUF_SIZE);
+	/*int i;
+	for(i = 0; i < MAX_BUF_SIZE+1; i++) {
+		terminals[curr_terminal_number].input_buf[i] = keyboard_buf[i];
+	}*/
 }
 
 void restore_terminal_state(int newt){
@@ -173,6 +191,14 @@ void restore_terminal_state(int newt){
 	screen_x = terminals[newt].x;
 	screen_y = terminals[newt].y;
 	update_cursor(screen_y, screen_x);
+<<<<<<< HEAD
+=======
+	memcpy(keyboard_buf, terminals[newt].input_buf, MAX_BUF_SIZE);
+	/*int i;
+	for(i = 0; i < MAX_BUF_SIZE+1; i++) {
+		keyboard_buf[i] = terminals[newt].input_buf[i];
+	}*/
+>>>>>>> 7eed315d2250a7cffbe20553ff6b67c80a576db2
 }
 void set_curr_process(int process_number){
 	terminals[curr_terminal_number].current_process =  process_number;

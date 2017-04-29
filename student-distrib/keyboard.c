@@ -248,12 +248,15 @@ void keyboard_handler(){
       if(alt && keycode >= F1 && keycode <= F3) {
         switch(keycode) {
           case F1:
+            lock = 0;
             switch_terminal(0);
             break;
           case F2:
+            lock = 0;
             switch_terminal(1);
             break;
           case F3:
+            lock = 0;
             switch_terminal(2);
             break;
         }
