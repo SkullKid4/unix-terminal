@@ -189,8 +189,8 @@ entry (unsigned long magic, unsigned long addr)
 	/* Execute the first program (`shell') ... */
 	
 	//testing pit
-	scheduler_init();
-	pit_init();
+	//scheduler_init();
+	//pit_init();
 	
 	clear_process();
 	execute((uint8_t*)("shell\0"));

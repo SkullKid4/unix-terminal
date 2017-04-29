@@ -112,7 +112,7 @@ void switch_terminal(int32_t newt)  {
 		save_terminal_state();
 		clear();
 		pcb_t* old_pcb = get_pcb_pointer(terminals[curr_terminal_number].current_process);
-		old_pcb->FDs_array[2].flags = RTCFLAG;
+		//old_pcb->FDs_array[2].flags = RTCFLAG;
 		curr_terminal_number = newt;
 
 		    /* Save the ebp/esp of the process we are switching away from. */
@@ -132,12 +132,13 @@ void switch_terminal(int32_t newt)  {
 	//update_cursor(screen_x, screen_y);
 
 	pcb_t* old_pcb = get_pcb_pointer(terminals[curr_terminal_number].current_process);
-	old_pcb->FDs_array[2].flags = RTCFLAG;
+	//old_pcb->FDs_array[2].flags = RTCFLAG;
 	curr_terminal_number = newt;
 
 		    /* Save the ebp/esp of the process we are switching away from. */
 
     pcb_t* new_pcb = get_pcb_pointer(terminals[newt].current_process);
+    current_pcb = new_pcb;
     set_process_sys(terminals[newt].current_process);
 	map(VIRTUAL_FILE_PAGE, PHYS_FILE_START+PHYS_FILE_OFFSET*terminals[newt].current_process);
  	tss.ss0 = KERNEL_DS;

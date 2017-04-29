@@ -220,7 +220,7 @@ int32_t close(int32_t fd){
 			break;
 	}*/
 	pcb_t* curr_pcb = (pcb_t*)(PHYS_FILE_START - EIGHT_KB * (curr_process + 1));
-	if(fd==STDIN || fd==STDOUT || fd >MAX_FILE-1 || fd < 0 || fd == RTCIDX) //fail if fd is out of range
+	if(fd==STDIN || fd==STDOUT || fd >MAX_FILE-1 || fd < 0) //fail if fd is out of range
 		return -1;
 	if(curr_pcb->FDs_array[fd].flags==NOT_SET)
 		return -1;
