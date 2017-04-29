@@ -97,7 +97,6 @@ void terminal_init() {
 }
 
 void switch_terminal(int32_t newt)  {
-	cli();
 	if(newt == curr_terminal_number){
 		sti();
 		return;
@@ -117,37 +116,40 @@ void switch_terminal(int32_t newt)  {
                  movl %%ebp, %%eax 	\n\
                  movl %%esp, %%ebx 	\n\
                  "
-                 :"=a"(old_pcb->EBP0), "=b"(old_pcb->ESP0)
+                 :"=a"(old_pcb->EBP_SWITCH), "=b"(old_pcb->ESP_SWITCH)
 	);
-	sti();
+
 	execute((uint8_t*)("shell\0"));
 	return;
 	}
 
 	save_terminal_state();
 	restore_terminal_state(newt);
-	update_cursor(screen_x, screen_y);
 
 	pcb_t* old_pcb = get_pcb_pointer(terminals[curr_terminal_number].current_process);
 	curr_terminal_number = newt;
 
 		    /* Save the ebp/esp of the process we are switching away from. */
-    asm volatile("			\n\
+
+    pcb_t* new_pcb = get_pcb_pointer(terminals[newt].current_process);
+    set_process_sys(terminals[newt].current_process);
+    asm (
+ 	"movl	%%cr3,%%eax ;"
+	"movl	%%eax,%%cr3 "
+	: : :"eax", "cc");
+        asm volatile("			\n\
                  movl %%ebp, %%eax 	\n\
                  movl %%esp, %%ebx 	\n\
                  "
-                 :"=a"(old_pcb->EBP0), "=b"(old_pcb->ESP0)
+                 :"=a"(old_pcb->EBP_SWITCH), "=b"(old_pcb->ESP_SWITCH)
 	);
-    pcb_t* new_pcb = get_pcb_pointer(terminals[newt].current_process);
         asm volatile(
 				 ""
                  "mov %0, %%esp;"
                  "mov %1, %%ebp;"
-                 "leave;"
-                 "ret;"
                  //"jmp HALTED;"
                  :                      /* no outputs */
-                 :"r"(new_pcb->ESP0), "r"(new_pcb->EBP0)   /* inputs */ 
+                 :"r"(new_pcb->ESP_SWITCH), "r"(new_pcb->EBP_SWITCH)   /* inputs */ 
                  :"%eax"                 /* clobbered registers */
                  );
 
@@ -170,6 +172,7 @@ void restore_terminal_state(int newt){
 	memcpy(video_mem, terminals[newt].screen, 2 * NUM_ROWS * NUM_COLS);
 	screen_x = terminals[newt].x;
 	screen_y = terminals[newt].y;
+	update_cursor(screen_y, screen_x);
 }
 void set_curr_process(int process_number){
 	terminals[curr_terminal_number].current_process =  process_number;

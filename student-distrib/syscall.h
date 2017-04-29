@@ -55,6 +55,8 @@ typedef struct pcb{
   int8_t args[BUF_SIZE];
   int8_t file_name[MAX_FILE][MAX_FILE_CHAR];
   uint32_t ESP0;
+  uint32_t ESP_SWITCH;
+  uint32_t EBP_SWITCH;
   uint32_t PPID;
   uint32_t ARGS;
   uint32_t EBP0;
@@ -115,5 +117,7 @@ void clear_process();
 uint32_t get_current_process();
 
 pcb_t* get_pcb_pointer(int process);
+
+void set_process_sys(int process);
 
 #endif

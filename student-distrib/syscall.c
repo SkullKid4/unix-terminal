@@ -603,3 +603,7 @@ pcb_t* get_pcb_pointer(int process){
 	return (pcb_t*)(PHYS_FILE_START - EIGHT_KB * (process + 1));
 
 }
+
+void set_process_sys(int process) {
+	curr_process = process;
+}
