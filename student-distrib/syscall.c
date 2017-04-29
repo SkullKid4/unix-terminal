@@ -269,7 +269,7 @@ int32_t halt
 int32_t halt(uint8_t status){
 	//restore parent data
 	end_process(curr_process);
-	remove_task(curr_process);
+	//remove_task(curr_process);
 
 	pcb_t* child_pcb = (pcb_t*)(PHYS_FILE_START - EIGHT_KB * (curr_process + 1));
 	if(child_pcb->PPID == -1){
@@ -480,10 +480,10 @@ int32_t execute
 				movl %%esp, %%ebx 	\n\
 			"
 	:"=a"(curr_pcb->EBP0), "=b"(curr_pcb->ESP0));
-	add_task(curr_pcb->ESP0,curr_process);
-	if(curr_process == 1){
-		remove_task(0);
-	}
+	//add_task(curr_pcb->ESP0,curr_process);
+	//if(curr_process == 1){
+	//	remove_task(0);
+	//}
 	
 	
  	jump_user_space(file_start);
