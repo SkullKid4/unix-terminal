@@ -481,6 +481,9 @@ int32_t execute
 			"
 	:"=a"(curr_pcb->EBP0), "=b"(curr_pcb->ESP0));
 	add_task(curr_pcb->ESP0,curr_process);
+	if(curr_process == 1){
+		remove_task(0);
+	}
 	
 	
  	jump_user_space(file_start);

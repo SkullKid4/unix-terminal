@@ -22,4 +22,4 @@ syscall.o: syscall.c syscall.h lib.h types.h keyboard.h i8259.h \
   terminal.h files.h rtc.h paging.h x86_desc.h syscall_link.h pit.h \
   scheduler.h
 terminal.o: terminal.c x86_desc.h types.h lib.h idt.h i8259.h syscall.h \
-  files.h rtc.h keyboard.h terminal.h
+  files.h rtc.h keyboard.h paging.h terminal.h

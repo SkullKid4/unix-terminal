@@ -16,6 +16,7 @@
 #define MAX_FILE 8
 #define USER_VID_MEM 0x9000000
 #define VIDEO 0xB8000
+#define RTCIDX 2
 
 
 #define NOT_SET 0
