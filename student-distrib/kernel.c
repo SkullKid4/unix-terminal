@@ -15,6 +15,7 @@
 #include "files.h"
 #include "terminal.h"
 #include "pit.h"
+#include "scheduler.h"
 
 /* Macros. */
 /* Check if the bit BIT in FLAGS is set. */
@@ -188,7 +189,8 @@ entry (unsigned long magic, unsigned long addr)
 	/* Execute the first program (`shell') ... */
 	
 	//testing pit
-	//pit_init();
+	scheduler_init();
+	pit_init();
 	
 	clear_process();
 	execute((uint8_t*)("shell\0"));
