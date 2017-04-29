@@ -27,7 +27,7 @@ typedef struct process_struct
     //struct process_struct *next;
 } process_t;
 
-volatile process_t task_array[6];
+volatile process_t task_array[3];
 
 void switch_task();
 extern void scheduler_init();
