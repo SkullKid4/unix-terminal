@@ -1,0 +1,25 @@
+boot.o: boot.S multiboot.h x86_desc.h types.h
+syscall_link.o: syscall_link.S
+x86_desc.o: x86_desc.S x86_desc.h types.h
+files.o: files.c files.h types.h syscall.h lib.h keyboard.h terminal.h
+i8259.o: i8259.c i8259.h types.h lib.h
+idt.o: idt.c idt.h x86_desc.h types.h lib.h keyboard.h rtc.h syscall.h \
+  syscall_link.h pit.h scheduler.h terminal.h
+kernel.o: kernel.c multiboot.h types.h x86_desc.h lib.h i8259.h debug.h \
+  idt.h keyboard.h rtc.h paging.h syscall.h files.h terminal.h pit.h \
+  scheduler.h
+keyboard.o: keyboard.c keyboard.h types.h x86_desc.h lib.h idt.h i8259.h \
+  syscall.h files.h rtc.h terminal.h syscall_link.h pit.h scheduler.h
+lib.o: lib.c lib.h types.h
+paging.o: paging.c paging.h lib.h types.h x86_desc.h idt.h i8259.h
+pit.o: pit.c lib.h types.h syscall_link.h keyboard.h pit.h scheduler.h \
+  idt.h i8259.h x86_desc.h
+rtc.o: rtc.c rtc.h x86_desc.h types.h lib.h idt.h i8259.h syscall.h \
+  terminal.h keyboard.h syscall_link.h pit.h scheduler.h
+scheduler.o: scheduler.c scheduler.h types.h lib.h paging.h syscall.h \
+  x86_desc.h i8259.h pit.h
+syscall.o: syscall.c syscall.h lib.h types.h keyboard.h i8259.h \
+  terminal.h files.h rtc.h paging.h x86_desc.h syscall_link.h pit.h \
+  scheduler.h
+terminal.o: terminal.c x86_desc.h types.h lib.h idt.h i8259.h syscall.h \
+  files.h rtc.h keyboard.h terminal.h
