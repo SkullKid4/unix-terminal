@@ -381,7 +381,9 @@ int32_t execute
 */
 
  int32_t execute (const uint8_t* command) {
-
+ 	if(get_cur_term() != 0){
+ 		int hold = 0;
+ 	}
 
  	uint8_t buf[BUF_SIZE];
  	uint8_t com[BUF_SIZE];
@@ -478,8 +480,10 @@ int32_t execute
  	 	asm volatile("			\n\
 				movl %%ebp, %%eax 	\n\
 				movl %%esp, %%ebx 	\n\
+				movl %%esp, %%ecx 	\n\
+				movl %%ebp, %%edx 	\n\
 			"
-	:"=a"(curr_pcb->EBP0), "=b"(curr_pcb->ESP0));
+	:"=a"(curr_pcb->EBP0), "=b"(curr_pcb->ESP0), "=c"(terminals[get_cur_term()].ESP), "=d"(terminals[get_cur_term()].EBP));
 	//add_task(curr_pcb->ESP0,curr_process);
 	//if(curr_process == 1){
 	//	remove_task(0);

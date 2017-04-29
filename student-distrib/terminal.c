@@ -116,15 +116,15 @@ void switch_terminal(int32_t newt)  {
 		curr_terminal_number = newt;
 
 		    /* Save the ebp/esp of the process we are switching away from. */
-    asm volatile("			\n\
-                 movl %%ebp, %%eax 	\n\
-                 movl %%esp, %%ebx 	\n\
-                 "
-                 :"=a"(old_pcb->EBP_SWITCH), "=b"(old_pcb->ESP_SWITCH)
-	);
-	//sti();
-	execute((uint8_t*)("shell\0"));
-	return;
+	    asm volatile("			\n\
+	                 movl %%ebp, %%eax 	\n\
+	                 movl %%esp, %%ebx 	\n\
+	                 "
+	                 :"=a"(old_pcb->EBP_SWITCH), "=b"(old_pcb->ESP_SWITCH)
+		);
+		//sti();
+		execute((uint8_t*)("shell\0"));
+		return;
 	}
 
 	save_terminal_state();
@@ -140,7 +140,7 @@ void switch_terminal(int32_t newt)  {
     pcb_t* new_pcb = get_pcb_pointer(terminals[newt].current_process);
     current_pcb = new_pcb;
     set_process_sys(terminals[newt].current_process);
-	//map(VIRTUAL_FILE_PAGE, PHYS_FILE_START+PHYS_FILE_OFFSET*terminals[newt].current_process);
+	map(VIRTUAL_FILE_PAGE, PHYS_FILE_START+PHYS_FILE_OFFSET*terminals[newt].current_process);
  	tss.ss0 = KERNEL_DS;
  	tss.esp0 = PHYS_FILE_START - (EIGHT_KB * terminals[newt].current_process) - 4;
 

@@ -7,20 +7,18 @@
 #include "terminal.h"
 
 volatile uint8_t curr_task= 0;
-volatile uint8_t task_lock = 0;
 volatile uint8_t curr_term = 0;
-volatile uint8_t last_task;
+volatile uint8_t last_term = 0;
+volatile uint8_t last_task = 0;
 
 void switch_task(){
    /* copy the saved registers into the current_proc structure */
     //uint8_t count =0;
 
-    if(task_lock == 0){
-      task_lock = 1;
-      cli();
       last_task = curr_task;
-      curr_task++;	   
-
+      last_term = curr_term;
+      curr_term++;	   
+      send_eoi(PIT_IRQ);
       while(terminals[curr_term].active == 0){
 		   curr_term++;
          //count++;
@@ -28,24 +26,32 @@ void switch_task(){
             curr_term = 0;
          }
       }
-	   curr_task = terminals[curr_term].current_process;
-	   if(last_task==curr_task){
-		  sti();
-		  curr_task++;
-        send_eoi(PIT_IRQ);
-		  task_lock=0;
-		  return;
-	   }		  
+      while(terminals[curr_term].ESP == 0){}
+	   curr_task = terminals[curr_term].current_process;	  
 
       tss.esp0 = PHYS_FILE_START - EIGHT_KB * (curr_task) - 4;
       map(VIRTUAL_FILE_PAGE, PHYS_FILE_START + PHYS_FILE_OFFSET * curr_task);
-
+      if(curr_term == get_cur_term()) {
+         map_w_pt(USER_VID_MEM, VIDEO);
+      }else{
+         map_w_pt(USER_VID_MEM, VIDEO + (VIDEO_OFFSET * (curr_task + 1)));
+      }
       // register int temp asm("esp");
       // task_array[prev_idx].ESP0 = temp;
-      send_eoi(PIT_IRQ);
-      sti();
-      task_lock = 0;
-      }
+      //save then restore
+      asm volatile("       \n\
+            movl %%ebp, %%eax    \n\
+            movl %%esp, %%ebx    \n\
+      "
+      :"=a"(terminals[last_term].EBP), "=b"(terminals[last_term].ESP));
+
+      asm volatile(""
+           "mov %0, %%esp;"
+           "mov %1, %%ebp;"
+           //"jmp HALTED;"
+           :                      /* no outputs */
+           :"r"(terminals[curr_term].ESP), "r"(terminals[curr_term].EBP)   /* inputs */ 
+      );
 }
 
 /*void scheduler_init(){

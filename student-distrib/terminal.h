@@ -8,7 +8,8 @@
 typedef struct terminal {
 	uint8_t active;
 	int current_process;
-	//int ESP0;
+	volatile int ESP;
+	volatile int EBP;
 	int x;
 	int y;
 	pcb_t* pcb;
