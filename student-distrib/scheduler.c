@@ -20,7 +20,7 @@ void switch_task(){
       if(task_idx >= 6){
          task_idx = 0;
       }
-	  if(count>=6)
+	  if(count>6)
 		  return;
    }
    

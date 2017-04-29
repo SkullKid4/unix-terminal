@@ -136,6 +136,7 @@ void switch_terminal(int32_t newt)  {
 
     pcb_t* new_pcb = get_pcb_pointer(terminals[newt].current_process);
     set_process_sys(terminals[newt].current_process);
+	map(VIRTUAL_FILE_PAGE, PHYS_FILE_START+PHYS_FILE_OFFSET*terminals[newt].current_process);
     asm (
  	"movl	%%cr3,%%eax ;"
 	"movl	%%eax,%%cr3 "
