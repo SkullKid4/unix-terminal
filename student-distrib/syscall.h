@@ -40,10 +40,10 @@ typedef struct fops {
 fops_t fops_table[6]; //NOT_SET, STDIN, STDOUT, RTC, File, Directory
 
 typedef struct fds{
-	uint32_t* jump_table_pointer;
+  uint32_t* jump_table_pointer;
   uint32_t inode;
-	uint32_t file_position;
-	uint32_t flags;
+  uint32_t file_position;
+  uint32_t flags;
 } fds_t;
 
 fds_t my_fds[8];
