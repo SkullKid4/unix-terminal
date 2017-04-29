@@ -7,6 +7,7 @@
 #include "rtc.h"
 #include "keyboard.h"
 #include "types.h"
+#include "paging.h"
 #include "terminal.h"
 
 #define VIDEO 0xB8000
@@ -111,6 +112,7 @@ void switch_terminal(int32_t newt)  {
 		save_terminal_state();
 		clear();
 		pcb_t* old_pcb = get_pcb_pointer(terminals[curr_terminal_number].current_process);
+		old_pcb->FDs_array[2].flags = RTCFLAG;
 		curr_terminal_number = newt;
 
 		    /* Save the ebp/esp of the process we are switching away from. */
@@ -130,6 +132,7 @@ void switch_terminal(int32_t newt)  {
 	//update_cursor(screen_x, screen_y);
 
 	pcb_t* old_pcb = get_pcb_pointer(terminals[curr_terminal_number].current_process);
+	old_pcb->FDs_array[2].flags = RTCFLAG;
 	curr_terminal_number = newt;
 
 		    /* Save the ebp/esp of the process we are switching away from. */

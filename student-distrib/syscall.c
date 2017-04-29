@@ -68,6 +68,7 @@ int32_t read(int32_t fd, const void* buf, int32_t nbytes)
 
 
 int32_t read(int32_t fd, void* buf, int32_t nbytes){
+	//printf("%d\n", current_pcb->FDs_array[fd].flags);
 	if(nbytes < 0 || buf == NULL || fd > MAX_FILE-1 || fd < 0) return -1;	//fail if fd is out of range of 0-7
 	return fops_table[current_pcb->FDs_array[fd].flags].read(fd,buf,nbytes);
 	
@@ -219,7 +220,7 @@ int32_t close(int32_t fd){
 			break;
 	}*/
 	pcb_t* curr_pcb = (pcb_t*)(PHYS_FILE_START - EIGHT_KB * (curr_process + 1));
-	if(fd==STDIN || fd==STDOUT || fd >MAX_FILE-1 || fd < 0) //fail if fd is out of range of 0-7
+	if(fd==STDIN || fd==STDOUT || fd >MAX_FILE-1 || fd < 0 || fd == RTCIDX) //fail if fd is out of range
 		return -1;
 	if(curr_pcb->FDs_array[fd].flags==NOT_SET)
 		return -1;
@@ -461,6 +462,8 @@ int32_t execute
   	//curr_pcb->FDs_array[0].jump_table_pointer = stdout_jump_table;
  	curr_pcb->FDs_array[1].flags = STDOUTFLAG;
 
+ 	
+
 
  	// map new page
  	map(VIRTUAL_FILE_PAGE, PHYS_FILE_START + PHYS_FILE_OFFSET * new_process);
@@ -482,7 +485,7 @@ int32_t execute
 	
  	jump_user_space(file_start);
  	// sti();
-
+ 	//printf("%d\n", current_pcb->FDs_array[fd].flags);
     return 0;
 
  }
