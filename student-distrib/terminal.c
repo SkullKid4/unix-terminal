@@ -107,8 +107,8 @@ void switch_terminal(int32_t newt)  {
 		return;
 	}
 	if(terminals[newt].active == 0){
-		save_terminal_state();
-		clear();
+		//save_terminal_state();
+		//clear();
 		pcb_t* old_pcb = get_pcb_pointer(terminals[curr_terminal_number].current_process);
 		//old_pcb->FDs_array[2].flags = RTCFLAG;
 		curr_terminal_number = newt;
@@ -121,49 +121,52 @@ void switch_terminal(int32_t newt)  {
                  :"=a"(old_pcb->EBP_SWITCH), "=b"(old_pcb->ESP_SWITCH)
 	);
 	//sti();
+	curr_terminal_number = newt;
+	map_w_pt(USER_VID_MEM, (int)&terminals[newt].screen);
+	clear();
 	execute((uint8_t*)("shell\0"));
 	return;
 	}
-
+	curr_terminal_number = newt;
 	save_terminal_state();
 	restore_terminal_state(newt);
-	//update_cursor((*(get_screen_x())), (*(get_screen_y())));
+	// //update_cursor((*(get_screen_x())), (*(get_screen_y())));
 
-	pcb_t* old_pcb = get_pcb_pointer(terminals[curr_terminal_number].current_process);
-	//old_pcb->FDs_array[2].flags = RTCFLAG;
-	curr_terminal_number = newt;
+	// pcb_t* old_pcb = get_pcb_pointer(terminals[curr_terminal_number].current_process);
+	// //old_pcb->FDs_array[2].flags = RTCFLAG;
+	// curr_terminal_number = newt;
 
-		    /* Save the ebp/esp of the process we are switching away from. */
+	// 	    /* Save the ebp/esp of the process we are switching away from. */
 
-    pcb_t* new_pcb = get_pcb_pointer(terminals[newt].current_process);
-    current_pcb = new_pcb;
-    set_process_sys(terminals[newt].current_process);
-	map(VIRTUAL_FILE_PAGE, PHYS_FILE_START+PHYS_FILE_OFFSET*terminals[newt].current_process);
- 	tss.ss0 = KERNEL_DS;
- 	tss.esp0 = PHYS_FILE_START - (EIGHT_KB * terminals[newt].current_process) - 4;
+ //    pcb_t* new_pcb = get_pcb_pointer(terminals[newt].current_process);
+ //    current_pcb = new_pcb;
+ //    set_process_sys(terminals[newt].current_process);
+	// map(VIRTUAL_FILE_PAGE, PHYS_FILE_START+PHYS_FILE_OFFSET*terminals[newt].current_process);
+ // 	tss.ss0 = KERNEL_DS;
+ // 	tss.esp0 = PHYS_FILE_START - (EIGHT_KB * terminals[newt].current_process) - 4;
 
-    asm (
- 	"movl	%%cr3,%%eax ;"
-	"movl	%%eax,%%cr3 "
-	: : :"eax", "cc");
-        asm volatile("			\n\
-                 movl %%ebp, %%eax 	\n\
-                 movl %%esp, %%ebx 	\n\
-                 "
-                 :"=a"(old_pcb->EBP_SWITCH), "=b"(old_pcb->ESP_SWITCH)
-	);
-        asm volatile(
-				 ""
-                 "mov %0, %%esp;"
-                 "mov %1, %%ebp;"
-                 //"jmp HALTED;"
-                 :                      /* no outputs */
-                 :"r"(new_pcb->ESP_SWITCH), "r"(new_pcb->EBP_SWITCH)   /* inputs */ 
-                 :"%eax"                 /* clobbered registers */
-                 );
+ //    asm (
+ // 	"movl	%%cr3,%%eax ;"
+	// "movl	%%eax,%%cr3 "
+	// : : :"eax", "cc");
+ //        asm volatile("			\n\
+ //                 movl %%ebp, %%eax 	\n\
+ //                 movl %%esp, %%ebx 	\n\
+ //                 "
+ //                 :"=a"(old_pcb->EBP_SWITCH), "=b"(old_pcb->ESP_SWITCH)
+	// );
+ //        asm volatile(
+	// 			 ""
+ //                 "mov %0, %%esp;"
+ //                 "mov %1, %%ebp;"
+ //                 //"jmp HALTED;"
+ //                 :                      /* no outputs */
+ //                 :"r"(new_pcb->ESP_SWITCH), "r"(new_pcb->EBP_SWITCH)   /* inputs */ 
+ //                 :"%eax"                 /* clobbered registers */
+ //                 );
 
 
-		return;
+	// 	return;
 	
 	//clear();
 	//print screen text

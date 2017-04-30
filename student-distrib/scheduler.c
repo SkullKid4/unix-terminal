@@ -38,16 +38,16 @@ void switch_task(){
 
      // &(*(get_screen_x())) = &terminals[last_term].x;
 
-      if(curr_term == get_cur_term()){
-         memcpy((void*)0xB8000, terminals[curr_term].screen, 2 * NUM_ROWS * NUM_COLS);
-         set_screen_x(&(terminals[curr_term].x));
-         set_screen_y(&(terminals[curr_term].y));
-         update_cursor((*(get_screen_y())), (*(get_screen_x())));
-      } else{
-         set_vid_mem((int)(&(terminals[curr_term].screen)));
-         set_screen_x(&terminals[curr_term].x);
-         set_screen_y(&terminals[curr_term].y);
-      }
+      // if(curr_term == get_cur_term()){
+      //    //memcpy((void*)0xB8000, terminals[curr_term].screen, 2 * NUM_ROWS * NUM_COLS);
+      //    set_screen_x(&(terminals[curr_term].x));
+      //    set_screen_y(&(terminals[curr_term].y));
+      //    update_cursor((*(get_screen_y())), (*(get_screen_x())));
+      // } else{
+      //    set_vid_mem((int)(&(terminals[curr_term].screen)));
+      //    set_screen_x(&terminals[curr_term].x);
+      //    set_screen_y(&terminals[curr_term].y);
+      // }
 
 
       asm volatile("       \n\
