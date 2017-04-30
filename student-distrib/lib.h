@@ -28,6 +28,10 @@ int8_t* strncpy(int8_t* dest, const int8_t*src, uint32_t n);
 int32_t bad_userspace_addr(const void* addr, int32_t len);
 int32_t safe_strncpy(int8_t* dest, const int8_t* src, int32_t n);
 
+void putc_nodisplay(uint8_t c);
+void puts_nodisplay(int8_t* s);
+void vert_scroll_nodisplay();
+
 /*copys video memory and prints it 1 line higher with black space at the bottom*/
 void vert_scroll();
 

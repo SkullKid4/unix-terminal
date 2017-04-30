@@ -9,6 +9,7 @@
 #include "types.h"
 #include "terminal.h"
 #include "syscall_link.h"
+#include "scheduler.h"
 
 volatile unsigned lock = 0;       //used to lock the thread when writing keyboard output to the screen
 volatile unsigned shift = 0;      //2a or 36 on press;
@@ -130,7 +131,10 @@ int32_t keyboard_write(int32_t fd, void* buf, int32_t nbytes) {
     if(idx[0] != idx[1]){           //this
       for(i = idx[0]; i < idx[1]; i++){
        char data = ((char *)buf)[i];
-       putc(data);
+       if (get_curr_exec_term() == get_cur_term())
+          putc(data);
+        else ()
+          putc_nodisplay(data);
       }
      return(idx[1] - idx[0]);
     }
