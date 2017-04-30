@@ -10,6 +10,7 @@ typedef struct terminal {
 	int current_process;
 	volatile int ESP;
 	volatile int EBP;
+	volatile int ESP0;
 	int x;
 	int y;
 	pcb_t* pcb;

@@ -26,17 +26,17 @@ void switch_task(){
             curr_term = 0;
          }
       }
-      while(terminals[curr_term].ESP == 0){}
+      //while(terminals[curr_term].ESP == 0){}
+      terminals[last_term].ESP0 = tss.esp0;
 	   curr_task = terminals[curr_term].current_process;	  
       pcb_t* old_pcb = get_pcb_pointer(terminals[last_term].current_process);
       pcb_t* new_pcb = get_pcb_pointer(terminals[curr_term].current_process);
 
-      tss.esp0 = PHYS_FILE_START - EIGHT_KB * (curr_task) - 4;
+      tss.esp0 = terminals[curr_term].ESP0;
       map(VIRTUAL_FILE_PAGE, PHYS_FILE_START + PHYS_FILE_OFFSET * curr_task);
-      if(curr_term == get_cur_term()) {
-         map_w_pt(USER_VID_MEM, VIDEO);
-      }else{
-         map_w_pt(USER_VID_MEM, VIDEO + (VIDEO_OFFSET * (curr_task + 1)));
+      //map_w_pt(USER_VID_MEM, VIDEO + (VIDEO_OFFSET * (curr_term + 1)));
+      if(curr_term == get_cur_term()){
+         memcopy(VIDEO, VIDEO + (VIDEO_OFFSET * (curr_term + 1)), )
       }
       // register int temp asm("esp");
       // task_array[prev_idx].ESP0 = temp;
