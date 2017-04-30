@@ -2,6 +2,8 @@
  * vim:ts=4 noexpandtab
  */
 #include "lib.h"
+#include "scheduler.h"
+#include "terminal.h"
 #define VIDEO 0xB8000
 #define NUM_COLS 80
 #define NUM_ROWS 25
@@ -248,7 +250,7 @@ void vert_scroll()
 void vert_scroll_nodisplay()
 {
 	int i,j;
-	int curr_terminal = get_curr_exec_term()
+	int curr_terminal = get_curr_exec_term();
 	char* video_tmp = (char*)terminals[curr_terminal].screen;
 	for(i = 0; i < NUM_COLS; i++) {
 		for(j = 0; j < NUM_ROWS; j++) {
