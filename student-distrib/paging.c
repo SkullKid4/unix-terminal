@@ -16,6 +16,7 @@
 uint32_t page_directory[NUM_PAGE_DIRECTORIES] __attribute__((aligned(FOUR_KB)));
 uint32_t page_table[NUM_PAGE_TABLES]  __attribute__((aligned(FOUR_KB)));
 uint32_t user_video_page_table[NUM_PAGE_TABLES] __attribute__((aligned(FOUR_KB)));
+uint32_t vidpagetable[NUM_PAGE_TABLES]  __attribute__((aligned(FOUR_KB)));
 
 /*
 void paging_init()
@@ -85,6 +86,16 @@ void map_w_pt
   			also flushes the TLB
 */
  void map_w_pt(uint32_t virt_add, uint32_t phys_add) {
+ 	uint32_t pde = virt_add / FOUR_MB;
+ 	page_directory[pde] = ((uint32_t)user_video_page_table) | 0x7;
+ 	user_video_page_table[0] = phys_add | 0x7;
+ 	 asm (
+ 	"movl	%%cr3,%%eax ;"
+	"movl	%%eax,%%cr3 "
+	: : :"eax", "cc");
+ }
+
+ void map_video_w_pt(uint32_t virt_add, uint32_t phys_add) {
  	uint32_t pde = virt_add / FOUR_MB;
  	page_directory[pde] = ((uint32_t)user_video_page_table) | 0x7;
  	user_video_page_table[0] = phys_add | 0x7;

@@ -14,5 +14,6 @@ int paging_init(void);
 
 void map(uint32_t virt_add, uint32_t phys_add);
 void map_w_pt(uint32_t virt_add, uint32_t phys_add);
+ void map_video_w_pt(uint32_t virt_add, uint32_t phys_add);
 
 #endif

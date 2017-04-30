@@ -16,6 +16,9 @@ typedef struct terminal {
 	pcb_t* pcb;
 	char input_buf[MAX_BUF_SIZE+1];
 	char screen[2 * NUM_ROWS * NUM_COLS];
+	uint8_t keyboard_last_index;
+	uint8_t keyboard_index;
+	volatile unsigned term_enter;
 } terminal_t;
 
 terminal_t terminals[3];
@@ -30,6 +33,7 @@ extern int32_t terminal_open();
 extern int32_t terminal_close();
 extern void switch_terminal(int32_t newt);
 void save_terminal_state();
+void terminal_init();
 
 void restore_terminal_state(int newt);
 

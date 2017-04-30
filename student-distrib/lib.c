@@ -255,7 +255,7 @@ void vert_scroll_nodisplay()
 	for(i = 0; i < NUM_COLS; i++) {
 		for(j = 0; j < NUM_ROWS; j++) {
 			if(j < NUM_ROWS-1){
-				*(uint8_t *)(video_tmp + ((NUM_COLS*j + i) << 1)) = *(uint8_t *)(video_mem + ((NUM_COLS*(j+1) + i) << 1));
+				*(uint8_t *)(video_tmp + ((NUM_COLS*j + i) << 1)) = *(uint8_t *)(terminals[curr_terminal].screen + ((NUM_COLS*(j+1) + i) << 1));
 			} else{
 				*(uint8_t *)(video_tmp + ((NUM_COLS*j + i) << 1)) = '\0';
 			}
@@ -263,8 +263,8 @@ void vert_scroll_nodisplay()
 		}
 	}
 
-	screen_x = 0;
-	screen_y = NUM_ROWS-1;
+	terminals[curr_terminal].x = 0;
+	terminals[curr_terminal].y = NUM_ROWS-1;
 	//update_cursor_nodisplay(terminals[curr_terminal].y, terminals[curr_terminal].x);
 }
 
@@ -616,7 +616,7 @@ putc_nodisplay(uint8_t c)
 {
 	int curr_terminal = get_curr_exec_term();
     if(c == '\n' || c == '\r') {
-    	if(screen_y == (NUM_ROWS-1)){		//vertscroll if you are at the bottom of the terminal and call new line
+    	if(terminals[curr_terminal].y == (NUM_ROWS-1)){		//vertscroll if you are at the bottom of the terminal and call new line
     		vert_scroll_nodisplay();
     		return;
     	}
@@ -625,8 +625,8 @@ putc_nodisplay(uint8_t c)
     } else {
         *(uint8_t *)( terminals[curr_terminal].screen + ((NUM_COLS*terminals[curr_terminal].y + terminals[curr_terminal].x) << 1)) = c;					//print char to video memory
         *(uint8_t *)(terminals[curr_terminal].screen + ((NUM_COLS*terminals[curr_terminal].y + terminals[curr_terminal].x) << 1) + 1) = ATTRIB;
-        if(screen_x == (NUM_COLS-1) && screen_y == (NUM_ROWS-1)){			//if you have reached the end of the terminal, vert scroll
-    		vert_scroll();
+        if(terminals[curr_terminal].x == (NUM_COLS-1) && terminals[curr_terminal].y == (NUM_ROWS-1)){			//if you have reached the end of the terminal, vert scroll
+    		vert_scroll_nodisplay();
     		return;
     	}
         terminals[curr_terminal].x++;		//else just incriment the termial idecies

@@ -9,6 +9,7 @@
 #include "types.h"
 #include "paging.h"
 #include "terminal.h"
+#include "scheduler.h"
 
 #define VIDEO 0xB8000
 #define ATTRIB 0x7
@@ -46,7 +47,10 @@ int32_t terminal_write(int32_t fd, void* buf, int32_t nbytes) {
 	if(strlen(buf) < nbytes){
 		for(i = 0; i < strlen(buf); i++) {
 			char data = ((char *)buf)[i];
-			putc(data);
+			if (get_curr_exec_term() == get_cur_term())
+          		putc(data);
+        	else
+          		putc_nodisplay(data);
 		}	
 		//tlock = 0;
 		sti();
@@ -54,7 +58,10 @@ int32_t terminal_write(int32_t fd, void* buf, int32_t nbytes) {
 	}
 	for(i = 0; i < nbytes; i++){
 		char data = ((char *)buf)[i];
-		putc(data);
+		if (get_curr_exec_term() == get_cur_term())
+          putc(data);
+        else
+          putc_nodisplay(data);
 	}
 	//tlock = 0;
 	sti();
@@ -88,6 +95,9 @@ void terminal_init() {
 		terminals[i].active = 0;
 		terminals[i].x = 0;
 		terminals[i].y = 0;
+		terminals[i].term_enter = 0;
+		terminals[i].keyboard_last_index = 0;
+		terminals[i].keyboard_index = 0;
 		memset(terminals[i].input_buf, ' ', MAX_BUF_SIZE);
 		
 		for(j=0; j<NUM_ROWS*NUM_COLS; j++) {
@@ -99,13 +109,10 @@ void terminal_init() {
 }
 
 void switch_terminal(int32_t newt)  {
-	//cli();
 	if(newt == curr_terminal_number){
-		//sti();
 		return;
 	}
 	if(newt > 2){
-		//sti();
 		return;
 	}
 	if(terminals[newt].active == 0){
@@ -114,7 +121,6 @@ void switch_terminal(int32_t newt)  {
 		pcb_t* old_pcb = get_pcb_pointer(terminals[curr_terminal_number].current_process);
 		//old_pcb->FDs_array[2].flags = RTCFLAG;
 		curr_terminal_number = newt;
-
 		    /* Save the ebp/esp of the process we are switching away from. */
 	    asm volatile("			\n\
 	                 movl %%ebp, %%eax 	\n\
@@ -123,6 +129,7 @@ void switch_terminal(int32_t newt)  {
 	                 :"=a"(old_pcb->EBP_SWITCH), "=b"(old_pcb->ESP_SWITCH)
 		);
 		//sti();
+		set_curr_exec_term(newt);
 		execute((uint8_t*)("shell\0"));
 		return;
 	}
@@ -130,8 +137,10 @@ void switch_terminal(int32_t newt)  {
 	save_terminal_state();
 	restore_terminal_state(newt);
 	curr_terminal_number = newt;
+	uint8_t * screen_start;
+    vidmap(&screen_start);
 	if(get_curr_exec_term() != curr_terminal_number){
-		map_w_pt(USER_VID_MEM, (uint32_t)terminals[curr_terminal_number].screen);
+		map_video_w_pt((uint32_t)screen_start, (uint32_t)terminals[curr_terminal_number].screen);
 	}
 
 
@@ -168,7 +177,6 @@ void switch_terminal(int32_t newt)  {
  //                 :"r"(new_pcb->ESP_SWITCH), "r"(new_pcb->EBP_SWITCH)    /*inputs */
  //                 :"%eax"                /*  clobbered registers */
  //                 );
-
 		return;
 	
 	//clear();
@@ -182,6 +190,9 @@ void save_terminal_state(){
 	terminals[curr_terminal_number].y = screen_y;
 	memcpy(terminals[curr_terminal_number].screen, video_mem, 2 *NUM_ROWS * NUM_COLS);
 	memcpy(terminals[curr_terminal_number].input_buf, keyboard_buf, MAX_BUF_SIZE);
+	terminals[curr_terminal_number].keyboard_last_index = get_keyboard_last_index();
+	terminals[curr_terminal_number].keyboard_index = get_keyboard_index();
+
 	/*int i;
 	for(i = 0; i < MAX_BUF_SIZE+1; i++) {
 		terminals[curr_terminal_number].input_buf[i] = keyboard_buf[i];
@@ -194,6 +205,8 @@ void restore_terminal_state(int newt){
 	screen_y = terminals[newt].y;
 	update_cursor(screen_y, screen_x);
 	memcpy(keyboard_buf, terminals[newt].input_buf, MAX_BUF_SIZE);
+	set_keyboard_last_index(terminals[newt].keyboard_last_index);
+	set_keyboard_index(terminals[newt].keyboard_index);
 	/*int i;
 	for(i = 0; i < MAX_BUF_SIZE+1; i++) {
 		keyboard_buf[i] = terminals[newt].input_buf[i];
