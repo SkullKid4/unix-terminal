@@ -28,6 +28,8 @@ void switch_task(){
       }
       while(terminals[curr_term].ESP == 0){}
 	   curr_task = terminals[curr_term].current_process;	  
+      pcb_t* old_pcb = get_pcb_pointer(terminals[last_term].current_process);
+      pcb_t* new_pcb = get_pcb_pointer(terminals[curr_term].current_process);
 
       tss.esp0 = PHYS_FILE_START - EIGHT_KB * (curr_task) - 4;
       map(VIRTUAL_FILE_PAGE, PHYS_FILE_START + PHYS_FILE_OFFSET * curr_task);
@@ -43,15 +45,19 @@ void switch_task(){
             movl %%ebp, %%eax    \n\
             movl %%esp, %%ebx    \n\
       "
-      :"=a"(terminals[last_term].EBP), "=b"(terminals[last_term].ESP));
+      :"=a"(old_pcb->EBP_SWITCH), "=b"(old_pcb->ESP_SWITCH));
 
       asm volatile(""
            "mov %0, %%esp;"
            "mov %1, %%ebp;"
            //"jmp HALTED;"
            :                      /* no outputs */
-           :"r"(terminals[curr_term].ESP), "r"(terminals[curr_term].EBP)   /* inputs */ 
+           :"r"(new_pcb->ESP_SWITCH), "r"(new_pcb->EBP_SWITCH)   /* inputs */ 
       );
+}
+
+uint8_t get_curr_exec_term(){
+   return curr_term;
 }
 
 /*void scheduler_init(){

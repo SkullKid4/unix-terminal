@@ -129,41 +129,45 @@ void switch_terminal(int32_t newt)  {
 
 	save_terminal_state();
 	restore_terminal_state(newt);
-	//update_cursor(screen_x, screen_y);
+	if(get_curr_exec_term() == curr_terminal_number){
+		map_w_pt(USER_VID_MEM, VIDEO);
+	}
 
-	pcb_t* old_pcb = get_pcb_pointer(terminals[curr_terminal_number].current_process);
-	//old_pcb->FDs_array[2].flags = RTCFLAG;
-	curr_terminal_number = newt;
+	update_cursor(screen_x, screen_y);
 
-		    /* Save the ebp/esp of the process we are switching away from. */
+	// pcb_t* old_pcb = get_pcb_pointer(terminals[curr_terminal_number].current_process);
+	// //old_pcb->FDs_array[2].flags = RTCFLAG;
+	// curr_terminal_number = newt;
 
-    pcb_t* new_pcb = get_pcb_pointer(terminals[newt].current_process);
-    current_pcb = new_pcb;
-    set_process_sys(terminals[newt].current_process);
-	map(VIRTUAL_FILE_PAGE, PHYS_FILE_START+PHYS_FILE_OFFSET*terminals[newt].current_process);
- 	tss.ss0 = KERNEL_DS;
- 	tss.esp0 = PHYS_FILE_START - (EIGHT_KB * terminals[newt].current_process) - 4;
+	// 	    /* Save the ebp/esp of the process we are switching away from. */
 
-    asm (
- 	"movl	%%cr3,%%eax ;"
-	"movl	%%eax,%%cr3 "
-	: : :"eax", "cc");
-        asm volatile("			\n\
-                 movl %%ebp, %%eax 	\n\
-                 movl %%esp, %%ebx 	\n\
-                 "
-                 :"=a"(old_pcb->EBP_SWITCH), "=b"(old_pcb->ESP_SWITCH)
-	);
-        asm volatile(
-				 ""
-                 "mov %0, %%esp;"
-                 "mov %1, %%ebp;"
-                 //"jmp HALTED;"
-                 :                      /* no outputs */
-                 :"r"(new_pcb->ESP_SWITCH), "r"(new_pcb->EBP_SWITCH)   /* inputs */ 
-                 :"%eax"                 /* clobbered registers */
-                 );
+ //    pcb_t* new_pcb = get_pcb_pointer(terminals[newt].current_process);
+ //    current_pcb = new_pcb;
+ //    set_process_sys(terminals[newt].current_process);
+	// map(VIRTUAL_FILE_PAGE, PHYS_FILE_START+PHYS_FILE_OFFSET*terminals[newt].current_process);
+ // 	tss.ss0 = KERNEL_DS;
+ // 	tss.esp0 = PHYS_FILE_START - (EIGHT_KB * terminals[newt].current_process) - 4;
 
+
+ //    asm (
+ // 	"movl	%%cr3,%%eax ;"
+	// "movl	%%eax,%%cr3 "
+	// : : :"eax", "cc");
+ //        asm volatile("			\n\
+ //                 movl %%ebp, %%eax 	\n\
+ //                 movl %%esp, %%ebx 	\n\
+ //                 "
+ //                 :"=a"(old_pcb->EBP_SWITCH), "=b"(old_pcb->ESP_SWITCH)
+	// );
+ //        asm volatile(
+	// 			 ""
+ //                 "mov %0, %%esp;"
+ //                 "mov %1, %%ebp;"
+ //                 //"jmp HALTED;"
+ //                 :                       /*no outputs */
+ //                 :"r"(new_pcb->ESP_SWITCH), "r"(new_pcb->EBP_SWITCH)    /*inputs */
+ //                 :"%eax"                /*  clobbered registers */
+ //                 );
 
 		return;
 	
