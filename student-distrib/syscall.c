@@ -381,9 +381,7 @@ int32_t execute
 */
 
  int32_t execute (const uint8_t* command) {
- 	if(get_cur_term() != 0){
- 		int hold = 0;
- 	}
+
 
  	uint8_t buf[BUF_SIZE];
  	uint8_t com[BUF_SIZE];
@@ -480,10 +478,8 @@ int32_t execute
  	 	asm volatile("			\n\
 				movl %%ebp, %%eax 	\n\
 				movl %%esp, %%ebx 	\n\
-				movl %%esp, %%ecx 	\n\
-				movl %%ebp, %%edx 	\n\
 			"
-	:"=a"(curr_pcb->EBP0), "=b"(curr_pcb->ESP0), "=c"(terminals[get_cur_term()].ESP), "=d"(terminals[get_cur_term()].EBP));
+	:"=a"(curr_pcb->EBP0), "=b"(curr_pcb->ESP0));
 	//add_task(curr_pcb->ESP0,curr_process);
 	//if(curr_process == 1){
 	//	remove_task(0);
@@ -525,7 +521,7 @@ int32_t vidmap(uint8_t** screen_start){
 	//check if screen_start is in the user file.
 	if ( (uint32_t)screen_start < VIRTUAL_FILE_PAGE || (uint32_t)screen_start > VIRTUAL_FILE_PAGE + PHYS_FILE_OFFSET)
 		return -1;
-	map_w_pt(USER_VID_MEM, VIDEO);
+	map_w_pt(USER_VID_MEM, (uint32_t)get_vid_mem());
 	*screen_start = (uint8_t*)USER_VID_MEM;
 	return 0;
 }

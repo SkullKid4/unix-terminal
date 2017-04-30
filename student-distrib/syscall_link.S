@@ -95,8 +95,10 @@ keyboard_linkage:
 	
 .globl pit_linkage
 pit_linkage:
+	pushal
 	call switch_task
 	#call pit_handler
+	popal
 	iret
 
 

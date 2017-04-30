@@ -8,6 +8,7 @@
 typedef struct terminal {
 	uint8_t active;
 	int current_process;
+	//int ESP0;
 	volatile int ESP;
 	volatile int EBP;
 	volatile int ESP0;
@@ -30,7 +31,7 @@ extern int32_t terminal_open();
 extern int32_t terminal_close();
 extern void switch_terminal(int32_t newt);
 void save_terminal_state();
-
+void terminal_init();
 void restore_terminal_state(int newt);
 
 int get_cur_term();

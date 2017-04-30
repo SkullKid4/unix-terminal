@@ -190,7 +190,8 @@ entry (unsigned long magic, unsigned long addr)
 	
 	//testing pit
 	//scheduler_init();
-	pit_init();
+	//pit_init();
+	terminal_init();
 	
 	clear_process();
 	execute((uint8_t*)("shell\0"));

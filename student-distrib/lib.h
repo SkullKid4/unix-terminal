@@ -7,6 +7,9 @@
 
 #include "types.h"
 
+
+uint8_t* get_vid_mem();
+void set_vid_mem(uint32_t location);
 int32_t printf(int8_t *format, ...);
 void putc(uint8_t c);
 int32_t puts(int8_t *s);
@@ -28,11 +31,7 @@ int8_t* strncpy(int8_t* dest, const int8_t*src, uint32_t n);
 int32_t bad_userspace_addr(const void* addr, int32_t len);
 int32_t safe_strncpy(int8_t* dest, const int8_t* src, int32_t n);
 
-void putc_nodisplay(uint8_t c);
-int32_t puts_nodisplay(int8_t* s);
-void vert_scroll_nodisplay();
-
-/*copys video memory and prints it 1 line higher with black space at the bottom*/
+/*copys video memory and prints it 1 line higher with black space at the bottom*/n
 void vert_scroll();
 
 /*used in the case where new line was printed and the user wants to backspace starting at */
@@ -43,6 +42,7 @@ void update_cursor(int row, int col);
 
 volatile int screen_x;
 volatile int screen_y;
+
 
 
 void test_interrupts(void);
