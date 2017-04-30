@@ -521,7 +521,7 @@ int32_t vidmap(uint8_t** screen_start){
 	// if ( (uint32_t)screen_start < VIRTUAL_FILE_PAGE || (uint32_t)screen_start > VIRTUAL_FILE_PAGE + PHYS_FILE_OFFSET)
 	// 	return -1;
 	//printf("0x%x", screen_start);
-	if(screen_start == NULL || screen_start < 0x700000) return -1;//screen_start == 0x400000) return -1; 
+	if(screen_start == NULL || (uint32_t)screen_start < 0x700000) return -1;//screen_start == 0x400000) return -1; 
 	map_w_pt(USER_VID_MEM, VIDEO);
 	*screen_start = (uint8_t*)USER_VID_MEM;
 	return 0;

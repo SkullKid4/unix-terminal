@@ -14,7 +14,7 @@
 #define VIDEO 0xB8000
 #define ATTRIB 0x7
 int32_t curr_terminal_number = 0;
-int32_t current_executing_terminal = 0;
+// int32_t current_executing_terminal = 0;
 static char* video_mem = (char *)VIDEO;
 
 /*
@@ -214,7 +214,8 @@ void restore_terminal_state(int newt){
 	}*/
 }
 void set_curr_process(int process_number){
-	terminals[curr_terminal_number].current_process =  process_number;
+	terminals[get_curr_exec_term()].current_process =  process_number;
+	// terminals[curr_terminal_number].current_process =  process_number;
 }
 
 int get_cur_term(){

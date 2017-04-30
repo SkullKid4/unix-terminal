@@ -33,17 +33,14 @@ void switch_task(){
       pcb_t* old_pcb = get_pcb_pointer(terminals[last_term].current_process);
       pcb_t* new_pcb = get_pcb_pointer(terminals[curr_term].current_process);
       current_pcb = new_pcb;
+      curr_process = curr_task;
 
       map(VIRTUAL_FILE_PAGE, PHYS_FILE_START + PHYS_FILE_OFFSET * curr_task);
       if(curr_term != get_cur_term()){
          map_video_w_pt((uint32_t)screen_start, (uint32_t)terminals[curr_term].screen);
       }
       tss.ss0 = KERNEL_DS;
-    //  tss.esp0 = terminals[curr_term].ESP0;
       tss.esp0 = PHYS_FILE_START - EIGHT_KB * (terminals[curr_term].current_process) - 4;
-      // register int temp asm("esp");
-      // task_array[prev_idx].ESP0 = temp;
-      //save then restore
       asm volatile("       \n\
             movl %%ebp, %%eax    \n\
             movl %%esp, %%ebx    \n\

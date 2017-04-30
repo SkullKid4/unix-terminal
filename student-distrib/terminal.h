@@ -20,7 +20,6 @@ typedef struct terminal {
 	uint8_t keyboard_index;
 	volatile unsigned term_enter;
 } terminal_t;
-
 terminal_t terminals[3];
 
 /*does nothing (shouldn't be called)*/
