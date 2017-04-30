@@ -194,7 +194,7 @@ void keyboard_handler(){
     if (status & 0x01) {                    //if the status is set, get the code from the keyboard port
       keycode = inb(KEYBOARD_DATA_PORT);
       //printf("Keycode is: 0x%x", keycode);
-      if(keycode == BACKSPACE && ((screen_x + screen_y) != 0)){
+      if(keycode == BACKSPACE && (((*(get_screen_x())) + (*(get_screen_y()))) != 0)){
         handle_backspace();
         sti();
         lock = 0;
@@ -287,10 +287,10 @@ void keyboard_handler(){
       }
 
       if(ascii == '\n') {
-        if(screen_y != NUM_ROWS-1) screen_y++;
+        if((*(get_screen_y())) != NUM_ROWS-1) (*(get_screen_y()))++;
         else vert_scroll();
-        screen_x = 0;
-        update_cursor(screen_y, screen_x);
+        (*(get_screen_x())) = 0;
+        update_cursor((*(get_screen_y())), (*(get_screen_x())));
        // keyboard_idx = 0;
         //last_idx = 0;
         keyboard_buf[keyboard_idx] = ascii;
@@ -393,9 +393,9 @@ void keyboard_handler(){
         return;
       }
 
-      if((screen_x == (NUM_COLS-1) && screen_y == (NUM_ROWS-1)) || (screen_y == (NUM_ROWS-1) && ascii == '\n')){
+      if(((*(get_screen_x())) == (NUM_COLS-1) && (*(get_screen_y())) == (NUM_ROWS-1)) || ((*(get_screen_y())) == (NUM_ROWS-1) && ascii == '\n')){
         vert_scroll();
-        if(screen_y == (NUM_ROWS-1) && ascii == '\n'){
+        if((*(get_screen_y())) == (NUM_ROWS-1) && ascii == '\n'){
           sti();
           lock = 0;
           return;
@@ -449,24 +449,24 @@ void keyboard_backspace
 */
 void handle_backspace(){
   if((keyboard_idx) != 0){
-    int screen_y_temp = screen_y;
-    if(screen_x == 0 && screen_y != 0){
-      int catch = find_last_char(screen_y-1);
+    int screen_y_temp = (*(get_screen_y()));
+    if((*(get_screen_x())) == 0 && (*(get_screen_y())) != 0){
+      int catch = find_last_char((*(get_screen_y()))-1);
       if(catch == -1){
-        screen_y--;
+        (*(get_screen_y()))--;
         return;
       }
-      screen_x = catch+2;           //because we decrement screen x after this (for regualr case) we need to offest the returned value from find_lastr_char
-      screen_y_temp = --screen_y;
+      (*(get_screen_x())) = catch+2;           //because we decrement screen x after this (for regualr case) we need to offest the returned value from find_lastr_char
+      screen_y_temp = --(*(get_screen_y()));
     }
-    int screen_temp = --screen_x;
+    int screen_temp = --(*(get_screen_x()));
     keyboard_buf[keyboard_idx-1] = '\0';
     last_idx--;
     keyboard_write(0, keyboard_buf, MAX_BUF_SIZE);
-    screen_x = screen_temp;
-    screen_y = screen_y_temp;
+    (*(get_screen_x())) = screen_temp;
+    (*(get_screen_y())) = screen_y_temp;
     keyboard_idx--;
   }
-  update_cursor(screen_y, screen_x);
+  update_cursor((*(get_screen_y())), (*(get_screen_x())));
 }
 

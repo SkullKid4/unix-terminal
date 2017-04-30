@@ -36,14 +36,17 @@ void switch_task(){
       tss.esp0 = terminals[curr_term].ESP0;
       map(VIRTUAL_FILE_PAGE, PHYS_FILE_START + PHYS_FILE_OFFSET * curr_task);
 
-     // &screen_x = &terminals[last_term].x;
+     // &(*(get_screen_x())) = &terminals[last_term].x;
 
-      save_scheduler_state(last_term);
       if(curr_term == get_cur_term()){
-         set_vid_mem((uint32_t)0xB8000);
-         memcpy(get_vid_mem(), terminals[curr_term].screen, 2 * NUM_ROWS * NUM_COLS);
-         update_cursor(screen_y, screen_x);
-         memcpy(keyboard_buf, terminals[curr_term].input_buf, MAX_BUF_SIZE);
+         memcpy((void*)0xB8000, terminals[curr_term].screen, 2 * NUM_ROWS * NUM_COLS);
+         set_screen_x(&(terminals[curr_term].x));
+         set_screen_y(&(terminals[curr_term].y));
+         update_cursor((*(get_screen_y())), (*(get_screen_x())));
+      } else{
+         set_vid_mem((int)(&(terminals[curr_term].screen)));
+         set_screen_x(&terminals[curr_term].x);
+         set_screen_y(&terminals[curr_term].y);
       }
 
 
@@ -67,17 +70,17 @@ uint8_t get_curr_exec_term(){
 }
 
 void save_scheduler_state(uint8_t temp_cur_term){
-   terminals[temp_cur_term].x = screen_x;
-   terminals[temp_cur_term].y = screen_y;
+   terminals[temp_cur_term].x = (*(get_screen_x()));
+   terminals[temp_cur_term].y = (*(get_screen_y()));
    memcpy(terminals[temp_cur_term].screen, get_vid_mem(), 2 *NUM_ROWS * NUM_COLS);
    memcpy(terminals[temp_cur_term].input_buf, keyboard_buf, MAX_BUF_SIZE);
 }
 
 void restore_scheduler_state(int newt){
    memcpy(get_vid_mem(), terminals[newt].screen, 2 * NUM_ROWS * NUM_COLS);
-   screen_x = terminals[newt].x;
-   screen_y = terminals[newt].y;
-   update_cursor(screen_y, screen_x);
+   (*(get_screen_x())) = terminals[newt].x;
+   (*(get_screen_y())) = terminals[newt].y;
+   update_cursor((*(get_screen_y())), (*(get_screen_x())));
    memcpy(keyboard_buf, terminals[newt].input_buf, MAX_BUF_SIZE);
 }
 

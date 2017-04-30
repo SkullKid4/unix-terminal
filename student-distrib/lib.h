@@ -31,7 +31,7 @@ int8_t* strncpy(int8_t* dest, const int8_t*src, uint32_t n);
 int32_t bad_userspace_addr(const void* addr, int32_t len);
 int32_t safe_strncpy(int8_t* dest, const int8_t* src, int32_t n);
 
-/*copys video memory and prints it 1 line higher with black space at the bottom*/n
+/*copys video memory and prints it 1 line higher with black space at the bottom*/
 void vert_scroll();
 
 /*used in the case where new line was printed and the user wants to backspace starting at */
@@ -40,11 +40,10 @@ int find_last_char(int line);
 /*keeps the blinking cursor in the correct position*/
 void update_cursor(int row, int col);
 
-volatile int screen_x;
-volatile int screen_y;
-
-
-
+void set_screen_x(int* location);
+void set_screen_y(int* location);
+int* get_screen_x();
+int* get_screen_y();
 void test_interrupts(void);
 
 /* Port read functions */

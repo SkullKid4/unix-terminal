@@ -2,13 +2,16 @@
  * vim:ts=4 noexpandtab
  */
 #include "lib.h"
+#include "terminal.h"
 #define VIDEO  0xB8000;
 #define NUM_COLS 80
 #define NUM_ROWS 25
 #define ATTRIB 0x7
-//int screen_x;
-//int screen_y;
+//int (*(get_screen_x()));
+//int (*(get_screen_y()));
 volatile uint8_t* video_mem = (uint8_t*)VIDEO;
+volatile int* screen_x = &terminals[0].x;
+volatile int* screen_y = &terminals[0].y;
 
 void set_vid_mem(uint32_t location){
 	video_mem = (uint8_t*)location;
@@ -16,6 +19,22 @@ void set_vid_mem(uint32_t location){
 
 uint8_t* get_vid_mem(){
 	return (uint8_t*)video_mem;
+}
+
+void set_screen_x(int* location){
+	screen_x = location;
+}
+
+void set_screen_y(int* location){
+	screen_y = location;
+}
+
+int* get_screen_x(){
+	return (int*)screen_x;
+}
+
+int* get_screen_y(){
+	return (int*)screen_y;
 }
 /*
 * void clear(void);
@@ -31,8 +50,8 @@ clear(void)
         *(uint8_t *)(video_mem + (i << 1)) = '\0';
         *(uint8_t *)(video_mem + (i << 1) + 1) = ATTRIB;
     }
-    screen_x = 0;
-    screen_y = 0;
+    (*(get_screen_x())) = 0;
+    (*(get_screen_y())) = 0;
 }
 
 /* Standard printf().
@@ -176,26 +195,26 @@ void
 putc(uint8_t c)
 {
     if(c == '\n' || c == '\r') {
-    	if(screen_y == (NUM_ROWS-1)){		//vertscroll if you are at the bottom of the terminal and call new line
+    	if((*(get_screen_y())) == (NUM_ROWS-1)){		//vertscroll if you are at the bottom of the terminal and call new line
     		vert_scroll();
     		return;
     	}
-        screen_y++;
-        screen_x=0;
+        (*(get_screen_y()))++;
+        (*(get_screen_x()))=0;
     } else {
-        *(uint8_t *)(video_mem + ((NUM_COLS*screen_y + screen_x) << 1)) = c;					//print char to video memory
-        *(uint8_t *)(video_mem + ((NUM_COLS*screen_y + screen_x) << 1) + 1) = ATTRIB;
-        if(screen_x == (NUM_COLS-1) && screen_y == (NUM_ROWS-1)){			//if you have reached the end of the terminal, vert scroll
+        *(uint8_t *)(video_mem + ((NUM_COLS*(*(get_screen_y())) + (*(get_screen_x()))) << 1)) = c;					//print char to video memory
+        *(uint8_t *)(video_mem + ((NUM_COLS*(*(get_screen_y())) + (*(get_screen_x()))) << 1) + 1) = ATTRIB;
+        if((*(get_screen_x())) == (NUM_COLS-1) && (*(get_screen_y())) == (NUM_ROWS-1)){			//if you have reached the end of the terminal, vert scroll
     		vert_scroll();
     		return;
     	}
-        screen_x++;		//else just incriment the termial idecies
-        screen_x %= NUM_COLS;
-        if(screen_x == 0){
-        	screen_y++;
+        (*(get_screen_x()))++;		//else just incriment the termial idecies
+        (*(get_screen_x())) %= NUM_COLS;
+        if((*(get_screen_x())) == 0){
+        	(*(get_screen_y()))++;
         }
     }
-    update_cursor(screen_y, screen_x);
+    update_cursor((*(get_screen_y())), (*(get_screen_x())));
 }
 
 /*
@@ -237,9 +256,9 @@ void vert_scroll()
 		}
 	}
 
-	screen_x = 0;
-	screen_y = NUM_ROWS-1;
-	update_cursor(screen_y, screen_x);
+	(*(get_screen_x())) = 0;
+	(*(get_screen_y())) = NUM_ROWS-1;
+	update_cursor((*(get_screen_y())), (*(get_screen_x())));
 }
 
 /*

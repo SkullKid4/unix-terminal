@@ -127,7 +127,7 @@ void switch_terminal(int32_t newt)  {
 
 	save_terminal_state();
 	restore_terminal_state(newt);
-	//update_cursor(screen_x, screen_y);
+	//update_cursor((*(get_screen_x())), (*(get_screen_y())));
 
 	pcb_t* old_pcb = get_pcb_pointer(terminals[curr_terminal_number].current_process);
 	//old_pcb->FDs_array[2].flags = RTCFLAG;
@@ -172,8 +172,8 @@ void switch_terminal(int32_t newt)  {
 
 
 void save_terminal_state(){
-	terminals[curr_terminal_number].x = screen_x;
-	terminals[curr_terminal_number].y = screen_y;
+	terminals[curr_terminal_number].x = (*(get_screen_x()));
+	terminals[curr_terminal_number].y = (*(get_screen_y()));
 	memcpy(terminals[curr_terminal_number].screen, get_vid_mem(), 2 *NUM_ROWS * NUM_COLS);
 	memcpy(terminals[curr_terminal_number].input_buf, keyboard_buf, MAX_BUF_SIZE);
 	/*int i;
@@ -184,9 +184,9 @@ void save_terminal_state(){
 
 void restore_terminal_state(int newt){
 	memcpy(get_vid_mem(), terminals[newt].screen, 2 * NUM_ROWS * NUM_COLS);
-	screen_x = terminals[newt].x;
-	screen_y = terminals[newt].y;
-	update_cursor(screen_y, screen_x);
+	(*(get_screen_x())) = terminals[newt].x;
+	(*(get_screen_y())) = terminals[newt].y;
+	update_cursor((*(get_screen_y())), (*(get_screen_x())));
 	memcpy(keyboard_buf, terminals[newt].input_buf, MAX_BUF_SIZE);
 	/*int i;
 	for(i = 0; i < MAX_BUF_SIZE+1; i++) {

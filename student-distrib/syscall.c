@@ -382,7 +382,7 @@ int32_t execute
 
  int32_t execute (const uint8_t* command) {
 
-
+ 	cli();
  	uint8_t buf[BUF_SIZE];
  	uint8_t com[BUF_SIZE];
  	uint8_t buffer[SMALL_BUF];

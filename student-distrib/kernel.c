@@ -26,6 +26,7 @@
 void
 entry (unsigned long magic, unsigned long addr)
 {
+	terminal_init();
 	multiboot_info_t *mbi;
 
 	/* Clear the screen. */
@@ -152,6 +153,7 @@ entry (unsigned long magic, unsigned long addr)
 		tss.esp0 = 0x800000;
 		ltr(KERNEL_TSS);
 	}
+	
 	clear();
 
 	/* Enable interrupts */
@@ -191,7 +193,6 @@ entry (unsigned long magic, unsigned long addr)
 	//testing pit
 	//scheduler_init();
 	//pit_init();
-	terminal_init();
 	
 	clear_process();
 	execute((uint8_t*)("shell\0"));
