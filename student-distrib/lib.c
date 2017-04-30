@@ -249,7 +249,7 @@ void vert_scroll_nodisplay()
 {
 	int i,j;
 	int curr_terminal = get_curr_exec_term()
-	char* video_tmp = (char*)terms[curr_terminal].screen;
+	char* video_tmp = (char*)terminals[curr_terminal].screen;
 	for(i = 0; i < NUM_COLS; i++) {
 		for(j = 0; j < NUM_ROWS; j++) {
 			if(j < NUM_ROWS-1){
@@ -263,7 +263,7 @@ void vert_scroll_nodisplay()
 
 	screen_x = 0;
 	screen_y = NUM_ROWS-1;
-	//update_cursor_nodisplay(terms[curr_terminal].y, terms[curr_terminal].x);
+	//update_cursor_nodisplay(terminals[curr_terminal].y, terminals[curr_terminal].x);
 }
 
 /*
@@ -618,19 +618,19 @@ putc_nodisplay(uint8_t c)
     		vert_scroll_nodisplay();
     		return;
     	}
-        terms[curr_terminal].y++;
-        terms[curr_terminal].x=0;
+        terminals[curr_terminal].y++;
+        terminals[curr_terminal].x=0;
     } else {
-        *(uint8_t *)( terms[curr_terminal].screen + ((NUM_COLS*terms[curr_terminal].y + terms[curr_terminal].x) << 1)) = c;					//print char to video memory
-        *(uint8_t *)(terms[curr_terminal].screen + ((NUM_COLS*terms[curr_terminal].y + terms[curr_terminal].x) << 1) + 1) = ATTRIB;
+        *(uint8_t *)( terminals[curr_terminal].screen + ((NUM_COLS*terminals[curr_terminal].y + terminals[curr_terminal].x) << 1)) = c;					//print char to video memory
+        *(uint8_t *)(terminals[curr_terminal].screen + ((NUM_COLS*terminals[curr_terminal].y + terminals[curr_terminal].x) << 1) + 1) = ATTRIB;
         if(screen_x == (NUM_COLS-1) && screen_y == (NUM_ROWS-1)){			//if you have reached the end of the terminal, vert scroll
     		vert_scroll();
     		return;
     	}
-        terms[curr_terminal].x++;		//else just incriment the termial idecies
-        terms[curr_terminal].x %= NUM_COLS;
-        if(terms[curr_terminal].x == 0){
-        	terms[curr_terminal].y++;
+        terminals[curr_terminal].x++;		//else just incriment the termial idecies
+        terminals[curr_terminal].x %= NUM_COLS;
+        if(terminals[curr_terminal].x == 0){
+        	terminals[curr_terminal].y++;
         }
     }
 }

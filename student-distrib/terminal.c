@@ -129,11 +129,11 @@ void switch_terminal(int32_t newt)  {
 
 	save_terminal_state();
 	restore_terminal_state(newt);
-	if(get_curr_exec_term() == curr_terminal_number){
-		map_w_pt(USER_VID_MEM, VIDEO);
+	curr_terminal_number = newt;
+	if(get_curr_exec_term() != curr_terminal_number){
+		map_w_pt(USER_VID_MEM, (uint32_t)terminals[curr_terminal_number].screen);
 	}
 
-	update_cursor(screen_x, screen_y);
 
 	// pcb_t* old_pcb = get_pcb_pointer(terminals[curr_terminal_number].current_process);
 	// //old_pcb->FDs_array[2].flags = RTCFLAG;
