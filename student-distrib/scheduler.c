@@ -32,6 +32,7 @@ void switch_task(){
 	   curr_task = terminals[curr_term].current_process;	  
       pcb_t* old_pcb = get_pcb_pointer(terminals[last_term].current_process);
       pcb_t* new_pcb = get_pcb_pointer(terminals[curr_term].current_process);
+      current_pcb = new_pcb;
 
       map(VIRTUAL_FILE_PAGE, PHYS_FILE_START + PHYS_FILE_OFFSET * curr_task);
       if(curr_term != get_cur_term()){

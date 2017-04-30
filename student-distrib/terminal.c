@@ -142,6 +142,7 @@ void switch_terminal(int32_t newt)  {
 	if(get_curr_exec_term() != curr_terminal_number){
 		map_video_w_pt((uint32_t)screen_start, (uint32_t)terminals[curr_terminal_number].screen);
 	}
+	return;
 
 
 	// pcb_t* old_pcb = get_pcb_pointer(terminals[curr_terminal_number].current_process);
@@ -177,7 +178,7 @@ void switch_terminal(int32_t newt)  {
  //                 :"r"(new_pcb->ESP_SWITCH), "r"(new_pcb->EBP_SWITCH)    /*inputs */
  //                 :"%eax"                /*  clobbered registers */
  //                 );
-		return;
+	//	return;
 	
 	//clear();
 	//print screen text

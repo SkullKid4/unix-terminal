@@ -440,12 +440,11 @@ int32_t execute
  		curr_pcb->PPID = -1;
  	}
  	else
- 	curr_pcb->PPID = curr_process;
+ 		curr_pcb->PPID = curr_process;
  	
  	curr_pcb->PID = new_process;
  	curr_process = new_process;
  	set_curr_process(curr_process);
-
 
  	//initialize fd_array
  	for (i = 0; i < MAX_FILE; i++) {
@@ -521,6 +520,8 @@ int32_t vidmap(uint8_t** screen_start){
 	//check if screen_start is in the user file.
 	// if ( (uint32_t)screen_start < VIRTUAL_FILE_PAGE || (uint32_t)screen_start > VIRTUAL_FILE_PAGE + PHYS_FILE_OFFSET)
 	// 	return -1;
+	//printf("0x%x", screen_start);
+	if(screen_start == NULL || screen_start < 0x700000) return -1;//screen_start == 0x400000) return -1; 
 	map_w_pt(USER_VID_MEM, VIDEO);
 	*screen_start = (uint8_t*)USER_VID_MEM;
 	return 0;
