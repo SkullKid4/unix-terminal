@@ -221,10 +221,12 @@ putc(uint8_t c)
 void
 putc_nodisplay(uint8_t c)
 {
+	//cli();
 	int curr_terminal = get_curr_exec_term();
     if(c == '\n' || c == '\r') {
     	if(terminals[curr_terminal].y == (NUM_ROWS-1)){		//vertscroll if you are at the bottom of the terminal and call new line
     		vert_scroll_nodisplay();
+    		//sti();
     		return;
     	}
         terminals[curr_terminal].y++;
@@ -234,6 +236,7 @@ putc_nodisplay(uint8_t c)
         *(uint8_t *)(terminals[curr_terminal].screen + ((NUM_COLS*terminals[curr_terminal].y + terminals[curr_terminal].x) << 1) + 1) = ATTRIB;
         if(terminals[curr_terminal].x == (NUM_COLS-1) && terminals[curr_terminal].y == (NUM_ROWS-1)){			//if you have reached the end of the terminal, vert scroll
     		vert_scroll_nodisplay();
+    		//sti();
     		return;
     	}
         terminals[curr_terminal].x++;		//else just incriment the termial idecies
@@ -242,6 +245,7 @@ putc_nodisplay(uint8_t c)
         	terminals[curr_terminal].y++;
         }
     }
+    //sti();
 }
 
 /*
