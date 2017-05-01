@@ -26,7 +26,6 @@
 void
 entry (unsigned long magic, unsigned long addr)
 {
-	terminal_init();
 	multiboot_info_t *mbi;
 
 	/* Clear the screen. */
@@ -153,7 +152,6 @@ entry (unsigned long magic, unsigned long addr)
 		tss.esp0 = 0x800000;
 		ltr(KERNEL_TSS);
 	}
-	
 	clear();
 
 	/* Enable interrupts */

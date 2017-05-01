@@ -11,14 +11,11 @@
 #include "terminal.h"
 #include "scheduler.h"
 
+#define VIDEO 0xB8000
 #define ATTRIB 0x7
 int32_t curr_terminal_number = 0;
-<<<<<<< HEAD
-int32_t current_executing_terminal = 0;
-=======
 // int32_t current_executing_terminal = 0;
 static char* video_mem = (char *)VIDEO;
->>>>>>> samalexversion
 
 /*
 int32_t terminal_read
@@ -119,26 +116,12 @@ void switch_terminal(int32_t newt)  {
 		return;
 	}
 	if(terminals[newt].active == 0){
-		//save_terminal_state();
-		//clear();
+		save_terminal_state();
+		clear();
 		pcb_t* old_pcb = get_pcb_pointer(terminals[curr_terminal_number].current_process);
 		//old_pcb->FDs_array[2].flags = RTCFLAG;
 		curr_terminal_number = newt;
 		    /* Save the ebp/esp of the process we are switching away from. */
-<<<<<<< HEAD
-    asm volatile("			\n\
-                 movl %%ebp, %%eax 	\n\
-                 movl %%esp, %%ebx 	\n\
-                 "
-                 :"=a"(old_pcb->EBP_SWITCH), "=b"(old_pcb->ESP_SWITCH)
-	);
-	//sti();
-	curr_terminal_number = newt;
-	map_w_pt(USER_VID_MEM, (int)&terminals[newt].screen);
-	clear();
-	execute((uint8_t*)("shell\0"));
-	return;
-=======
 	    asm volatile("			\n\
 	                 movl %%ebp, %%eax 	\n\
 	                 movl %%esp, %%ebx 	\n\
@@ -149,13 +132,18 @@ void switch_terminal(int32_t newt)  {
 		set_curr_exec_term(newt);
 		execute((uint8_t*)("shell\0"));
 		return;
->>>>>>> samalexversion
 	}
-	curr_terminal_number = newt;
+
 	save_terminal_state();
 	restore_terminal_state(newt);
-<<<<<<< HEAD
-	// //update_cursor((*(get_screen_x())), (*(get_screen_y())));
+	curr_terminal_number = newt;
+	uint8_t * screen_start;
+    vidmap(&screen_start);
+	if(get_curr_exec_term() != curr_terminal_number){
+		map_video_w_pt((uint32_t)screen_start, (uint32_t)terminals[curr_terminal_number].screen);
+	}
+	return;
+
 
 	// pcb_t* old_pcb = get_pcb_pointer(terminals[curr_terminal_number].current_process);
 	// //old_pcb->FDs_array[2].flags = RTCFLAG;
@@ -169,6 +157,7 @@ void switch_terminal(int32_t newt)  {
 	// map(VIRTUAL_FILE_PAGE, PHYS_FILE_START+PHYS_FILE_OFFSET*terminals[newt].current_process);
  // 	tss.ss0 = KERNEL_DS;
  // 	tss.esp0 = PHYS_FILE_START - (EIGHT_KB * terminals[newt].current_process) - 4;
+
 
  //    asm (
  // 	"movl	%%cr3,%%eax ;"
@@ -185,68 +174,22 @@ void switch_terminal(int32_t newt)  {
  //                 "mov %0, %%esp;"
  //                 "mov %1, %%ebp;"
  //                 //"jmp HALTED;"
- //                 :                      /* no outputs */
- //                 :"r"(new_pcb->ESP_SWITCH), "r"(new_pcb->EBP_SWITCH)   /* inputs */ 
- //                 :"%eax"                 /* clobbered registers */
+ //                 :                       /*no outputs */
+ //                 :"r"(new_pcb->ESP_SWITCH), "r"(new_pcb->EBP_SWITCH)    /*inputs */
+ //                 :"%eax"                /*  clobbered registers */
  //                 );
-
-
-	// 	return;
-=======
-	curr_terminal_number = newt;
-	uint8_t * screen_start;
-    vidmap(&screen_start);
-	if(get_curr_exec_term() != curr_terminal_number){
-		map_video_w_pt((uint32_t)screen_start, (uint32_t)terminals[curr_terminal_number].screen);
-	}
-	return;
-
-
-	/*pcb_t* old_pcb = get_pcb_pointer(terminals[curr_terminal_number].current_process);
-	//old_pcb->FDs_array[2].flags = RTCFLAG;
-	curr_terminal_number = newt;
-
-
-    pcb_t* new_pcb = get_pcb_pointer(terminals[newt].current_process);
-    current_pcb = new_pcb;
-    set_process_sys(terminals[newt].current_process);
-	map(VIRTUAL_FILE_PAGE, PHYS_FILE_START+PHYS_FILE_OFFSET*terminals[newt].current_process);
- 	tss.ss0 = KERNEL_DS;
- 	tss.esp0 = PHYS_FILE_START - (EIGHT_KB * terminals[newt].current_process) - 4;
-
-
-    asm (
- 	"movl	%%cr3,%%eax ;"
-	"movl	%%eax,%%cr3 "
-	: : :"eax", "cc");
-        asm volatile("			\n\
-                 movl %%ebp, %%eax 	\n\
-                 movl %%esp, %%ebx 	\n\
-                 "
-                 :"=a"(old_pcb->EBP_SWITCH), "=b"(old_pcb->ESP_SWITCH)
-	);
-        asm volatile(
-				 ""
-                 "mov %0, %%esp;"
-                 "mov %1, %%ebp;"
-                 //"jmp HALTED;"
-                 :                      
-                 :"r"(new_pcb->ESP_SWITCH), "r"(new_pcb->EBP_SWITCH)   
-                 :"%eax"              
-                 );
-		return;
->>>>>>> samalexversion
+	//	return;
 	
-	clear();
-	print screen text*/
+	//clear();
+	//print screen text
 
 }
 
 
 void save_terminal_state(){
-	terminals[curr_terminal_number].x = (*(get_screen_x()));
-	terminals[curr_terminal_number].y = (*(get_screen_y()));
-	memcpy(terminals[curr_terminal_number].screen, get_vid_mem(), 2 *NUM_ROWS * NUM_COLS);
+	terminals[curr_terminal_number].x = screen_x;
+	terminals[curr_terminal_number].y = screen_y;
+	memcpy(terminals[curr_terminal_number].screen, video_mem, 2 *NUM_ROWS * NUM_COLS);
 	memcpy(terminals[curr_terminal_number].input_buf, keyboard_buf, MAX_BUF_SIZE);
 	terminals[curr_terminal_number].keyboard_last_index = get_keyboard_last_index();
 	terminals[curr_terminal_number].keyboard_index = get_keyboard_index();
@@ -258,10 +201,10 @@ void save_terminal_state(){
 }
 
 void restore_terminal_state(int newt){
-	memcpy(get_vid_mem(), terminals[newt].screen, 2 * NUM_ROWS * NUM_COLS);
-	(*(get_screen_x())) = terminals[newt].x;
-	(*(get_screen_y())) = terminals[newt].y;
-	update_cursor((*(get_screen_y())), (*(get_screen_x())));
+	memcpy(video_mem, terminals[newt].screen, 2 * NUM_ROWS * NUM_COLS);
+	screen_x = terminals[newt].x;
+	screen_y = terminals[newt].y;
+	update_cursor(screen_y, screen_x);
 	memcpy(keyboard_buf, terminals[newt].input_buf, MAX_BUF_SIZE);
 	set_keyboard_last_index(terminals[newt].keyboard_last_index);
 	set_keyboard_index(terminals[newt].keyboard_index);

@@ -30,16 +30,11 @@ typedef struct process_struct
 volatile process_t task_array[3];
 
 void switch_task();
-void save_scheduler_state(uint8_t temp_cur_term);
-void restore_scheduler_state(int newt);
 extern void scheduler_init();
 extern void add_task(int esp0, int pid);
 extern void remove_task(int pid);
-<<<<<<< HEAD
-=======
 uint8_t get_curr_exec_term();
 void set_curr_exec_term(int term);
->>>>>>> samalexversion
 
 #endif
 

@@ -9,6 +9,7 @@
 #include "types.h"
 #include "terminal.h"
 #include "syscall_link.h"
+#include "scheduler.h"
 
 volatile unsigned lock = 0;       //used to lock the thread when writing keyboard output to the screen
 volatile unsigned shift = 0;      //2a or 36 on press;
@@ -131,11 +132,7 @@ int32_t keyboard_write(int32_t fd, void* buf, int32_t nbytes) {
     if(idx[0] != idx[1]){           //this
       for(i = idx[0]; i < idx[1]; i++){
        char data = ((char *)buf)[i];
-<<<<<<< HEAD
-       putc(data);
-=======
       putc(data);
->>>>>>> samalexversion
       }
      return(idx[1] - idx[0]);
     }
@@ -199,7 +196,7 @@ void keyboard_handler(){
     if (status & 0x01) {                    //if the status is set, get the code from the keyboard port
       keycode = inb(KEYBOARD_DATA_PORT);
       //printf("Keycode is: 0x%x", keycode);
-      if(keycode == BACKSPACE && (((*(get_screen_x())) + (*(get_screen_y()))) != 0)){
+      if(keycode == BACKSPACE && ((screen_x + screen_y) != 0)){
         handle_backspace();
         sti();
         lock = 0;
@@ -292,10 +289,10 @@ void keyboard_handler(){
       }
 
       if(ascii == '\n') {
-        if((*(get_screen_y())) != NUM_ROWS-1) (*(get_screen_y()))++;
+        if(screen_y != NUM_ROWS-1) screen_y++;
         else vert_scroll();
-        (*(get_screen_x())) = 0;
-        update_cursor((*(get_screen_y())), (*(get_screen_x())));
+        screen_x = 0;
+        update_cursor(screen_y, screen_x);
        // keyboard_idx = 0;
         //last_idx = 0;
         keyboard_buf[keyboard_idx] = ascii;
@@ -399,9 +396,9 @@ void keyboard_handler(){
         return;
       }
 
-      if(((*(get_screen_x())) == (NUM_COLS-1) && (*(get_screen_y())) == (NUM_ROWS-1)) || ((*(get_screen_y())) == (NUM_ROWS-1) && ascii == '\n')){
+      if((screen_x == (NUM_COLS-1) && screen_y == (NUM_ROWS-1)) || (screen_y == (NUM_ROWS-1) && ascii == '\n')){
         vert_scroll();
-        if((*(get_screen_y())) == (NUM_ROWS-1) && ascii == '\n'){
+        if(screen_y == (NUM_ROWS-1) && ascii == '\n'){
           sti();
           lock = 0;
           return;
@@ -456,25 +453,25 @@ void keyboard_backspace
 */
 void handle_backspace(){
   if((keyboard_idx) != 0){
-    int screen_y_temp = (*(get_screen_y()));
-    if((*(get_screen_x())) == 0 && (*(get_screen_y())) != 0){
-      int catch = find_last_char((*(get_screen_y()))-1);
+    int screen_y_temp = screen_y;
+    if(screen_x == 0 && screen_y != 0){
+      int catch = find_last_char(screen_y-1);
       if(catch == -1){
-        (*(get_screen_y()))--;
+        screen_y--;
         return;
       }
-      (*(get_screen_x())) = catch+2;           //because we decrement screen x after this (for regualr case) we need to offest the returned value from find_lastr_char
-      screen_y_temp = --(*(get_screen_y()));
+      screen_x = catch+2;           //because we decrement screen x after this (for regualr case) we need to offest the returned value from find_lastr_char
+      screen_y_temp = --screen_y;
     }
-    int screen_temp = --(*(get_screen_x()));
+    int screen_temp = --screen_x;
     keyboard_buf[keyboard_idx-1] = '\0';
     last_idx--;
     keyboard_write(0, keyboard_buf, MAX_BUF_SIZE);
-    (*(get_screen_x())) = screen_temp;
-    (*(get_screen_y())) = screen_y_temp;
+    screen_x = screen_temp;
+    screen_y = screen_y_temp;
     keyboard_idx--;
   }
-  update_cursor((*(get_screen_y())), (*(get_screen_x())));
+  update_cursor(screen_y, screen_x);
 }
 
 int8_t get_keyboard_index(){
