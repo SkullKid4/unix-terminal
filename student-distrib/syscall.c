@@ -381,8 +381,11 @@ int32_t execute
 */
 
  int32_t execute (const uint8_t* command) {
+<<<<<<< HEAD
 
  	cli();
+=======
+>>>>>>> samalexversion
  	uint8_t buf[BUF_SIZE];
  	uint8_t com[BUF_SIZE];
  	uint8_t buffer[SMALL_BUF];
@@ -391,7 +394,7 @@ int32_t execute
  	uint32_t i = 0;
  	uint32_t file_start;
  	uint8_t arg_start;
-
+ 	cli();
  	// parse command
  	for (scan = buf; '\0' != *scan && ' ' != *scan && '\n' != *scan; scan++) {
  		com[i] = command[i];
@@ -406,7 +409,7 @@ int32_t execute
  	}
  	uint32_t new_process = get_process();
  	if (new_process == -1){
- 		printf("too many processes\n");
+ 		puts("too many processes\n");
  		return 0;	//fail if we have 6 processes already
  	}
  	pcb_t* curr_pcb = (pcb_t*)(PHYS_FILE_START - EIGHT_KB * (new_process + 1));
@@ -442,12 +445,11 @@ int32_t execute
  		curr_pcb->PPID = -1;
  	}
  	else
- 	curr_pcb->PPID = curr_process;
+ 		curr_pcb->PPID = curr_process;
  	
  	curr_pcb->PID = new_process;
  	curr_process = new_process;
  	set_curr_process(curr_process);
-
 
  	//initialize fd_array
  	for (i = 0; i < MAX_FILE; i++) {
@@ -519,9 +521,17 @@ int32_t vidmap
 */
 int32_t vidmap(uint8_t** screen_start){
 	//check if screen_start is in the user file.
+<<<<<<< HEAD
 	if ( (uint32_t)screen_start < VIRTUAL_FILE_PAGE || (uint32_t)screen_start > VIRTUAL_FILE_PAGE + PHYS_FILE_OFFSET)
 		return -1;
 	map_w_pt(USER_VID_MEM, (uint32_t)get_vid_mem());
+=======
+	// if ( (uint32_t)screen_start < VIRTUAL_FILE_PAGE || (uint32_t)screen_start > VIRTUAL_FILE_PAGE + PHYS_FILE_OFFSET)
+	// 	return -1;
+	//printf("0x%x", screen_start);
+	if(screen_start == NULL || (uint32_t)screen_start < 0x700000) return -1;//screen_start == 0x400000) return -1; 
+	map_w_pt(USER_VID_MEM, VIDEO);
+>>>>>>> samalexversion
 	*screen_start = (uint8_t*)USER_VID_MEM;
 	return 0;
 }

@@ -43,6 +43,11 @@ extern int32_t keyboard_close();
 /* function that is called from the idt table when interrupts occor*/
 void keyboard_handler();
 
+int8_t get_keyboard_index();
+int8_t get_keyboard_last_index();
+void set_keyboard_index(int8_t new_dex);
+void set_keyboard_last_index(int8_t new_dex);
+
 /*sets the idt entry with the handdlers adrs*/
 void keyboard_init();
 

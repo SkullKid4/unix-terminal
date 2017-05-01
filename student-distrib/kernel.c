@@ -181,6 +181,7 @@ entry (unsigned long magic, unsigned long addr)
 	paging_init();
 	
 	init_fops_table();
+	terminal_init();
 	//sti();
 	/* Do not enable the following until after you have set up your
 	 * IDT correctly otherwise QEMU will triple fault and simple close

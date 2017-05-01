@@ -45,6 +45,7 @@ int* get_screen_y(){
 void
 clear(void)
 {
+<<<<<<< HEAD
     int32_t i;
     for(i=0; i<NUM_ROWS*NUM_COLS; i++) {
         *(uint8_t *)(video_mem + (i << 1)) = '\0';
@@ -52,6 +53,30 @@ clear(void)
     }
     (*(get_screen_x())) = 0;
     (*(get_screen_y())) = 0;
+=======
+	if(get_curr_exec_term() != get_cur_term()) clear_nodisplay();
+	else {
+	    int32_t i;
+	    for(i=0; i<NUM_ROWS*NUM_COLS; i++) {
+	        *(uint8_t *)(video_mem + (i << 1)) = '\0';
+	        *(uint8_t *)(video_mem + (i << 1) + 1) = ATTRIB;
+	    }
+	    screen_x = 0;
+    	screen_y = 0;
+	}
+}
+
+void clear_nodisplay(void)
+{
+	int curr_term = get_curr_exec_term();
+	int32_t i;
+	for(i=0; i<NUM_ROWS*NUM_COLS; i++) {
+		*(uint8_t *)(terminals[curr_term].screen + (i << 1)) = '\0';
+		*(uint8_t *)(terminals[curr_term].screen + (i << 1) + 1) =ATTRIB;
+	}
+	terminals[curr_term].x = 0;
+	terminals[curr_term].y = 0;
+>>>>>>> samalexversion
 }
 
 /* Standard printf().
@@ -217,6 +242,36 @@ putc(uint8_t c)
     update_cursor((*(get_screen_y())), (*(get_screen_x())));
 }
 
+void
+putc_nodisplay(uint8_t c)
+{
+	//cli();
+	int curr_terminal = get_curr_exec_term();
+    if(c == '\n' || c == '\r') {
+    	if(terminals[curr_terminal].y == (NUM_ROWS-1)){		//vertscroll if you are at the bottom of the terminal and call new line
+    		vert_scroll_nodisplay();
+    		//sti();
+    		return;
+    	}
+        terminals[curr_terminal].y++;
+        terminals[curr_terminal].x=0;
+    } else {
+        *(uint8_t *)( terminals[curr_terminal].screen + ((NUM_COLS*terminals[curr_terminal].y + terminals[curr_terminal].x) << 1)) = c;					//print char to video memory
+        *(uint8_t *)(terminals[curr_terminal].screen + ((NUM_COLS*terminals[curr_terminal].y + terminals[curr_terminal].x) << 1) + 1) = ATTRIB;
+        if(terminals[curr_terminal].x == (NUM_COLS-1) && terminals[curr_terminal].y == (NUM_ROWS-1)){			//if you have reached the end of the terminal, vert scroll
+    		vert_scroll_nodisplay();
+    		//sti();
+    		return;
+    	}
+        terminals[curr_terminal].x++;		//else just incriment the termial idecies
+        terminals[curr_terminal].x %= NUM_COLS;
+        if(terminals[curr_terminal].x == 0){
+        	terminals[curr_terminal].y++;
+        }
+    }
+    //sti();
+}
+
 /*
 * void update_cursor(int row, int col)
 *   Inputs: row is the row in which the cursor should be and col is the coloumn the cursor should be
@@ -256,9 +311,35 @@ void vert_scroll()
 		}
 	}
 
+<<<<<<< HEAD
 	(*(get_screen_x())) = 0;
 	(*(get_screen_y())) = NUM_ROWS-1;
 	update_cursor((*(get_screen_y())), (*(get_screen_x())));
+=======
+	screen_x = 0;
+	screen_y = NUM_ROWS-1;
+	update_cursor(screen_y, screen_x);
+}
+void vert_scroll_nodisplay()
+{
+	int i,j;
+	int curr_terminal = get_curr_exec_term();
+	char* video_tmp = (char*)terminals[curr_terminal].screen;
+	for(i = 0; i < NUM_COLS; i++) {
+		for(j = 0; j < NUM_ROWS; j++) {
+			if(j < NUM_ROWS-1){
+				*(uint8_t *)(video_tmp + ((NUM_COLS*j + i) << 1)) = *(uint8_t *)(terminals[curr_terminal].screen + ((NUM_COLS*(j+1) + i) << 1));
+			} else{
+				*(uint8_t *)(video_tmp + ((NUM_COLS*j + i) << 1)) = '\0';
+			}
+			*(uint8_t *)(video_tmp + ((NUM_COLS*j + i) << 1) + 1) = ATTRIB; //*(uint8_t *)(video_mem + ((NUM_COLS*(j) + i) << 1)+1);
+		}
+	}
+
+	terminals[curr_terminal].x = 0;
+	terminals[curr_terminal].y = NUM_ROWS-1;
+	//update_cursor_nodisplay(terminals[curr_terminal].y, terminals[curr_terminal].x);
+>>>>>>> samalexversion
 }
 
 /*
@@ -603,3 +684,8 @@ test_interrupts(void)
 		video_mem[i<<1]++;
 	}
 }
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> samalexversion

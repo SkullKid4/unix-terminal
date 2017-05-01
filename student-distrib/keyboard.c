@@ -82,7 +82,8 @@ int32_t keyboard_read(int32_t fd, const void* buf, int32_t nbytes)
   Function: read a number of bytes to a buffer, according to the file descriptor
 */
 int32_t keyboard_read(int32_t fd, void* buf, int32_t nbytes) {
-	while(enter == 0){        //wait until enter is pressed
+  int curr_term = get_curr_exec_term();
+	while(terminals[curr_term].term_enter == 0){        //wait until enter is pressed
       //wait
     };
 
@@ -108,7 +109,7 @@ int32_t keyboard_read(int32_t fd, void* buf, int32_t nbytes) {
       ((char *)buf)[i] = keyboard_buf[i];
     }
     ((char *)buf)[i] = '\0';
-    enter = 0;          //set the volatile enter to zero
+    terminals[curr_term].term_enter = 0;          //set the volatile enter to zero
     memset(keyboard_buf, ' ', MAX_BUF_SIZE);
     keyboard_idx = 0;
     last_idx = 0;
@@ -130,7 +131,11 @@ int32_t keyboard_write(int32_t fd, void* buf, int32_t nbytes) {
     if(idx[0] != idx[1]){           //this
       for(i = idx[0]; i < idx[1]; i++){
        char data = ((char *)buf)[i];
+<<<<<<< HEAD
        putc(data);
+=======
+      putc(data);
+>>>>>>> samalexversion
       }
      return(idx[1] - idx[0]);
     }
@@ -294,7 +299,8 @@ void keyboard_handler(){
        // keyboard_idx = 0;
         //last_idx = 0;
         keyboard_buf[keyboard_idx] = ascii;
-        enter = 1;
+        int curr_term = get_cur_term();
+        terminals[curr_term].term_enter = 1;
         sti();
         lock = 0;
         return;
@@ -410,7 +416,8 @@ void keyboard_handler(){
 
       keyboard_idx++;
       if(ascii == '\n'){
-        enter = 1;
+        int curr_term = get_cur_term();
+        terminals[curr_term].term_enter = 1;
         keyboard_buf[keyboard_idx] = ascii;
         //keyboard_idx = 0;
         //last_idx = 0;
@@ -470,3 +477,18 @@ void handle_backspace(){
   update_cursor((*(get_screen_y())), (*(get_screen_x())));
 }
 
+int8_t get_keyboard_index(){
+  return keyboard_idx;
+}
+
+int8_t get_keyboard_last_index(){
+  return last_idx;
+}
+
+void set_keyboard_index(int8_t new_dex){
+  keyboard_idx = new_dex;
+}
+
+void set_keyboard_last_index(int8_t new_dex){
+  last_idx = new_dex;
+}
