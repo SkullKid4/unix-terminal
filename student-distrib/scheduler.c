@@ -13,6 +13,12 @@ volatile uint8_t last_task = 0;
 
 #define ATTRIB 0x7
 
+/*
+* void switch_task()
+*   Inputs: None
+*   Return Value: void
+*  Function: actual handler for the PIT. Uses RR style scheduling to switch between active processes 
+*/
 void switch_task(){
    /* copy the saved registers into the current_proc structure */
     //uint8_t count =0;
@@ -63,10 +69,22 @@ void switch_task(){
    sti();
 }
 
+/*
+* uint8_t get_curr_exec_term()
+*   Inputs: None
+*   Return Value: value of currently executing terminal
+*  Function: returns value of currently executing terminal 
+*/
 uint8_t get_curr_exec_term(){
    return curr_term;
 }
 
+/*
+* void set_curr_exec_term(int term)
+*   Inputs: int term - terminal to set current executing terminal to
+*   Return Value: void
+*  Function: sets the currently executing terminal to the specified terminal 
+*/
 void set_curr_exec_term(int term){
    curr_term = term;
 }

@@ -9,7 +9,12 @@ volatile int32_t timer_ticks=0;
 volatile int32_t pit_lock =0;
 
 
-
+/*
+* void pit_init()
+*   Inputs: None
+*   Return Value: void
+*	Function: initializes pit frequency and idt entry
+*/
 void pit_init (){
 /* 	mov al, 0x36
 out 0x43, al    ;tell the PIT which channel we're setting
@@ -26,6 +31,12 @@ out 0x40, al    ;send high byte*/
 	enable_irq(PIT_IRQ);
 }
 
+/*
+* void pit_handler()
+*   Inputs: None
+*   Return Value: void
+*	Function: handles pit interrupts, only used for testing the pit 
+*/
 void pit_handler()
 {
     /* Increment our 'tick count' */

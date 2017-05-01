@@ -87,6 +87,12 @@ int32_t terminal_close() {
 	return 0;
 }
 
+/*
+* void terminal_init()
+*   Inputs: None
+*   Return Value: value of currently executing terminal
+*  Function: initializes terminal structs for the 3 possible terminals 
+*/
 void terminal_init() {
 	int i, j;
 	curr_terminal_number = 0;
@@ -108,6 +114,12 @@ void terminal_init() {
 	}
 }
 
+/*
+* void switch_terminal(int32_t newt)
+*   Inputs: int32_t newt - new terminal to switch to
+*   Return Value: void
+*  Function: called by keyboard handler, switches to the indicated terminal. Reassigns video memory accordingly, or executes shell if the terminal wasn't already active 
+*/
 void switch_terminal(int32_t newt)  {
 	if(newt == curr_terminal_number){
 		return;
@@ -185,7 +197,12 @@ void switch_terminal(int32_t newt)  {
 
 }
 
-
+/*
+* void save_terminal_state()
+*   Inputs: None
+*   Return Value: void
+*  Function: saves the active terminal values to the current terminal struct 
+*/
 void save_terminal_state(){
 	terminals[curr_terminal_number].x = screen_x;
 	terminals[curr_terminal_number].y = screen_y;
@@ -200,6 +217,12 @@ void save_terminal_state(){
 	}*/
 }
 
+/*
+* void restore_terminal_state()
+*   Inputs: None
+*   Return Value: void
+*  Function: sets the global terminal values to the indicated terminal's values
+*/
 void restore_terminal_state(int newt){
 	memcpy(video_mem, terminals[newt].screen, 2 * NUM_ROWS * NUM_COLS);
 	screen_x = terminals[newt].x;
@@ -213,11 +236,24 @@ void restore_terminal_state(int newt){
 		keyboard_buf[i] = terminals[newt].input_buf[i];
 	}*/
 }
+
+/*
+* void get_curr_process(int process_number)
+*   Inputs: int process_number - the process to set the terminal to
+*   Return Value: void
+*  Function: sets the current terminal's process to the indicated process
+*/
 void set_curr_process(int process_number){
 	terminals[get_curr_exec_term()].current_process =  process_number;
 	// terminals[curr_terminal_number].current_process =  process_number;
 }
 
+/*
+* int get_cur_term()
+*   Inputs: None
+*   Return Value: the currently viewed terminal
+*  Function: returns the value of the currently viewed terminal 
+*/
 int get_cur_term(){
 	return curr_terminal_number;
 }

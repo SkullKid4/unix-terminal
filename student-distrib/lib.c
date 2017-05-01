@@ -11,6 +11,7 @@
 //int screen_x;
 //int screen_y;
 static char* video_mem = (char *)VIDEO;
+
 /*
 * void clear(void);
 *   Inputs: void
@@ -32,6 +33,13 @@ clear(void)
 	}
 }
 
+/*
+* void clear_nodisplay(void);
+*   Inputs: void
+*   Return Value: none
+*	Function: Clears video memory stored in terminal struct, when that terminal is not currently active
+*/
+void
 void clear_nodisplay(void)
 {
 	int curr_term = get_curr_exec_term();
@@ -176,6 +184,13 @@ puts(int8_t* s)
 	return index;
 }
 
+/*
+* void puts(int8_t* s);
+*   Inputs: int8_t* s = pointer to a string of characters
+*   Return Value: Number of bytes written
+*	Function: Output a string to the currently executing terminal
+*/
+void
 int32_t
 puts_nodisplay(int8_t* s)
 {
@@ -186,6 +201,7 @@ puts_nodisplay(int8_t* s)
 	}
 	return index;
 }
+
 /*
 * void putc(uint8_t c);
 *   Inputs: uint_8* c = character to print
@@ -218,6 +234,12 @@ putc(uint8_t c)
     update_cursor(screen_y, screen_x);
 }
 
+/*
+* void putc_nodisplay(uint8_t c);
+*   Inputs: uint_8* c = character to print
+*   Return Value: void
+*	Function: Output a character to the currently executing terminal 
+*/
 void
 putc_nodisplay(uint8_t c)
 {
@@ -288,6 +310,13 @@ void vert_scroll()
 	screen_y = NUM_ROWS-1;
 	update_cursor(screen_y, screen_x);
 }
+
+/*
+* void vert_scroll_nodisplay()
+*   Inputs: None
+*   Return Value: void
+*	Function: rewrites the termial to remove the top line and make a clear row at the bottom. Used on terminals not currently active
+*/
 void vert_scroll_nodisplay()
 {
 	int i,j;
