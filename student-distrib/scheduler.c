@@ -11,6 +11,8 @@ volatile uint8_t curr_term = 0;
 volatile uint8_t last_term = 0;
 volatile uint8_t last_task = 0;
 
+#define ATTRIB 0x7
+
 void switch_task(){
    /* copy the saved registers into the current_proc structure */
     //uint8_t count =0;
@@ -28,6 +30,10 @@ void switch_task(){
       }
       uint8_t * screen_start;
       vidmap(&screen_start);
+      int i;
+      for(i = 0; i < NUM_ROWS * NUM_COLS; i++) {
+         *(uint8_t *)(terminals[curr_term].screen + (i << 1) + 1) =ATTRIB;
+      }
      // terminals[last_term].ESP0 = tss.esp0;
 	   curr_task = terminals[curr_term].current_process;	  
       pcb_t* old_pcb = get_pcb_pointer(terminals[last_term].current_process);

@@ -117,7 +117,6 @@ void switch_terminal(int32_t newt)  {
 	}
 	if(terminals[newt].active == 0){
 		save_terminal_state();
-		clear();
 		pcb_t* old_pcb = get_pcb_pointer(terminals[curr_terminal_number].current_process);
 		//old_pcb->FDs_array[2].flags = RTCFLAG;
 		curr_terminal_number = newt;
@@ -130,6 +129,7 @@ void switch_terminal(int32_t newt)  {
 		);
 		//sti();
 		set_curr_exec_term(newt);
+		clear();
 		execute((uint8_t*)("shell\0"));
 		return;
 	}

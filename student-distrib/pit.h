@@ -6,8 +6,8 @@
 #define CHANNEL_2 0X42
 #define PIT_IRQ   0
 #define PIT_IDT_IDX 0x20
-#define LOW_BYTE	0x9B
-#define HIGH_BYTE	0x2E
+#define LOW_BYTE	0x12
+#define HIGH_BYTE	0x1F
 #define PIT_PORT	0x36
 #define SELECT_CHANNEL	0x43
 
